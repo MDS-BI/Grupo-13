@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview --port 4173",
-    "test": "vitest"
+    "dev": "vite modulo-ventas",
+    "build": "vite build modulo-ventas",
+    "preview": "vite preview modulo-ventas --port 4173",
+    "test": "vitest run modulo-ventas"
   },
   "devDependencies": {
     "jsdom": "^30.0.1",
