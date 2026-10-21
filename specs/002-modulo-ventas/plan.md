@@ -113,29 +113,49 @@ export const userConfig = {
 
 ```mermaid
 erDiagram
-    CLIENTE ||--o{ PEDIDO_VENTA : "genera"
+    CLIENTE ||--o{ VENTAS : "realiza"
+    VENDEDOR ||--o{ VENTAS : "gestiona"
+    PRODUCTO ||--o{ VENTAS : "incluye"
+
     CLIENTE {
         string id PK
-        string entity_id UK
-        string name NN
-        string code NN
-        string vendedor "campo propio"
-        string zona "campo propio"
-        string createdAt NN
-        string updatedAt NN
+        string nombre
+        string direccion
+        string telefono
+        string email
+        string vendedor_asignado
+        string zona
     }
-    PEDIDO_VENTA {
+
+    VENDEDOR {
         string id PK
-        string entity_id FK
-        string series
-        number folio NN
-        string startDate NN
-        string endDate NN
-        string status
-        string canal "campo propio"
-        string fechaEntrega "campo propio"
-        string createdAt NN
-        string updatedAt NN
+        string nombre
+        string telefono
+        string email
+        string direccion
+    }
+
+    PRODUCTO {
+        string codigo PK
+        string nombre
+        string tipo
+        float precio
+        int stock
+    }
+
+    VENTAS {
+        string folio PK
+        date fecha_emision
+        string cliente_id FK
+        string vendedor_id FK
+        string producto_codigo FK
+        int cantidad
+        string canal
+        date fecha_entrega
+        float subtotal
+        float iva
+        float total
+        string estado
     }
 ```
 
