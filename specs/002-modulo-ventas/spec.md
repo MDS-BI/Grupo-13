@@ -65,6 +65,21 @@
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
+
+### User Story 4 - [Encargado de devoluciones de productos] (Priority: P4)
+
+[Como vendedor se quiere poder editar el estado de un producto o productos vendidos en una venta anterior por solicitud de devolución de un cliente, validando en el proceso el motivo de la solicitud y la fecha desde que se compró.]
+
+**Why this priority**: [Explain the value and why it has this priority level]
+
+**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+
+**Acceptance Scenarios**:
+
+1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+
+---
+
 ### User Story 5 - [Jefe de ventas] (Priority: P5)
 
 [Como Jefe de ventas quiero supervisar el historial comercial de cada cliente (cotizaciones y  pedidos) y su estado actual, para así realizar un seguimiento personalizado y controlar el progreso de las ventas.]
@@ -78,7 +93,20 @@
 1. Dado que un cliente tiene transacciones registradas,cuando el jefe de ventas entra a su perfil, entonces se puede visualizar un listado con las cotizaciones y pedidos realizados.
 
 ---
-[Add more user stories as needed, each with an assigned priority]
+
+### User Story 6 - [Brief Title] (Priority: P6)
+
+[Describe this user journey in plain language]
+
+**Why this priority**: [Explain the value and why it has this priority level]
+
+**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+
+**Acceptance Scenarios**:
+
+1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+
+---
 
 ### Edge Cases
 
