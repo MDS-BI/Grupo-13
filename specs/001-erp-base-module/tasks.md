@@ -9,7 +9,7 @@
 
 **Propósito**: Inicializar la estructura del proyecto Vite y las herramientas compartidas.
 
-- [X] T001 Crear la estructura de la aplicación Vite con src/, tests/, y archivos de configuración
+- [X] T001 Crear la estructura de la aplicación Vite con modulo-ventas/src/, modulo-ventas/tests/, y archivos de configuración
 - [X] T002 Instalar las dependencias Vite y Vitest para el proyecto
 - [X] T003 [P] Configurar el linting y formateo para la aplicación JavaScript ligera
 
@@ -19,10 +19,10 @@
 
 **Propósito**: Crear la capa de almacenamiento y el esqueleto de la aplicación de los que dependen todas las historias.
 
-- [X] T004 Crear el modelo de datos de entidad y los ayudantes de validación en src/storage.js
-- [X] T005 Implementar la persistencia en localStorage del navegador para registros de entidad en src/storage.js
-- [X] T006 Crear el esqueleto principal de la aplicación y renderizar el estado vacío inicial en src/app.js
-- [X] T007 [P] Construir una base de hoja de estilos compartida para diseño, formularios y estados de retroalimentación en src/styles.css
+- [X] T004 Crear el modelo de datos de entidad y los ayudantes de validación en modulo-ventas/src/storage.js
+- [X] T005 Implementar la persistencia en localStorage del navegador para registros de entidad en modulo-ventas/src/storage.js
+- [X] T006 Crear el esqueleto principal de la aplicación y renderizar el estado vacío inicial en modulo-ventas/src/app.js
+- [X] T007 [P] Construir una base de hoja de estilos compartida para diseño, formularios y estados de retroalimentación en modulo-ventas/src/styles.css
 
 ---
 
@@ -34,14 +34,14 @@
 
 ### Pruebas para la Historia de Usuario 1
 
-- [X] T008 [P] [US1] Añadir pruebas unitarias para la validación de entidades en tests/unit/storage.test.js
-- [X] T009 [P] [US1] Añadir pruebas de integración para crear una entidad en tests/integration/create-entity.test.js
+- [X] T008 [P] [US1] Añadir pruebas unitarias para la validación de entidades en modulo-ventas/tests/unit/storage.test.js
+- [X] T009 [P] [US1] Añadir pruebas de integración para crear una entidad en modulo-ventas/tests/integration/create-entity.test.js
 
 ### Implementación de la Historia de Usuario 1
 
-- [X] T010 [P] [US1] Crear la interfaz del formulario de entidad en src/components/entity-form.js
-- [X] T011 [US1] Conectar el envío del formulario para crear y persistir una nueva entidad en src/app.js
-- [X] T012 [US1] Renderizar la lista de entidades y mostrar retroalimentación de validación en src/components/entity-list.js
+- [X] T010 [P] [US1] Crear la interfaz del formulario de entidad en modulo-ventas/src/components/entity-form.js
+- [X] T011 [US1] Conectar el envío del formulario para crear y persistir una nueva entidad en modulo-ventas/src/app.js
+- [X] T012 [US1] Renderizar la lista de entidades y mostrar retroalimentación de validación en modulo-ventas/src/components/entity-list.js
 
 **Punto de control**: La Historia de Usuario 1 debe estar completamente funcional y ser comprobable de forma independiente.
 
@@ -55,14 +55,14 @@
 
 ### Pruebas para la Historia de Usuario 2
 
-- [X] T013 [P] [US2] Añadir pruebas unitarias para actualizar y eliminar entidades en tests/unit/storage.test.js
-- [X] T014 [P] [US2] Añadir pruebas de integración para editar y eliminar una entidad en tests/integration/edit-delete-entity.test.js
+- [X] T013 [P] [US2] Añadir pruebas unitarias para actualizar y eliminar entidades en modulo-ventas/tests/unit/storage.test.js
+- [X] T014 [P] [US2] Añadir pruebas de integración para editar y eliminar una entidad en modulo-ventas/tests/integration/edit-delete-entity.test.js
 
 ### Implementación de la Historia de Usuario 2
 
-- [X] T015 [P] [US2] Añadir controles de edición y eliminación a la interfaz de la lista de entidades en src/components/entity-list.js
-- [X] T016 [US2] Conectar las acciones de edición para poblar el formulario y actualizar los datos persistidos en src/app.js
-- [X] T017 [US2] Gestionar las acciones de eliminación y quitar registros del almacenamiento y la interfaz en src/app.js
+- [X] T015 [P] [US2] Añadir controles de edición y eliminación a la interfaz de la lista de entidades en modulo-ventas/src/components/entity-list.js
+- [X] T016 [US2] Conectar las acciones de edición para poblar el formulario y actualizar los datos persistidos en modulo-ventas/src/app.js
+- [X] T017 [US2] Gestionar las acciones de eliminación y quitar registros del almacenamiento y la interfaz en modulo-ventas/src/app.js
 
 **Punto de control**: Las Historias de Usuario 1 y 2 deben funcionar de forma independiente.
 
@@ -76,8 +76,8 @@
 
 ### Implementación de la Historia de Usuario 3
 
-- [x] T018 [P] [US3] [SUPERSEDIDA por Fase 17] Añadir una vista de pantalla de bienvenida con dos botones de navegación claramente etiquetados en index.html
-- [x] T019 [P] [US3] [SUPERSEDIDA por Fase 17] Añadir lógica de cambio de vista para las pantallas de bienvenida, gestión y búsqueda en src/app.js
+- [x] T018 [P] [US3] [SUPERSEDIDA por Fase 17] Añadir una vista de pantalla de bienvenida con dos botones de navegación claramente etiquetados en modulo-ventas/index.html
+- [x] T019 [P] [US3] [SUPERSEDIDA por Fase 17] Añadir lógica de cambio de vista para las pantallas de bienvenida, gestión y búsqueda en modulo-ventas/src/app.js
 
 **Punto de control**: La Historia de Usuario 3 debe estar completamente funcional y ser comprobable de forma independiente.
 
@@ -91,12 +91,12 @@
 
 ### Implementación de la Historia de Usuario 4
 
-- [x] T020 [P] [US4] [SUPERSEDIDA por Fase 16] Añadir una pestaña de navegación horizontal con botones Entidades, Documentos e Inicio a la vista de gestión en index.html
-- [x] T021 [P] [US4] [SUPERSEDIDA por Fase 16] Organizar la vista de gestión en paneles de entidades y documentos y eliminar la lista de entidades en index.html
-- [x] T022 [US4] [SUPERSEDIDA por Fase 16] Añadir lógica de cambio de pestaña y navegación a Inicio desde la pantalla de gestión en src/app.js
-- [x] T023 [US4] [SUPERSEDIDA por Fase 16] Añadir edición y eliminación mediante selectores para entidades y documentos en src/app.js
-- [x] T024 [P] [US4] [SUPERSEDIDA por Fase 16] Añadir pruebas de integración para la pestaña de navegación de gestión en tests/integration/manage-tabs.test.js
-- [x] T025 [P] [US4] [SUPERSEDIDA por Fase 16] Añadir estilos para la pestaña de navegación horizontal en src/styles.css
+- [x] T020 [P] [US4] [SUPERSEDIDA por Fase 16] Añadir una pestaña de navegación horizontal con botones Entidades, Documentos e Inicio a la vista de gestión en modulo-ventas/index.html
+- [x] T021 [P] [US4] [SUPERSEDIDA por Fase 16] Organizar la vista de gestión en paneles de entidades y documentos y eliminar la lista de entidades en modulo-ventas/index.html
+- [x] T022 [US4] [SUPERSEDIDA por Fase 16] Añadir lógica de cambio de pestaña y navegación a Inicio desde la pantalla de gestión en modulo-ventas/src/app.js
+- [x] T023 [US4] [SUPERSEDIDA por Fase 16] Añadir edición y eliminación mediante selectores para entidades y documentos en modulo-ventas/src/app.js
+- [x] T024 [P] [US4] [SUPERSEDIDA por Fase 16] Añadir pruebas de integración para la pestaña de navegación de gestión en modulo-ventas/tests/integration/manage-tabs.test.js
+- [x] T025 [P] [US4] [SUPERSEDIDA por Fase 16] Añadir estilos para la pestaña de navegación horizontal en modulo-ventas/src/styles.css
 
 **Punto de control**: Las Historias de Usuario 1-4 deben estar completamente funcionales y ser comprobables de forma independiente.
 
@@ -104,18 +104,18 @@
 
 ## Fase 7: Historia de Usuario 5 - Definir un perfil de configuración del módulo (Prioridad: P1)
 
-**Objetivo**: Introducir `src/module-config.js` para que los desarrolladores puedan adaptar la identidad del módulo sin editar el código central, con valores predeterminados seguros e informes de error claros.
+**Objetivo**: Introducir `modulo-ventas/src/module-config.js` para que los desarrolladores puedan adaptar la identidad del módulo sin editar el código central, con valores predeterminados seguros e informes de error claros.
 
 **Prueba Independiente**: Un desarrollador suministra una configuración de Ventas; la aplicación carga mostrándola. Al quitar el archivo se restauran los valores predeterminados Entity/Document sin errores.
 
 ### Pruebas para la Historia de Usuario 5
 
-- [X] T026 [P] [US5] Añadir pruebas unitarias para carga de configuración, retroceso a predeterminados e informes de configuración inválida en tests/unit/module-config.test.js
+- [X] T026 [P] [US5] Añadir pruebas unitarias para carga de configuración, retroceso a predeterminados e informes de configuración inválida en modulo-ventas/tests/unit/module-config.test.js
 
 ### Implementación de la Historia de Usuario 5
 
-- [X] T027 [US5] Crear el cargador de configuración con valores predeterminados, validación e informes de error claros en src/module-config.js
-- [X] T028 [US5] Cargar la configuración al arrancar y pasarla a todas las vistas en src/main.js y src/app.js
+- [X] T027 [US5] Crear el cargador de configuración con valores predeterminados, validación e informes de error claros en modulo-ventas/src/module-config.js
+- [X] T028 [US5] Cargar la configuración al arrancar y pasarla a todas las vistas en modulo-ventas/src/main.js y modulo-ventas/src/app.js
 
 **Punto de control**: La configuración aún no impulsa nada visible, pero carga de forma fiable y valida limpiamente.
 
@@ -129,11 +129,11 @@
 
 ### Pruebas para la Historia de Usuario 6
 
-- [X] T029 [P] [US6] Añadir pruebas de integración que verifiquen las etiquetas configuradas en las pantallas de bienvenida, gestión y búsqueda en tests/integration/relabeling.test.js
+- [X] T029 [P] [US6] Añadir pruebas de integración que verifiquen las etiquetas configuradas en las pantallas de bienvenida, gestión y búsqueda en modulo-ventas/tests/integration/relabeling.test.js
 
 ### Implementación de la Historia de Usuario 6
 
-- [X] T030 [US6] Derivar todas las etiquetas visibles para el usuario de la configuración en lugar de texto codificado en index.html, src/app.js y los archivos de componentes
+- [X] T030 [US6] Derivar todas las etiquetas visibles para el usuario de la configuración en lugar de texto codificado en modulo-ventas/index.html, modulo-ventas/src/app.js y los archivos de componentes
 
 **Punto de control**: Un módulo configurado se presenta completamente bajo su propia terminología.
 
@@ -147,13 +147,13 @@
 
 ### Pruebas para la Historia de Usuario 7
 
-- [X] T031 [P] [US7] Añadir pruebas unitarias para validación y persistencia de campos personalizados en tests/unit/storage.test.js
-- [X] T032 [P] [US7] Añadir pruebas de integración para el renderizado de campos personalizados en formularios, listas y búsqueda en tests/integration/custom-fields.test.js
+- [X] T031 [P] [US7] Añadir pruebas unitarias para validación y persistencia de campos personalizados en modulo-ventas/tests/unit/storage.test.js
+- [X] T032 [P] [US7] Añadir pruebas de integración para el renderizado de campos personalizados en formularios, listas y búsqueda en modulo-ventas/tests/integration/custom-fields.test.js
 
 ### Implementación de la Historia de Usuario 7
 
-- [X] T033 [P] [US7] Renderizar dinámicamente los campos personalizados declarados en los formularios de entidad y documento en src/components/entity-form.js y src/components/document-form.js
-- [X] T034 [US7] Incluir los campos personalizados en validación, persistencia, listas y búsqueda en src/storage.js y src/app.js
+- [X] T033 [P] [US7] Renderizar dinámicamente los campos personalizados declarados en los formularios de entidad y documento en modulo-ventas/src/components/entity-form.js y modulo-ventas/src/components/document-form.js
+- [X] T034 [US7] Incluir los campos personalizados en validación, persistencia, listas y búsqueda en modulo-ventas/src/storage.js y modulo-ventas/src/app.js
 
 **Punto de control**: Los datos específicos del módulo requieren cero cambios de código de interfaz.
 
@@ -167,14 +167,14 @@
 
 ### Pruebas para la Historia de Usuario 8
 
-- [X] T035 [P] [US8] Añadir pruebas unitarias para la lógica de filtrado de búsqueda en tests/unit/storage.test.js
-- [X] T036 [P] [US8] Añadir pruebas de integración para el comportamiento de búsqueda en tests/integration/search-entities.test.js
+- [X] T035 [P] [US8] Añadir pruebas unitarias para la lógica de filtrado de búsqueda en modulo-ventas/tests/unit/storage.test.js
+- [X] T036 [P] [US8] Añadir pruebas de integración para el comportamiento de búsqueda en modulo-ventas/tests/integration/search-entities.test.js
 
 ### Implementación de la Historia de Usuario 8
 
-- [X] T037 [P] [US8] Crear la interfaz de la barra de búsqueda en src/components/search-bar.js
-- [X] T038 [US8] Conectar la entrada de búsqueda al filtrado y al comportamiento de estado vacío en src/app.js
-- [X] T039 [US8] Asegurar que los resultados de búsqueda permanecen sincronizados con las acciones de crear, editar y eliminar en src/app.js
+- [X] T037 [P] [US8] Crear la interfaz de la barra de búsqueda en modulo-ventas/src/components/search-bar.js
+- [X] T038 [US8] Conectar la entrada de búsqueda al filtrado y al comportamiento de estado vacío en modulo-ventas/src/app.js
+- [X] T039 [US8] Asegurar que los resultados de búsqueda permanecen sincronizados con las acciones de crear, editar y eliminar en modulo-ventas/src/app.js
 
 **Punto de control**: Las historias centrales de datos y la búsqueda deben estar ahora funcionalmente independientes.
 
@@ -188,14 +188,14 @@
 
 ### Pruebas para la Historia de Usuario 9
 
-- [X] T040 [P] [US9] Añadir pruebas unitarias para validación y persistencia de la fecha objetivo en tests/unit/storage.test.js
+- [X] T040 [P] [US9] Añadir pruebas unitarias para validación y persistencia de la fecha objetivo en modulo-ventas/tests/unit/storage.test.js
 
 ### Implementación de la Historia de Usuario 9
 
-- [X] T041 [P] [US9] Añadir la entrada de fecha objetivo al formulario de entidad en index.html
-- [X] T042 [US9] Incluir targetDate en la lógica de validación, creación, actualización y búsqueda en src/storage.js
-- [X] T043 [US9] Conectar targetDate al envío del formulario, poblado de edición y visualización de errores en src/app.js
-- [X] T044 [US9] Mostrar la fecha objetivo en la lista de entidades en src/app.js
+- [X] T041 [P] [US9] Añadir la entrada de fecha objetivo al formulario de entidad en modulo-ventas/index.html
+- [X] T042 [US9] Incluir targetDate en la lógica de validación, creación, actualización y búsqueda en modulo-ventas/src/storage.js
+- [X] T043 [US9] Conectar targetDate al envío del formulario, poblado de edición y visualización de errores en modulo-ventas/src/app.js
+- [X] T044 [US9] Mostrar la fecha objetivo en la lista de entidades en modulo-ventas/src/app.js
 
 **Punto de control**: La Historia de Usuario 9 debe estar completamente funcional y ser comprobable de forma independiente.
 
@@ -209,17 +209,17 @@
 
 ### Pruebas para la Historia de Usuario 10
 
-- [X] T045 [P] [US10] Añadir pruebas unitarias para generación de entity_id y validación de documentos en tests/unit/storage.test.js
-- [X] T046 [P] [US10] Añadir pruebas de integración para añadir un documento a una entidad en tests/integration/add-document.test.js
-- [X] T047 [P] [US10] Añadir pruebas de integración para edición, eliminación y eliminación en cascada de documentos en tests/integration/manage-document.test.js
+- [X] T045 [P] [US10] Añadir pruebas unitarias para generación de entity_id y validación de documentos en modulo-ventas/tests/unit/storage.test.js
+- [X] T046 [P] [US10] Añadir pruebas de integración para añadir un documento a una entidad en modulo-ventas/tests/integration/add-document.test.js
+- [X] T047 [P] [US10] Añadir pruebas de integración para edición, eliminación y eliminación en cascada de documentos en modulo-ventas/tests/integration/manage-document.test.js
 
 ### Implementación de la Historia de Usuario 10
 
-- [X] T048 [P] [US10] Crear la interfaz del formulario de documento en src/components/document-form.js
-- [X] T049 [P] [US10] Crear la interfaz de la lista de documentos en src/components/document-list.js
-- [X] T050 [US10] Conectar las acciones de crear, editar y eliminar documentos para persistirlos en src/app.js
-- [X] T051 [US10] Añadir entity_id a la creación de entidades y mostrar los documentos con su entidad en src/app.js
-- [X] T052 [US10] Eliminar en cascada los documentos cuando se elimina una entidad en src/storage.js
+- [X] T048 [P] [US10] Crear la interfaz del formulario de documento en modulo-ventas/src/components/document-form.js
+- [X] T049 [P] [US10] Crear la interfaz de la lista de documentos en modulo-ventas/src/components/document-list.js
+- [X] T050 [US10] Conectar las acciones de crear, editar y eliminar documentos para persistirlos en modulo-ventas/src/app.js
+- [X] T051 [US10] Añadir entity_id a la creación de entidades y mostrar los documentos con su entidad en modulo-ventas/src/app.js
+- [X] T052 [US10] Eliminar en cascada los documentos cuando se elimina una entidad en modulo-ventas/src/storage.js
 
 **Punto de control**: Los datos maestros y los documentos transaccionales deben estar completamente vinculados.
 
@@ -233,9 +233,9 @@
 
 ### Implementación de la Historia de Usuario 11
 
-- [x] T053 [P] [US11] Añadir la entrada de búsqueda y la lista de resultados a la vista de búsqueda dedicada en index.html
-- [x] T054 [US11] Conectar la entrada de búsqueda al filtrado de resultados y mostrar un estado vacío en la pantalla de búsqueda en src/app.js
-- [x] T055 [US11] Añadir navegación al Panel desde la pantalla de búsqueda en index.html
+- [x] T053 [P] [US11] Añadir la entrada de búsqueda y la lista de resultados a la vista de búsqueda dedicada en modulo-ventas/index.html
+- [x] T054 [US11] Conectar la entrada de búsqueda al filtrado de resultados y mostrar un estado vacío en la pantalla de búsqueda en modulo-ventas/src/app.js
+- [x] T055 [US11] Añadir navegación al Panel desde la pantalla de búsqueda en modulo-ventas/index.html
 
 **Punto de control**: Todas las historias del usuario de negocio deben estar completamente funcionales y ser comprobables de forma independiente.
 
@@ -249,11 +249,11 @@
 
 ### Pruebas para la Historia de Usuario 12
 
-- [X] T056 [P] [US12] Añadir pruebas unitarias para la aplicación de transiciones de estado en tests/unit/storage.test.js
+- [X] T056 [P] [US12] Añadir pruebas unitarias para la aplicación de transiciones de estado en modulo-ventas/tests/unit/storage.test.js
 
 ### Implementación de la Historia de Usuario 12
 
-- [X] T057 [US12] Restringir las opciones de estado de documento a las transiciones permitidas y aplicarlas al guardar en src/components/document-form.js y src/storage.js
+- [X] T057 [US12] Restringir las opciones de estado de documento a las transiciones permitidas y aplicarlas al guardar en modulo-ventas/src/components/document-form.js y modulo-ventas/src/storage.js
 
 **Punto de control**: La cadena de personalización (HU5 → HU6/HU7/HU12) está completa de extremo a extremo.
 
@@ -267,7 +267,7 @@
 - [X] T059 [P] Añadir pulido final de UX para estados vacíos, mensajes de validación y diseño responsivo
 - [X] T060 Verificar que el renderizado de listas y la búsqueda permanecen responsivos y correctos con 500 registros (FR-032, SC-004)
 - [X] T061 Ejecutar la suite completa de pruebas y probar manualmente los flujos principales de usuario
-- [X] T062 [P] Añadir estilos para la pantalla de bienvenida y la navegación de vistas en src/styles.css
+- [X] T062 [P] Añadir estilos para la pantalla de bienvenida y la navegación de vistas en modulo-ventas/src/styles.css
 - [X] T063 Ejecutar la suite completa de pruebas y la compilación de producción para verificar que no hay regresiones
 
 ---
@@ -280,17 +280,17 @@
 
 ### Pruebas para la Historia de Usuario 13
 
-- [X] T064 [P] [US13] Añadir pruebas unitarias para validación del color de acento en tests/unit/module-config.test.js
-- [X] T065 [P] [US13] Añadir pruebas de integración que afirmen que el marco (logotipo, nombre del módulo, botones de barra lateral, resaltado activo) aparece en todas las pantallas en tests/integration/workspace-shell.test.js
+- [X] T064 [P] [US13] Añadir pruebas unitarias para validación del color de acento en modulo-ventas/tests/unit/module-config.test.js
+- [X] T065 [P] [US13] Añadir pruebas de integración que afirmen que el marco (logotipo, nombre del módulo, botones de barra lateral, resaltado activo) aparece en todas las pantallas en modulo-ventas/tests/integration/workspace-shell.test.js
 
 ### Implementación de la Historia de Usuario 13
 
-- [X] T066 [P] [US13] Añadir el marcado del marco del espacio de trabajo (barra superior, montaje de logotipo SVG en línea, botones de módulo en barra lateral, región de contenido principal) a index.html
-- [X] T067 [P] [US13] Crear src/components/shell.js para renderizar el logotipo monograma SVG a partir del nombre del módulo, aplicar las etiquetas configuradas a los botones de módulo, gestionar el resaltado de módulo activo y exponer eventos de navegación
-- [X] T068 [US13] Reemplazar las pestañas horizontales de gestión y la navegación independiente hacia atrás por enrutamiento de módulos mediante la barra lateral en src/app.js
-- [X] T069 [P] [US13] Construir la hoja de estilos de tokens de diseño ERP (variables de color, escala de espaciado, tipografía) más estilos de barra superior, barra lateral y tarjetas en src/styles.css
-- [X] T070 [US13] Soportar un theme.accentColor opcional en la validación de src/module-config.js y aplicarlo como propiedad personalizada de CSS en src/app.js
-- [X] T071 [US13] Contraer la barra lateral a una columna de iconos en ventanas gráficas estrechas en src/styles.css
+- [X] T066 [P] [US13] Añadir el marcado del marco del espacio de trabajo (barra superior, montaje de logotipo SVG en línea, botones de módulo en barra lateral, región de contenido principal) a modulo-ventas/index.html
+- [X] T067 [P] [US13] Crear modulo-ventas/src/components/shell.js para renderizar el logotipo monograma SVG a partir del nombre del módulo, aplicar las etiquetas configuradas a los botones de módulo, gestionar el resaltado de módulo activo y exponer eventos de navegación
+- [X] T068 [US13] Reemplazar las pestañas horizontales de gestión y la navegación independiente hacia atrás por enrutamiento de módulos mediante la barra lateral en modulo-ventas/src/app.js
+- [X] T069 [P] [US13] Construir la hoja de estilos de tokens de diseño ERP (variables de color, escala de espaciado, tipografía) más estilos de barra superior, barra lateral y tarjetas en modulo-ventas/src/styles.css
+- [X] T070 [US13] Soportar un theme.accentColor opcional en la validación de modulo-ventas/src/module-config.js y aplicarlo como propiedad personalizada de CSS en modulo-ventas/src/app.js
+- [X] T071 [US13] Contraer la barra lateral a una columna de iconos en ventanas gráficas estrechas en modulo-ventas/src/styles.css
 - [X] T072 [P] [US13] Actualizar las pruebas de integración existentes (manage-tabs.test.js, relabeling.test.js) para apuntar al marco de barra lateral en lugar de los botones de pestañas/bienvenida
 
 **Punto de control**: Todas las pantallas se renderizan dentro del marco con marca con navegación por barra lateral funcional y sin pérdida de datos.
@@ -305,14 +305,14 @@
 
 ### Pruebas para la Historia de Usuario 3
 
-- [X] T073 [P] [US3] Añadir pruebas de integración para las acciones rápidas del panel y las estadísticas en vivo en tests/integration/dashboard.test.js
+- [X] T073 [P] [US3] Añadir pruebas de integración para las acciones rápidas del panel y las estadísticas en vivo en modulo-ventas/tests/integration/dashboard.test.js
 
 ### Implementación de la Historia de Usuario 3
 
-- [X] T074 [P] [US3] Añadir el marcado del panel (encabezado, cuadrícula de acciones rápidas, tarjetas de estadísticas) a index.html reemplazando la vista de bienvenida de dos botones
-- [X] T075 [US3] Conectar los botones de acción rápida para abrir la gestión de entidades, la gestión de documentos (formularios limpiados) y la búsqueda (entrada enfocada) en src/app.js
-- [X] T076 [US3] Renderizar y refrescar los recuentos de entidades/documentos desde el almacenamiento cada vez que se muestra el panel en src/components/dashboard.js
-- [X] T077 [P] [US3] Dar estilo al encabezado del panel, las tarjetas de acción rápida y los mosaicos de estadísticas en src/styles.css
+- [X] T074 [P] [US3] Añadir el marcado del panel (encabezado, cuadrícula de acciones rápidas, tarjetas de estadísticas) a modulo-ventas/index.html reemplazando la vista de bienvenida de dos botones
+- [X] T075 [US3] Conectar los botones de acción rápida para abrir la gestión de entidades, la gestión de documentos (formularios limpiados) y la búsqueda (entrada enfocada) en modulo-ventas/src/app.js
+- [X] T076 [US3] Renderizar y refrescar los recuentos de entidades/documentos desde el almacenamiento cada vez que se muestra el panel en modulo-ventas/src/components/dashboard.js
+- [X] T077 [P] [US3] Dar estilo al encabezado del panel, las tarjetas de acción rápida y los mosaicos de estadísticas en modulo-ventas/src/styles.css
 
 **Punto de control**: La aplicación abre en un panel funcional; cada tarea ERP clave está a un clic.
 
@@ -322,7 +322,7 @@
 
 **Propósito**: Unificar el estilo visual en toda la aplicación rediseñada y protegerse contra regresiones.
 
-- [X] T078 [P] Rediseñar formularios, listas, insignias, mensajes de error y estados vacíos según el sistema de tokens de diseño en src/styles.css
+- [X] T078 [P] Rediseñar formularios, listas, insignias, mensajes de error y estados vacíos según el sistema de tokens de diseño en modulo-ventas/src/styles.css
 - [X] T079 [P] Verificar el orden de foco del teclado y aria-current en los botones de módulo de la barra lateral (pase de accesibilidad del nuevo marco)
 - [X] T080 Actualizar README.md con las secciones del marco del espacio de trabajo, panel y tematización
 - [X] T081 Ejecutar la suite completa de pruebas y la compilación de producción para verificar que no hay regresiones (FR-032, SC-004)

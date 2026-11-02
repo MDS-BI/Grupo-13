@@ -5,10 +5,7 @@
 **Alcance de este documento**: plan alineado con el modelo de datos de `specs/002-modulo-ventas/data-model.md` (entidades, relación, ciclo de vida, restricciones y persistencia)
 
 ## Resumen
-
-Generar el módulo ERP de **Ventas** como una carpeta autónoma (`modulo-ventas/`) a partir del módulo base (`001-erp-base-module`). El módulo base fue restaurado desde el historial de git (commit `501e9c6`, último estado completo antes de su eliminación en `a0062c0`) y colocado en la nueva carpeta junto con sus pruebas. Toda la adaptación al dominio de ventas se realizó mediante el único punto de configuración `userConfig` en `modulo-ventas/src/module-config.js`, sin modificar el código central:
-
-- **Entidad → Cliente**, **Documento → Pedido de Venta** (etiquetas en todas las pantallas).
+ - **Entidad → Cliente**, **Documento → Pedido de Venta** (etiquetas en todas las pantallas).
 - **Campos personalizados**: vendedor asignado y zona (cliente); canal de venta y fecha de entrega (pedido).
 - **Ciclo de vida**: cotización → pedido → facturado → entregado, con cancelación desde cotización o pedido.
 - **Marca**: nombre "Ventas" y color de acento `#0f62fe`.

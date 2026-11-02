@@ -25,7 +25,7 @@
 
 ## Extender el Módulo Base
 
-Los módulos ERP personalizados adaptan la base mediante un único archivo de configuración (`src/module-config.js`) en lugar de editar el código central:
+Los módulos ERP personalizados adaptan la base mediante un único archivo de configuración (`modulo-ventas/src/module-config.js`) en lugar de editar el código central:
 
 1. Establezca el nombre del módulo y los mapeos de términos (p. ej., Entidad → Cliente, Documento → Pedido de Venta); cada pantalla se reetiqueta, incluida la barra lateral y el logotipo.
 2. Declare campos personalizados por tipo de registro (texto, número, fecha, selección) — aparecen automáticamente en formularios, listas, validación y búsqueda.
