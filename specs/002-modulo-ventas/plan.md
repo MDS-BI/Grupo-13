@@ -1,27 +1,37 @@
 # Plan de Implementación: Módulo de Ventas
 
-**Rama**: `002-modulo-ventas` | **Fecha**: 2026-10-21 | **Especificación**: [spec.md](spec.md) | **Modelo de Datos**: [data-model.md](data-model.md)
+**Rama**: `002-modulo-ventas` | **Fecha**: 2026-11-02 | **Especificación**: [spec.md](spec.md) | **Modelo de Datos**: [data-model.md](data-model.md) (v2.0)
 **Entrada**: Especificación de la funcionalidad desde `/specs/002-modulo-ventas/spec.md`
-**Alcance de este documento**: plan alineado con el modelo de datos de `specs/002-modulo-ventas/data-model.md` (entidades, relación, ciclo de vida, restricciones y persistencia)
+**Alcance de este documento**: plan de implementación alineado con el modelo de datos de `specs/002-modulo-ventas/data-model.md`. El detalle de entidades, atributos y relaciones se mantiene exclusivamente en ese documento y no se reproduce aquí.
 
 ## Resumen
- - **Entidad → Cliente**, **Documento → Pedido de Venta** (etiquetas en todas las pantallas).
-- **Campos personalizados**: vendedor asignado y zona (cliente); canal de venta y fecha de entrega (pedido).
-- **Ciclo de vida**: cotización → pedido → facturado → entregado, con cancelación desde cotización o pedido.
+
+El Módulo de Ventas se construye sobre el módulo base ERP sin modificar su núcleo. La adaptación actual se concentra en `modulo-ventas/src/module-config.js`, que declara:
+
+- **Terminología**: Entidad → **Cliente**, Documento → **Pedido de Venta** en todas las pantallas.
+- **Campos propios**: `vendedor` y `zona` en el cliente; `canal` y `fechaEntrega` en el pedido.
+- **Ciclo de vida**: `cotización → pedido → facturado → entregado`, con cancelación desde `cotización` o `pedido`.
 - **Marca**: nombre "Ventas" y color de acento `#0f62fe`.
 
-Sobre esa base de configuración, el modelo de datos especializa el modelo genérico del módulo base sin tocar su núcleo: **CLIENTE** actúa como raíz del agregado comercial (maestro del comprador) y **PEDIDO_VENTA** como entidad dependiente (transacción comercial). Cada pedido pertenece a exactamente un cliente mediante la clave foránea `entity_id` —obligatoria y validada al escribir—, mientras que un cliente admite cero o N pedidos; la eliminación de un cliente arrastra en cascada sus pedidos y el borrado de un pedido nunca afecta al cliente. Ambos registros conviven en el `localStorage` del navegador (`erp_base_module:entities` y `erp_base_module:documents`), sin backend ni base de datos relacional, y quedan sujetos a 18 reglas de integridad (R-01 a R-18) que cubren la obligatoriedad de nombre y código del cliente, el formato del correo y de la fecha objetivo, el folio entero positivo, la coherencia de fechas, los montos no negativos, el descuento no superior al subtotal y la pertenencia de `status`, `zona` y `canal` a los valores declarados.
+El modelo de datos v2.0 distingue dos niveles: el **modelo lógico completo** del dominio comercial y el **modelo físico implementado** en `localStorage`. El plan asume esa separación: la implementación actual cubre el subconjunto físico descrito en `data-model.md` (§7) y las fases posteriores incorporan gradualmente el resto del modelo lógico. El detalle de entidades, cardinalidades, claves y restricciones se consulta en `data-model.md` y no se duplica en este plan.
 
-El perfil de configuración inyecta además el vocabulario del área: cuatro campos propios (`vendedor`, `zona`, `canal`, `fechaEntrega`) que se validan, se persisten y participan en la búsqueda, y un ciclo de vida de cinco estados cuyas transiciones inválidas se rechazan con el mensaje `Transición de estado inválida de "<origen>" a "<destino>"`. El panel expone en vivo dos estadísticas derivadas de las colecciones (total de clientes y total de pedidos). Quedan fuera de alcance las extensiones previstas en el modelo de datos (catálogo de productos, líneas de pedido, cotización y devolución como entidades propias, y normalización del vendedor).
+La implementación vigente mantiene los clientes y pedidos en las colecciones genéricas `erp_base_module:entities` y `erp_base_module:documents`, con las validaciones R-01 a R-18 del modelo. El modelo lógico completo agrega entidades maestras, catálogo y precios, y el flujo de cotización, facturación, pagos y devoluciones; esas piezas se abordan como roadmap por fases y no como parte de la entrega actual.
 
 ## Contexto Técnico
 
 **Lenguaje/Versión**: JavaScript (ES2022), HTML, CSS  
 **Dependencias Principales**: Vite, Vitest + jsdom (sin framework de interfaz)  
-**Almacenamiento**: localStorage del navegador — dos colecciones: `erp_base_module:entities` (Clientes) y `erp_base_module:documents` (Pedidos de Venta)  
-**Modelo de Datos**: `CLIENTE` (maestro) y `PEDIDO_VENTA` (transacción) en relación 1:N, con FK obligatoria, borrado en cascada y 18 reglas de integridad — ver [data-model.md](data-model.md)  
+**Almacenamiento**: localStorage del navegador — colecciones `erp_base_module:entities` (Clientes) y `erp_base_module:documents` (Pedidos de Venta)  
+**Modelo de Datos**: modelo de dos niveles (lógico completo y físico implementado) documentado en [data-model.md](data-model.md); este plan no replica el modelo entidad-relación  
 **Estructura**: la carpeta `modulo-ventas/` es autocontenida (index.html, src/, tests/) y se ejecuta con `vite modulo-ventas` desde la raíz del repositorio  
 **Comandos**: `npm run dev`, `npm run build`, `npm test` (apuntan a `modulo-ventas/`)
+
+## Verificación de la Constitución
+
+- **Calidad**: la personalización se realiza mediante configuración, sin bifurcar el código central; `storage.js` y los componentes conservan sus límites y responsabilidades.
+- **Pruebas**: los flujos de clientes, pedidos, campos propios, ciclo de vida, búsqueda y cascada están cubiertos por la suite automatizada.
+- **Experiencia de Usuario**: terminología de Ventas coherente, mensajes de validación claros y comportamiento consistente con el módulo base.
+- **Rendimiento**: las colecciones se mantienen en el rango previsto por el módulo base y las operaciones de búsqueda y renderizado no cambian su complejidad.
 
 ## Estructura del Proyecto
 
@@ -34,7 +44,7 @@ specs/002-modulo-ventas/
 └── plan.md
 ```
 
-### Código Fuente (carpeta nueva)
+### Código Fuente (carpeta `modulo-ventas/`)
 
 ```text
 modulo-ventas/
@@ -59,53 +69,62 @@ modulo-ventas/
     └── integration/
 ```
 
-**Decisión de Estructura**: `storage.js` y los componentes permanecen genéricos; toda la semántica de ventas entra por `userConfig`. El modelo de datos, por tanto, no se implementa como un esquema nuevo sino como la proyección del perfil de configuración sobre las dos colecciones genéricas (entidades y documentos), lo que mantiene la trazabilidad directa entre modelo documentado y comportamiento observable.
+**Decisión de Estructura**: `storage.js` y los componentes permanecen genéricos; toda la semántica de ventas entra por `userConfig`. Por eso el modelo físico no se implementa como un esquema paralelo, sino como la proyección del perfil de configuración sobre las dos colecciones genéricas. Las entidades planificadas del modelo lógico requerirán nuevas colecciones y vistas en fases posteriores, manteniendo el mismo principio de separación entre núcleo y dominio.
 
-## Cambios Realizados
+## Estrategia de Implementación por Fases
 
-1. **Restauración**: se recuperaron `index.html`, `src/` y `tests/` del commit `501e9c6` mediante un worktree temporal de git.
-2. **Configuración de Ventas** en `modulo-ventas/src/module-config.js`:
+Las fases se derivan del estado de implementación declarado en `data-model.md` (§1.2 y §7.5). No se listan aquí entidades ni relaciones; cada fase referencia la sección correspondiente del modelo.
 
-```js
-export const userConfig = {
-  moduleName: 'Ventas',
-  labels: { entity: 'Cliente', entities: 'Clientes',
-            document: 'Pedido de Venta', documents: 'Pedidos de Venta' },
-  customFields: [
-    { target: 'entity', key: 'vendedor', label: 'Vendedor asignado', type: 'text' },
-    { target: 'entity', key: 'zona', label: 'Zona', type: 'select',
-      options: ['Norte', 'Sur', 'Este', 'Oeste', 'Centro'] },
-    { target: 'document', key: 'canal', label: 'Canal de venta', type: 'select',
-      options: ['Tienda', 'Web', 'Teléfono', 'Distribuidor'] },
-    { target: 'document', key: 'fechaEntrega', label: 'Fecha de entrega', type: 'date' }
-  ],
-  statusLifecycle: {
-    statuses: ['cotización', 'pedido', 'facturado', 'entregado', 'cancelado'],
-    transitions: {
-      cotización: ['pedido', 'cancelado'],
-      pedido: ['facturado', 'cancelado'],
-      facturado: ['entregado'],
-      entregado: [],
-      cancelado: []
-    }
-  },
-  theme: { accentColor: '#0f62fe' }
-};
-```
+### Fase 0 — Subconjunto implementado (actual)
 
-3. **Modelo de datos documentado** en `specs/002-modulo-ventas/data-model.md`: fija las entidades `CLIENTE` y `PEDIDO_VENTA`, la relación 1:N con FK obligatoria y borrado en cascada, el ciclo de vida de estados, las 18 reglas de integridad, la persistencia en `localStorage`, las extensiones previstas y la trazabilidad con la especificación. No introduce cambios de código: describe el comportamiento que el módulo base ya ofrece al recibir el perfil de configuración de Ventas.
-4. **Ajustes menores**:
+- Clientes y Pedidos de Venta sobre las colecciones genéricas.
+- Campos propios de Ventas, búsqueda y ciclo de vida configurado.
+- Validaciones R-01 a R-18 y cascada cliente → pedidos.
+- Sin cambios en el núcleo del módulo base.
+
+### Fase 1 — Maestros normalizados
+
+- Normalizar las entidades maestras que hoy existen como campos parciales, según `data-model.md` §3.1, §3.2 y §4.
+- Sustituir los valores de texto libre o enumerados por referencias validadas.
+- Incorporar las restricciones del modelo lógico asociadas a esos maestros.
+
+### Fase 2 — Catálogo y precios
+
+- Incorporar las entidades de catálogo y tarifario descritas en `data-model.md` §3.4 a §3.7.
+- Añadir sus restricciones de unicidad, vigencia y valoración.
+- Preparar la base para que los pedidos tomen precios desde listas.
+
+### Fase 3 — Cotizaciones y líneas de pedido
+
+- Incorporar la cotización como entidad propia y las líneas de pedido, según `data-model.md` §3.8, §3.10 y §4.3.
+- Derivar los importes de la cabecera a partir de las líneas.
+- Aplicar las restricciones de coherencia de importes y de líneas.
+
+### Fase 4 — Facturación, pagos y devoluciones
+
+- Incorporar factura, pago y devolución con sus detalles, según `data-model.md` §3.11 a §3.14 y §4.4 a §4.5.
+- Aplicar las reglas de saldo, sobrepago y límites de devolución.
+- Completar la trazabilidad del ciclo comercial de punta a punta.
+
+Cada fase debe conservar la compatibilidad con los datos ya persistidos, mantener la configuración como punto de entrada del dominio y actualizar `data-model.md` cuando cambie el estado de implementación.
+
+## Cambios Realizados en esta Iteración
+
+1. **Configuración de Ventas** en `modulo-ventas/src/module-config.js`: nombre, etiquetas, cuatro campos propios, ciclo de vida de cinco estados y color de acento.
+2. **Modelo de datos v2.0** en `specs/002-modulo-ventas/data-model.md`: modelo lógico completo, modelo físico implementado, estados de implementación, restricciones y persistencia. Este plan se alinea con ese documento y delega en él todo el detalle entidad-relación.
+3. **Ajustes menores**:
    - `index.html`: título por defecto → "Ventas".
-   - `tests/unit/module-config.test.js`: la prueba de `loadModuleConfig` ahora verifica la configuración de Ventas en lugar del default nulo.
+   - `tests/unit/module-config.test.js`: verifica la configuración de Ventas en lugar del default nulo.
    - `package.json` (raíz): scripts `dev`, `build`, `preview` y `test` apuntan a `modulo-ventas/`.
-
+4. **Reencuadre del alcance**: lo que antes se consideraba fuera de alcance (catálogo, líneas, cotización, facturación, pagos y devoluciones) pasa a ser roadmap por fases del modelo lógico, sin alterar la implementación física actual.
 
 ## Verificación
 
 - `npm test`: **111/111 pruebas pasan** (12 archivos: unit + integration).
 - `npm run build`: compila sin errores (salida en `modulo-ventas/dist/`).
-- Trazabilidad del modelo: cada elemento de `data-model.md` se corresponde con un requisito o criterio de `spec.md` (FR-002 a FR-006, SC-001 a SC-004) y con pruebas de la suite.
+- Coherencia con el modelo: la terminología, los campos propios, el ciclo de vida, las validaciones R-01 a R-18 y la persistencia del plan coinciden con `data-model.md` §7 y §8.
+- El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.
 
 ## Seguimiento de Complejidad
 
-Este plan no introdujo violaciones de la constitución: la adaptación se hizo únicamente a través del mecanismo de configuración previsto por el módulo base, con cero cambios en el código central. El modelo de datos documenta el comportamiento emergent de esa configuración en lugar de introducir un esquema paralelo, evitando duplicar la lógica de validación y persistencia.
+La adaptación actual no introduce violaciones de la constitución: se realiza únicamente a través del mecanismo de configuración del módulo base, con cero cambios en el código central. Las fases futuras deberán justificar cualquier extensión del núcleo (nuevas colecciones, servicios de cálculo o validaciones transversales) y mantener el modelo lógico documentado en `data-model.md` como única fuente de verdad.
