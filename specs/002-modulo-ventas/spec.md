@@ -65,7 +65,19 @@
 1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
+### User Story 5 - [Jefe de ventas] (Priority: P5)
 
+[Como Jefe de ventas quiero supervisar el historial comercial de cada cliente (cotizaciones y  pedidos) y su estado actual, para así realizar un seguimiento personalizado y controlar el progreso de las ventas.]
+
+**Why this priority**: [Explain the value and why it has this priority level]
+
+**Independent Test**: [ Se puede probar, seleccionando y visitando un perfil de un cliente existente, el cual tenga pedidos asociados, verificando que se muestre su historial comercial completo y el estado actualizado de las transacciones realizadas.]
+
+**Acceptance Scenarios**:
+
+1. Dado que un cliente tiene transacciones registradas,cuando el jefe de ventas entra a su perfil, entonces se puede visualizar un listado con las cotizaciones y pedidos realizados.
+
+---
 [Add more user stories as needed, each with an assigned priority]
 
 ### Edge Cases
