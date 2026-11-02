@@ -38,17 +38,15 @@
 
 ---
 
-### User Story 2 - [Brief Title] (Priority: P2)
+### User Story 2 - [Encargado de operaciones y logística] (Priority: P2)
 
-[Describe this user journey in plain language]
+Descripción: Como encargado de operaciones y logística, quiero actualizar el estado de una venta a «entregado» una vez confirmado el despacho físico de los productos, para dar por completado el ciclo comercial del pedido y asegurar que no queden ventas pendientes de entrega en el sistema.
+¿Por qué esta prioridad?: Tiene prioridad P2 porque es la etapa que cierra formalmente la operación logística y comercial; permite que tanto ventas como contabilidad reconozcan que el cliente ya recibió su pedido satisfactoriamente.
+Prueba independiente: Se puede probar seleccionando un pedido de venta que se encuentre en estado «facturado», cambiando su estado a «entregado» y verificando que el sistema guarde el cambio y marque la venta en su estado final.
+Escenarios de aceptación:
+Dado que un pedido de venta se encuentra en estado «facturado» y cuenta con confirmación de despacho físico en bodega, Cuando el encargado de logística selecciona el pedido y cambia su estado a «entregado», Entonces el sistema actualiza y persiste el estado del pedido a «entregado», cerrando exitosamente el ciclo comercial.
+Dado que un pedido de venta ya se encuentra en estado «entregado», Cuando el usuario intenta modificar o revertir el estado del pedido, Entonces el sistema bloquea la acción y emite un mensaje indicando que es un estado terminal que no admite modificaciones posteriores.
 
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
 
