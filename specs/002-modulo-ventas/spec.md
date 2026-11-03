@@ -108,17 +108,25 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 
 ---
 
-### User Story 6 - [Brief Title] (Priority: P6)
+### User Story 6 - [Encargado de facturacion] (Priority: P6)
 
-[Describe this user journey in plain language]
+[Como encargado de facturación necesito generar una factura a partir de una orden de venta ya confirmada, con el fin de formalizar el cobro del cliente y registrar la venta en el sistema contable]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**Why this priority**: [Porque es la conexión entre los procesos comercial y contable, ya que sin la emisión de factura, no se puede formalizar el cobro a los clientes, no se genera registro en cuentas por cobrar, ni se puede respaldar tributariamente las ventas de la empresa]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+**Independent Test**: [Se puede probar seleccionando una orden de venta existente en estado «confirmado» o «aprobado» y haciendo clic en la opción «Generar Factura», para verificar que los datos del cliente, productos y los impuestos se traspasan automáticamente desde la orden de venta, y comprobando que el documento se guarde en estado «Pendiente de pago»]
 
 **Acceptance Scenarios**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. Dado que existe una orden de venta confirmada en el sistema, cuando el encargado de facturación selecciona la orden y presiona «Generar Factura», entonces el sistema crea automáticamente el registro de la factura copiando las líneas de productos, precios e impuestos), dejando la factura en estado inicial «Pendiente de pago».
+
+2. Dado que se está generando una factura a partir de una orden de venta, cuando el sistema procesa los montos, entonces calcula correctamente el subtotal, aplica la tasa de impuesto asociada y muestra el monto total a cobrar.
+
+3. Dado que se intenta emitir una factura sobre una orden de venta que aún se encuentra en estado inicial de «Cotización» o no aprobada, cuando el encargado de facturación intenta proceder con la emisión, entonces el sistema bloquea la acción, resalta un mensaje de error indicando que la orden requiere confirmación previa y no genera ningún registro de factura.
+
+4. Dado que una orden de venta ya cuenta con una factura emitida previamente, cuando el usuario intenta generar una segunda factura para la misma orden, entonces el sistema impide la duplicación de comprobantes y notifica que la orden ya posee un documento fiscal asociado.
+
+
 
 ---
 
