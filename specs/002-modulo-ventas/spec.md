@@ -1,12 +1,12 @@
-# Feature Specification: [FEATURE NAME]
+# Feature Specification: Módulo de Ventas
 
-**Feature Branch**: `[###-feature-name]`
+**Feature Branch**: `002-modulo-ventas`
 
-**Created**: [DATE]
+**Created**: 2026-11-02
 
 **Status**: Draft
 
-**Input**: User description: "$ARGUMENTS"
+**Input**: User description: "Módulo ERP de Ventas para registrar cotizaciones y pedidos de venta con cliente, productos, cantidades, precios, impuestos y control de stock; gestionar el ciclo cotización → pedido → facturado → entregado; emitir facturas, procesar devoluciones, consultar el historial comercial de cada cliente y obtener un resumen general de ventas por rol."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -132,62 +132,145 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 
 ### Edge Cases
 
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
--->
-
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+- ¿Qué ocurre cuando se intenta agregar un producto sin stock o con stock insuficiente para la cantidad solicitada? El sistema debe avisar y no permitir agregarlo ni guardar la venta.
+- ¿Qué ocurre si el stock de un producto cambia entre el momento en que se agrega a la venta y el momento en que se confirma el pedido? El sistema debe revalidar la disponibilidad antes de confirmar y bloquear la operación si ya no alcanza.
+- ¿Qué ocurre si se agrega dos veces el mismo producto a una venta? El sistema debe consolidar la cantidad en una sola línea o impedir la línea duplicada, recalculando el stock y los importes.
+- ¿Qué ocurre si se ingresa una cantidad cero, negativa o no entera? El sistema debe rechazar el valor e indicar que la cantidad debe ser un entero positivo.
+- ¿Qué ocurre si faltan el canal de venta, la condición de pago o el vendedor al guardar? El sistema debe impedir el guardado y señalar cada campo obligatorio faltante.
+- ¿Qué ocurre si se selecciona un cliente inexistente o se intenta guardar una venta sin cliente? El sistema debe bloquear el guardado y exigir un cliente válido.
+- ¿Qué ocurre si el cliente, el producto o el vendedor se eliminan después de registrar una venta? El sistema debe preservar la integridad histórica de la venta y aplicar la política de borrado definida para cada relación.
+- ¿Qué ocurre si se intenta modificar o revertir un pedido que ya está en estado «entregado»? El sistema debe bloquear la acción por tratarse de un estado terminal.
+- ¿Qué ocurre si se intenta pasar a «entregado» un pedido que no está «facturado»? El sistema debe rechazar la transición e indicar el estado previo requerido.
+- ¿Qué ocurre si se intenta generar una factura desde una cotización o desde un pedido no confirmado? El sistema debe bloquear la emisión y explicar que la orden requiere confirmación previa.
+- ¿Qué ocurre si se intenta generar una segunda factura para la misma orden? El sistema debe impedir la duplicación y notificar que ya existe un documento fiscal asociado.
+- ¿Qué ocurre si dos usuarios intentan facturar la misma orden al mismo tiempo? Solo se debe persistir una factura; la segunda operación debe rechazarse por duplicidad.
+- ¿Qué ocurre si se solicita una devolución después del plazo permitido? El sistema debe rechazarla y mostrar que el período de devolución expiró, sin modificar el estado del producto.
+- ¿Qué ocurre si se intenta devolver una cantidad mayor a la vendida o ya devuelta? El sistema debe bloquear la devolución y señalar el máximo devolvible por producto.
+- ¿Qué ocurre si el motivo de devolución está vacío o no es válido? El sistema debe impedir el registro, resaltar los campos faltantes y solicitar una justificación válida.
+- ¿Qué ocurre si un cliente no tiene cotizaciones ni pedidos? El perfil debe mostrar un estado vacío claro en su historial comercial.
+- ¿Qué ocurre si no existen ventas, cotizaciones ni pedidos al abrir el resumen general? El sistema debe mostrar los totales en cero y un estado vacío comprensible.
+- ¿Qué ocurre si un pedido tiene productos con distintas tasas de impuesto? El sistema debe calcular el impuesto por línea y sumarlo correctamente en el total de la orden.
+- ¿Qué ocurre si el resumen general se consulta mientras otro usuario registra una venta? El resumen debe reflejar la información persistida más reciente al momento de la consulta.
+- ¿Qué ocurre si un usuario sin el rol correspondiente intenta facturar, entregar, devolver o ver el resumen general? El sistema debe denegar la acción y mantener la información protegida según el rol.
 
 ## Requirements *(mandatory)*
 
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
--->
-
 ### Functional Requirements
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+**Base y terminología**
 
-*Example of marking unclear requirements:*
+- **FR-001**: El sistema DEBE persistir clientes, cotizaciones, pedidos de venta, facturas y devoluciones de forma consistente entre sesiones y pantallas.
+- **FR-002**: El sistema DEBE presentar el módulo con el nombre «Ventas» y la terminología Cliente(s) / Pedido(s) de Venta en todas las pantallas.
+- **FR-003**: El sistema DEBE registrar los campos propios del dominio: vendedor y zona del cliente; canal de venta y fecha de entrega del pedido.
+- **FR-004**: El sistema DEBE permitir buscar clientes y productos por sus datos identificatorios y descriptivos, incluidos los campos propios del dominio.
+- **FR-005**: El sistema DEBE gestionar el ciclo de vida del pedido de venta con los estados «cotización», «pedido», «facturado», «entregado» y «cancelado», aplicando únicamente las transiciones permitidas.
+- **FR-006**: El sistema DEBE mantener la integridad referencial entre clientes, pedidos, facturas y devoluciones, impidiendo registros huérfanos o referencias inexistentes.
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+**Registro de la venta (Vendedor)**
+
+- **FR-007**: El sistema DEBE permitir a un vendedor crear una orden de venta seleccionando un cliente existente y guardando su identificador en la orden.
+- **FR-008**: El sistema DEBE permitir agregar a la orden uno o más productos, indicando la cantidad de cada uno.
+- **FR-009**: El sistema DEBE calcular automáticamente el subtotal de cada línea multiplicando cantidad por precio unitario.
+- **FR-010**: El sistema DEBE calcular automáticamente el subtotal de la orden, el impuesto (IVA) aplicable y el total final con impuesto incluido.
+- **FR-011**: El sistema DEBE mostrar de forma separada y comprensible el subtotal, el impuesto y el total de la orden.
+- **FR-012**: El sistema DEBE validar la disponibilidad de stock al agregar cada producto y al guardar la orden, impidiendo la venta cuando el stock sea cero o insuficiente.
+- **FR-013**: El sistema DEBE exigir de forma obligatoria el canal de venta, la condición de pago y el vendedor responsable al guardar la orden.
+- **FR-014**: El sistema DEBE crear toda orden nueva en estado inicial «cotización».
+- **FR-015**: El sistema DEBE permitir editar una orden mientras permanezca en un estado que admita modificaciones, recalculando sus importes y revalidando el stock.
+- **FR-016**: El sistema DEBE permitir registrar la condición de pago acordada con el cliente (por ejemplo, contado o crédito) junto con la orden.
+- **FR-017**: El sistema DEBE conservar el detalle de productos, cantidades, precios, impuestos e importes de cada orden para su consulta posterior.
+
+**Ciclo de entrega (Operaciones y logística)**
+
+- **FR-018**: El sistema DEBE permitir al encargado de operaciones y logística cambiar el estado de un pedido de «facturado» a «entregado» cuando exista confirmación del despacho físico.
+- **FR-019**: El sistema DEBE persistir el cambio de estado a «entregado» y reflejarlo de inmediato en las listas, el detalle del pedido y el resumen general.
+- **FR-020**: El sistema DEBE tratar «entregado» como estado terminal, bloqueando cualquier modificación o reversión posterior e informando el motivo.
+- **FR-021**: El sistema DEBE rechazar cualquier transición de estado no contemplada en el ciclo de vida con un mensaje claro que indique el estado actual y los estados permitidos.
+
+**Resumen general (Gerente)**
+
+- **FR-022**: El sistema DEBE ofrecer al gerente un resumen general de las ventas, cotizaciones y pedidos registrados.
+- **FR-023**: El sistema DEBE mostrar en el resumen la cantidad total de ventas, cotizaciones y pedidos, así como sus montos cuando corresponda.
+- **FR-024**: El sistema DEBE mostrar el estado actual de cada pedido en el resumen general.
+- **FR-025**: El sistema DEBE actualizar el resumen general para que refleje la información persistida más reciente al momento de la consulta.
+
+**Devoluciones (Encargado de devoluciones)**
+
+- **FR-026**: El sistema DEBE permitir al encargado de devoluciones seleccionar una venta anterior y solicitar la devolución de uno o más productos vendidos.
+- **FR-027**: El sistema DEBE validar que la solicitud de devolución se realice dentro del plazo permitido por la política de la empresa, tomando como referencia la fecha de compra.
+- **FR-028**: El sistema DEBE exigir un motivo de devolución válido y no vacío antes de registrar el cambio de estado.
+- **FR-029**: El sistema DEBE actualizar el estado del producto o productos devueltos a «en proceso de devolución» cuando la fecha y el motivo sean válidos.
+- **FR-030**: El sistema DEBE emitir un comprobante o número de seguimiento de la devolución para el cliente.
+- **FR-031**: El sistema DEBE rechazar las solicitudes fuera de plazo, con motivo inválido o con cantidades superiores a las vendidas y no devueltas, sin modificar el estado del producto.
+- **FR-032**: El sistema DEBE registrar en una bitácora de auditoría la venta afectada, los productos devueltos, la cantidad, el motivo, la fecha y el usuario que procesó la devolución.
+
+**Historial comercial (Jefe de ventas)**
+
+- **FR-033**: El sistema DEBE permitir al jefe de ventas consultar el perfil comercial de un cliente existente.
+- **FR-034**: El sistema DEBE mostrar en el perfil del cliente el listado completo de sus cotizaciones y pedidos, con fecha, importe y estado actual.
+- **FR-035**: El sistema DEBE mantener actualizado el historial comercial cuando cambie el estado de una cotización o pedido.
+
+**Facturación (Encargado de facturación)**
+
+- **FR-036**: El sistema DEBE permitir al encargado de facturación generar una factura a partir de una orden de venta confirmada o aprobada.
+- **FR-037**: El sistema DEBE copiar automáticamente a la factura el cliente, las líneas de productos, los precios y los impuestos de la orden de origen.
+- **FR-038**: El sistema DEBE calcular automáticamente el subtotal, el impuesto y el monto total a cobrar de la factura.
+- **FR-039**: El sistema DEBE crear la factura en estado inicial «pendiente de pago».
+- **FR-040**: El sistema DEBE bloquear la emisión de facturas sobre órdenes en estado «cotización» o no aprobadas, sin generar ningún registro.
+- **FR-041**: El sistema DEBE impedir que una misma orden de venta tenga más de una factura asociada.
+- **FR-042**: El sistema DEBE vincular cada factura con su orden de venta y su cliente, conservando la trazabilidad del documento fiscal.
+
+**Validación, permisos y experiencia de uso**
+
+- **FR-043**: El sistema DEBE validar todos los campos obligatorios antes de guardar y mostrar retroalimentación clara indicando qué información falta o es inválida.
+- **FR-044**: El sistema DEBE calcular los importes con precisión monetaria y redondearlos según la moneda configurada para la orden.
+- **FR-045**: El sistema DEBE restringir las acciones de creación, facturación, entrega, devolución y consulta del resumen según el rol del usuario autenticado.
+- **FR-046**: El sistema DEBE mostrar estados vacíos claros cuando no existan clientes, productos, ventas, cotizaciones, pedidos o devoluciones que mostrar.
+- **FR-047**: El sistema DEBE mantener la consistencia de los datos ante operaciones simultáneas o repetidas, evitando duplicados de facturas, devoluciones y líneas de pedido.
 
 ### Key Entities *(include if feature involves data)*
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+- **Cliente**: Comprador registrado en el maestro de clientes. Se identifica por un código único y conserva datos de contacto, condiciones comerciales, vendedor asignado, zona, estado y límite de crédito. Es el origen de cotizaciones, pedidos, facturas y devoluciones.
+- **Vendedor**: Responsable comercial de atender al cliente y gestionar sus ventas. Puede estar asignado a una zona y se conserva como referencia en clientes, cotizaciones y pedidos.
+- **Zona**: Segmento geográfico o comercial que agrupa clientes y vendedores.
+- **Producto**: Bien o servicio vendible, con código único, categoría, unidad de medida, tasa de impuesto, stock actual, stock mínimo y estado de vigencia.
+- **Detalle de Pedido de Venta**: Línea de una orden que registra un producto, la cantidad vendida, el precio unitario, el descuento, el impuesto y el subtotal de la línea.
+- **Pedido de Venta**: Transacción comercial que vincula a un cliente con uno o más productos. Conserva vendedor, canal de venta, fecha de emisión, fecha de entrega, condición de pago, moneda, subtotal, descuento, impuesto, total y estado del ciclo de vida.
+- **Cotización**: Oferta previa a la venta dirigida a un cliente, con fecha de emisión, vigencia, vendedor, líneas de productos e importes. Puede originar un pedido de venta cuando es aceptada.
+- **Factura**: Documento fiscal generado a partir de un pedido confirmado. Registra cliente, líneas, subtotal, impuesto, total, saldo, fecha de emisión, vencimiento y estado de cobro. Una orden admite como máximo una factura.
+- **Pago**: Abono aplicado a una factura, con fecha, monto, método y referencia. Reduce el saldo pendiente de la factura.
+- **Devolución**: Solicitud de devolución asociada a una factura y a su pedido, con número de seguimiento, fecha, motivo, estado, moneda e importe total devuelto. Se compone de una o más líneas devueltas.
+- **Detalle de Devolución**: Línea que indica qué producto vendido se devuelve, la cantidad y el monto devuelto.
 
 ## Success Criteria *(mandatory)*
 
-<!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
--->
-
 ### Measurable Outcomes
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **SC-001**: Un vendedor puede registrar un cliente con vendedor y zona, y encontrarlo mediante búsqueda, en menos de 2 minutos.
+- **SC-002**: Un pedido de venta puede recorrerse desde «cotización» hasta «entregado» sin que el sistema permita una sola transición inválida.
+- **SC-003**: Al eliminar un cliente, el 100% de sus pedidos de venta asociados desaparecen de la lista, la búsqueda y el historial comercial.
+- **SC-004**: El resumen general del gerente coincide exactamente con los datos persistidos en el 100% de las consultas, incluyendo cantidades, montos y estados.
+- **SC-005**: El 100% de las devoluciones fuera de plazo, con motivo inválido o con cantidades excesivas son rechazadas sin modificar el estado del producto.
+- **SC-006**: El 100% de las facturas emitidas provienen de órdenes confirmadas y ninguna orden genera más de una factura.
+- **SC-007**: El perfil de un cliente muestra la totalidad de sus cotizaciones y pedidos con su estado actual en el 100% de los casos.
+- **SC-008**: El 100% de los intentos de vender un producto con stock cero son bloqueados con un mensaje visible para el vendedor.
+- **SC-009**: Los cálculos de subtotal, impuesto y total coinciden con el resultado esperado en el 100% de las órdenes, incluidos pedidos con varias tasas de impuesto.
+- **SC-010**: Al menos el 90% de los usuarios de prueba completan las tareas de crear una venta, entregar un pedido, facturar y registrar una devolución sin ayuda.
+- **SC-011**: El sistema mantiene una respuesta ágil y consistente al consultar listados y resúmenes con al menos 500 registros de pedidos.
+- **SC-012**: Un pedido en estado «entregado» no puede modificarse ni revertirse en el 100% de los intentos.
 
 ## Assumptions
 
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right assumptions based on reasonable defaults
-  chosen when the feature description did not specify certain details.
--->
-
-- [Assumption about target users, e.g., "Users have stable internet connectivity"]
-- [Assumption about scope boundaries, e.g., "Mobile support is out of scope for v1"]
-- [Assumption about data/environment, e.g., "Existing authentication system will be reused"]
-- [Dependency on existing system/service, e.g., "Requires access to the existing user profile API"]
+- El módulo reutiliza la autenticación, los roles y el almacenamiento del módulo base ERP; existe un único espacio de trabajo empresarial.
+- Los clientes, productos, vendedores, zonas y listas de precios ya existen o se gestionan en los maestros correspondientes antes de registrar una venta.
+- Los precios de los productos se expresan sin impuesto y el IVA se suma para obtener el total; la tasa aplicable proviene de la configuración tributaria vigente de cada producto.
+- La condición de pago «contado» y las condiciones a crédito se registran como texto o selección acordada con el cliente; el módulo no procesa cobros en línea.
+- Una orden «confirmada» o «aprobada» corresponde al estado «pedido» del ciclo de vida; la facturación solo se habilita desde ese estado.
+- El plazo de devolución es de 30 días calendario desde la fecha de compra, salvo que la política de la empresa configure otro plazo.
+- Las devoluciones pueden ser totales o parciales por producto, siempre que no superen la cantidad vendida y no devuelta previamente.
+- El estado visible «en proceso de devolución» puede corresponder internamente a las etapas solicitada, aprobada o completada del flujo de devolución.
+- El stock se descuenta al confirmar o despachar el pedido según la política operativa; la validación de disponibilidad se realiza al agregar cada producto y al guardar o confirmar la orden.
+- Los importes se manejan en la moneda configurada para la orden y se redondean según la precisión de esa moneda.
+- La cancelación de un pedido solo se permite desde los estados «cotización» y «pedido», conforme al ciclo de vida definido.
+- La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren un usuario autenticado con el rol correspondiente.
+- Los datos deben conservarse entre sesiones y no deben perderse al navegar entre pantallas o al recargar la aplicación.
