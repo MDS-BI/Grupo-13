@@ -70,15 +70,17 @@ Escenarios de aceptación:
 
 ### User Story 4 - [Encargado de devoluciones de productos] (Priority: P4)
 
-[Como vendedor se quiere poder editar el estado de un producto o productos vendidos en una venta anterior por solicitud de devolución de un cliente, validando en el proceso el motivo de la solicitud y la fecha desde que se compró.]
+[Como encargado de devoluciones de productos se quiere poder editar el estado de un producto o productos vendidos en una venta anterior por solicitud de devolución de un cliente, validando en el proceso el motivo de la solicitud y la fecha desde que se compró.]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**Why this priority**: [Tiene prioridad P4 porque aceptar las devoluciones de acuerdo con los parámetros empresariales ayuda a mejorar la satisfacción del cliente y saber qué aspectos mejorar para la próxima venta, como transporte, material del producto, etc, lo que es vital para mantener la empresa a largo plazo. Si bien es importante manejar la devolución de productos, no es tan prioritario para el proceso de ventas como los otros.]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+**Independent Test**: [Se puede probar simulando la selección de una venta pasada dentro del período permitido, ingresando un motivo válido de devolución y verificando que el estado del producto se actualice correctamente en el sistema y se registre la auditoría de la devolución.]
 
 **Acceptance Scenarios**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. Dado que el cliente solicita una devolución dentro del plazo permitido por la empresa (por ejemplo, 30 días desde la fecha de compra) y proporciona un motivo válido, cuando el encargado de devoluciones selecciona la venta, valida la fecha y el motivo, y actualiza el estado del producto a "En proceso de devolución", entonces el sistema guarda exitosamente el cambio de estado, registra el motivo y emite un comprobante o número de seguimiento para el cliente.
+2. Cuando el cliente intenta solicitar una devolución superando el plazo límite establecido por la política de la empresa (por ejemplo, más de 30 días desde la compra), cuando el encargado de devoluciones ingresa los datos de la venta y el sistema valida la fecha, entonces el sistema rechaza la solicitud de devolución, muestra un mensaje de error indicando que el período de devolución ha expirado y no permite modificar el estado del producto.
+3. Cuando se intenta procesar una devolución con un motivo incompleto o no válido (por ejemplo, campos obligatorios vacíos o no contemplados en el sistema), cuando el encargado intenta registrar y actualizar el estado del producto, entonces el sistema bloquea la actualización, resalta los campos faltantes o inválidos y solicita una justificación adecuada para cumplir con los controles internos.
 
 ---
 
