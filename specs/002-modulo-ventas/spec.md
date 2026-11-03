@@ -54,17 +54,22 @@ Escenarios de aceptación:
 
 ---
 
-### User Story 3 - [Brief Title] (Priority: P3)
+### User Story 3 - [gerente] (Priority: P3)
 
 [Describe this user journey in plain language]
-
+Como gerente, quiero visualizar un resumen general de las ventas realizadas, cotizaciones y pedidos registrados en el sistema, para supervisar el desempeño comercial y tomar decisiones que permitan mejorar los resultados de la empresa.
 **Why this priority**: [Explain the value and why it has this priority level]
+Esta historia tiene prioridad P3 porque permite al gerente tener una visión general del funcionamiento del área de ventas y evaluar sus resultados. Es una herramienta útil para la toma de decisiones, aunque no es indispensable para realizar las operaciones diarias de venta.
 
 **Independent Test**: [Describe how this can be tested independently]
+Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol de gerente y accediendo al resumen general. Se debe verificar que el sistema muestre correctamente las ventas, cotizaciones y pedidos registrados, junto con sus respectivos estados y montos.
 
 **Acceptance Scenarios**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+**Given** [initial state], **When** [action], **Then** [expected outcome]
+1. Dado que existen ventas, cotizaciones y pedidos registrados en el sistema, cuando el gerente ingresa al resumen general de ventas, entonces puede visualizar la información comercial registrada.
+2. Dado que existen pedidos con diferentes estados, cuando el gerente consulta el resumen de ventas, entonces puede identificar el estado actual de cada pedido.
+3. Dado que existen ventas registradas, cuando el gerente consulta el resumen general, entonces el sistema muestra el total de ventas realizadas.
 
 ---
 
