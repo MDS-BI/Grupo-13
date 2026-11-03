@@ -42,6 +42,11 @@ export const userConfig = {
       cancelado: []
     }
   },
+  businessRules: {
+    returnWindowDays: 30,
+    defaultCurrency: 'CLP',
+    roles: ['vendedor', 'operaciones', 'gerente', 'devoluciones', 'jefe_ventas', 'facturacion']
+  },
   theme: { accentColor: '#0f62fe' }
 };
 
@@ -59,6 +64,11 @@ export const DEFAULT_CONFIG = Object.freeze({
   }),
   customFields: Object.freeze([]),
   statusLifecycle: null,
+  businessRules: Object.freeze({
+    returnWindowDays: 30,
+    defaultCurrency: 'CLP',
+    roles: Object.freeze(['vendedor', 'operaciones', 'gerente', 'devoluciones', 'jefe_ventas', 'facturacion'])
+  }),
   theme: Object.freeze({ accentColor: '#2563eb' })
 });
 
@@ -129,6 +139,36 @@ function validateTheme(raw, errors){
   return out;
 }
 
+function validateBusinessRules(raw, errors){
+  if(raw === null || raw === undefined) return structuredClone(DEFAULT_CONFIG.businessRules);
+  if(typeof raw !== 'object'){
+    errors.push('businessRules debe ser un objeto');
+    return structuredClone(DEFAULT_CONFIG.businessRules);
+  }
+  const out = structuredClone(DEFAULT_CONFIG.businessRules);
+  if(raw.returnWindowDays !== undefined && raw.returnWindowDays !== null){
+    const days = Number(raw.returnWindowDays);
+    if(!Number.isInteger(days) || days < 0) errors.push('businessRules.returnWindowDays debe ser un entero no negativo');
+    else out.returnWindowDays = days;
+  }
+  if(raw.defaultCurrency !== undefined && raw.defaultCurrency !== null){
+    if(!isNonEmptyString(raw.defaultCurrency)) errors.push('businessRules.defaultCurrency debe ser una cadena no vacía');
+    else out.defaultCurrency = raw.defaultCurrency.trim().toUpperCase();
+  }
+  if(raw.roles !== undefined && raw.roles !== null){
+    if(!Array.isArray(raw.roles) || raw.roles.length === 0 || !raw.roles.every(isNonEmptyString)){
+      errors.push('businessRules.roles debe ser un arreglo no vacío de nombres de rol');
+    } else {
+      out.roles = [...raw.roles];
+    }
+  }
+  if(raw.vendedores !== undefined && raw.vendedores !== null){
+    if(!Array.isArray(raw.vendedores)) errors.push('businessRules.vendedores debe ser un arreglo');
+    else out.vendedores = raw.vendedores.map(v => ({ ...v }));
+  }
+  return out;
+}
+
 export function normalizeConfig(raw){
   if(raw === null || raw === undefined){
     return { config: structuredClone(DEFAULT_CONFIG), errors: [] };
@@ -158,6 +198,9 @@ export function normalizeConfig(raw){
   if(raw.statusLifecycle !== undefined){
     const lc = validateLifecycle(raw.statusLifecycle, errors);
     if(lc) cfg.statusLifecycle = lc;
+  }
+  if(raw.businessRules !== undefined){
+    cfg.businessRules = validateBusinessRules(raw.businessRules, errors);
   }
   if(raw.theme !== undefined){
     cfg.theme = validateTheme(raw.theme, errors);

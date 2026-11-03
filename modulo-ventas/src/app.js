@@ -7,6 +7,13 @@ import { folioLabel } from './components/document-list.js';
 import { renderLogo, applyShellLabels, setActiveModule } from './components/shell.js';
 import { renderDashboard } from './components/dashboard.js';
 import { setupSearchBar, renderSearchResults } from './components/search-bar.js';
+import { initOrderForm, refreshOrderForm } from './components/ventas/order-form.js';
+import { initDeliveryPanel, renderDeliveryPanel } from './components/ventas/delivery-panel.js';
+import { renderSummaryView } from './components/ventas/summary-view.js';
+import { initReturnsPanel, renderReturnsPanel } from './components/ventas/returns-panel.js';
+import { initClientHistory, renderClientHistory } from './components/ventas/client-history.js';
+import { initInvoicePanel, renderInvoicePanel } from './components/ventas/invoice-panel.js';
+import { ALL_ROLES, ROLE_LABELS, getCurrentRole, setCurrentRole } from './ventas/roles.js';
 
 function qs(id){ return document.getElementById(id); }
 
@@ -19,19 +26,30 @@ const articulo = (word) => esFemenina(word) ? 'la' : 'el';
 const demostrativo = (word) => esFemenina(word) ? 'esta' : 'este';
 const seleccionada = (word) => esFemenina(word) ? 'seleccionada' : 'seleccionado';
 
-const MODULES = ['dashboard', 'entities', 'documents', 'search'];
+const MODULES = ['dashboard', 'entities', 'documents', 'search', 'sales-order', 'delivery', 'summary', 'returns', 'history', 'invoices'];
 const VIEWS = {
   dashboard: 'view-dashboard',
   entities: 'view-entities',
   documents: 'view-documents',
-  search: 'view-search'
+  search: 'view-search',
+  'sales-order': 'view-sales-order',
+  delivery: 'view-delivery',
+  summary: 'view-summary',
+  returns: 'view-returns',
+  history: 'view-history',
+  invoices: 'view-invoices'
 };
 
 let wired = false;
+let currentModule = 'dashboard';
 
 function showModule(name, opts = {}){
   if(!MODULES.includes(name)) name = 'dashboard';
-  MODULES.forEach(m => { qs(VIEWS[m]).hidden = m !== name; });
+  currentModule = name;
+  MODULES.forEach(m => {
+    const view = qs(VIEWS[m]);
+    if(view) view.hidden = m !== name;
+  });
   setActiveModule(name);
   if(name === 'dashboard'){
     renderDashboard();
@@ -52,6 +70,12 @@ function showModule(name, opts = {}){
     refreshSearch();
     if(opts.focusSearch) qs('search-input').focus();
   }
+  if(name === 'sales-order') refreshOrderForm();
+  if(name === 'delivery') renderDeliveryPanel();
+  if(name === 'summary') renderSummaryView();
+  if(name === 'returns') renderReturnsPanel();
+  if(name === 'history') renderClientHistory();
+  if(name === 'invoices') renderInvoicePanel();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -245,12 +269,37 @@ function showConfigErrors(errors){
   }
 }
 
+function populateRoleSelect(){
+  const select = qs('role-select');
+  if(!select) return;
+  select.innerHTML = '';
+  for(const role of ALL_ROLES){
+    const opt = document.createElement('option');
+    opt.value = role;
+    opt.textContent = ROLE_LABELS[role] || role;
+    select.appendChild(opt);
+  }
+  select.value = getCurrentRole();
+}
+
 function wireEvents(){
   if(wired) return;
   wired = true;
-  document.querySelectorAll('.nav-module').forEach(btn => {
+  document.querySelectorAll('.nav-module, .nav-ventas').forEach(btn => {
     btn.addEventListener('click', () => showModule(btn.dataset.module));
   });
+  const roleSelect = qs('role-select');
+  if(roleSelect){
+    roleSelect.addEventListener('change', () => {
+      setCurrentRole(roleSelect.value);
+      showModule(currentModule);
+    });
+  }
+  initOrderForm({ onCreated: () => renderSummaryView() });
+  initDeliveryPanel({ onDelivered: () => renderSummaryView() });
+  initReturnsPanel({ onReturned: () => renderSummaryView() });
+  initClientHistory();
+  initInvoicePanel({ onInvoiced: () => renderSummaryView() });
   qs('action-new-entity').addEventListener('click', () => showModule('entities', { newRecord: true, focusForm: true }));
   qs('action-new-document').addEventListener('click', () => showModule('documents', { newRecord: true, focusForm: true }));
   qs('action-open-entities').addEventListener('click', () => showModule('entities'));
@@ -272,6 +321,7 @@ export function initApp(resolved){
   applyTheme(resolved.config);
   renderLogo(qs('logo-mark'));
   applyLabels(resolved.config);
+  populateRoleSelect();
   wireEvents();
   clearEntityForm();
   clearDocumentForm();

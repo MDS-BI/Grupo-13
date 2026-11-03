@@ -33,10 +33,10 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Propósito**: Preparar el espacio de trabajo y verificar la línea base antes de agregar dominio.
 
-- [ ] T001 Ejecutar `npm test` y `npm run build` desde la raíz del repositorio y registrar la línea base (111 pruebas y build vigente) antes de cualquier cambio.
-- [ ] T002 [P] Agregar el script `test:ventas` (`vitest run modulo-ventas/tests/ventas`) en `package.json`.
-- [ ] T003 [P] Crear el punto de entrada del dominio en `modulo-ventas/src/ventas/index.js` reexportando los módulos de Ventas a medida que se implementan.
-- [ ] T004 [P] Crear las utilidades de prueba compartidas y el arranque JSDOM en `modulo-ventas/tests/ventas/fixtures.js`.
+- [x] T001 Ejecutar `npm test` y `npm run build` desde la raíz del repositorio y registrar la línea base (111 pruebas y build vigente) antes de cualquier cambio.
+- [x] T002 [P] Agregar el script `test:ventas` (`vitest run modulo-ventas/tests/ventas`) en `package.json`.
+- [x] T003 [P] Crear el punto de entrada del dominio en `modulo-ventas/src/ventas/index.js` reexportando los módulos de Ventas a medida que se implementan.
+- [x] T004 [P] Crear las utilidades de prueba compartidas y el arranque JSDOM en `modulo-ventas/tests/ventas/fixtures.js`.
 
 ---
 
@@ -46,19 +46,19 @@ description: "Task list for Módulo de Ventas implementation"
 
 **⚠️ CRÍTICO**: Ninguna historia de usuario puede comenzar hasta completar esta fase.
 
-- [ ] T005 [P] Implementar los ayudantes de colecciones en `modulo-ventas/src/ventas/collections.js` (claves `erp_ventas:*`, carga/guardado JSON, `generateId`, `generateEntityId`, búsqueda por clave).
-- [ ] T006 [P] Implementar las utilidades monetarias en `modulo-ventas/src/ventas/money.js` (redondeo por moneda, subtotal de línea, subtotal/impuesto/total de pedido y factura).
-- [ ] T007 [P] Implementar la numeración de series y folios en `modulo-ventas/src/ventas/numbering.js` (secuencias persistidas, formato `serie-folio`, unicidad por colección).
-- [ ] T008 [P] Implementar el guardián del ciclo de vida en `modulo-ventas/src/ventas/lifecycle.js` (transiciones permitidas, estados terminales, mensajes de error descriptivos).
-- [ ] T009 [P] Implementar la autorización por rol en `modulo-ventas/src/ventas/roles.js` (roles vendedor, operaciones, gerente, devoluciones, jefe de ventas, facturación; `getCurrentRole`, `setCurrentRole`, `can`).
-- [ ] T010 [P] Implementar la bitácora de auditoría en `modulo-ventas/src/ventas/audit.js` (venta afectada, productos, cantidad, motivo, fecha y usuario).
-- [ ] T011 [P] Implementar el maestro de datos en `modulo-ventas/src/ventas/masters.js` para `ZONA` y `VENDEDOR`, con validación de referencias y ayudantes de siembra desde las opciones de configuración.
-- [ ] T012 Extender el esquema de configuración en `modulo-ventas/src/module-config.js` con `businessRules` (`returnWindowDays` por defecto 30, `defaultCurrency`, lista de roles) manteniendo compatibilidad con la configuración actual.
-- [ ] T013 [P] Escribir pruebas unitarias de colecciones y numeración en `modulo-ventas/tests/ventas/collections-numbering.test.js`.
-- [ ] T014 [P] Escribir pruebas unitarias de cálculos monetarios en `modulo-ventas/tests/ventas/money.test.js`.
-- [ ] T015 [P] Escribir pruebas unitarias del guardián del ciclo de vida en `modulo-ventas/tests/ventas/lifecycle.test.js`.
-- [ ] T016 [P] Escribir pruebas unitarias de roles y auditoría en `modulo-ventas/tests/ventas/roles-audit.test.js`.
-- [ ] T017 [P] Escribir pruebas unitarias de maestros y valores por defecto de configuración en `modulo-ventas/tests/ventas/masters-config.test.js`.
+- [x] T005 [P] Implementar los ayudantes de colecciones en `modulo-ventas/src/ventas/collections.js` (claves `erp_ventas:*`, carga/guardado JSON, `generateId`, `generateEntityId`, búsqueda por clave).
+- [x] T006 [P] Implementar las utilidades monetarias en `modulo-ventas/src/ventas/money.js` (redondeo por moneda, subtotal de línea, subtotal/impuesto/total de pedido y factura).
+- [x] T007 [P] Implementar la numeración de series y folios en `modulo-ventas/src/ventas/numbering.js` (secuencias persistidas, formato `serie-folio`, unicidad por colección).
+- [x] T008 [P] Implementar el guardián del ciclo de vida en `modulo-ventas/src/ventas/lifecycle.js` (transiciones permitidas, estados terminales, mensajes de error descriptivos).
+- [x] T009 [P] Implementar la autorización por rol en `modulo-ventas/src/ventas/roles.js` (roles vendedor, operaciones, gerente, devoluciones, jefe de ventas, facturación; `getCurrentRole`, `setCurrentRole`, `can`).
+- [x] T010 [P] Implementar la bitácora de auditoría en `modulo-ventas/src/ventas/audit.js` (venta afectada, productos, cantidad, motivo, fecha y usuario).
+- [x] T011 [P] Implementar el maestro de datos en `modulo-ventas/src/ventas/masters.js` para `ZONA` y `VENDEDOR`, con validación de referencias y ayudantes de siembra desde las opciones de configuración.
+- [x] T012 Extender el esquema de configuración en `modulo-ventas/src/module-config.js` con `businessRules` (`returnWindowDays` por defecto 30, `defaultCurrency`, lista de roles) manteniendo compatibilidad con la configuración actual.
+- [x] T013 [P] Escribir pruebas unitarias de colecciones y numeración en `modulo-ventas/tests/ventas/collections-numbering.test.js`.
+- [x] T014 [P] Escribir pruebas unitarias de cálculos monetarios en `modulo-ventas/tests/ventas/money.test.js`.
+- [x] T015 [P] Escribir pruebas unitarias del guardián del ciclo de vida en `modulo-ventas/tests/ventas/lifecycle.test.js`.
+- [x] T016 [P] Escribir pruebas unitarias de roles y auditoría en `modulo-ventas/tests/ventas/roles-audit.test.js`.
+- [x] T017 [P] Escribir pruebas unitarias de maestros y valores por defecto de configuración en `modulo-ventas/tests/ventas/masters-config.test.js`.
 
 **Punto de control**: Infraestructura lista; las historias de usuario pueden comenzar.
 
@@ -72,25 +72,25 @@ description: "Task list for Módulo de Ventas implementation"
 
 ### Pruebas de US1
 
-- [ ] T018 [P] [US1] Escribir pruebas unitarias de catálogo, precios y reglas de stock en `modulo-ventas/tests/ventas/catalog.test.js`.
-- [ ] T019 [P] [US1] Escribir pruebas unitarias de cálculo de líneas, consolidación de duplicados y totales en `modulo-ventas/tests/ventas/order-lines.test.js`.
-- [ ] T020 [P] [US1] Escribir la prueba de integración del recorrido «crear orden» (cliente, dos productos, stock, IVA, validaciones) en `modulo-ventas/tests/ventas/us1-create-order.test.js`.
+- [x] T018 [P] [US1] Escribir pruebas unitarias de catálogo, precios y reglas de stock en `modulo-ventas/tests/ventas/catalog.test.js`.
+- [x] T019 [P] [US1] Escribir pruebas unitarias de cálculo de líneas, consolidación de duplicados y totales en `modulo-ventas/tests/ventas/order-lines.test.js`.
+- [x] T020 [P] [US1] Escribir la prueba de integración del recorrido «crear orden» (cliente, dos productos, stock, IVA, validaciones) en `modulo-ventas/tests/ventas/us1-create-order.test.js`.
 
 ### Implementación de US1
 
-- [ ] T021 [P] [US1] Implementar el catálogo en `modulo-ventas/src/ventas/catalog.js` para `CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO` y `PRECIO_PRODUCTO`, con unicidad, vigencia y consultas de stock.
-- [ ] T022 [P] [US1] Implementar la cotización en `modulo-ventas/src/ventas/quotes.js` (`COTIZACION`, estados `borrador`/`enviada`/`aceptada`/`rechazada`/`vencida`, aceptación que origina pedido).
-- [ ] T023 [US1] Implementar el pedido en `modulo-ventas/src/ventas/orders.js` (`PEDIDO_VENTA` + `DETALLE_PEDIDO`, FK de cliente, vendedor, canal, condición de pago, fecha de entrega y estado inicial «cotización»).
-- [ ] T024 [US1] Agregar validación y revalidación de stock en `modulo-ventas/src/ventas/orders.js` (stock cero, insuficiente, líneas duplicadas y cantidades no enteras o no positivas).
-- [ ] T025 [US1] Agregar cálculo automático de subtotal, IVA por línea y total con redondeo monetario en `modulo-ventas/src/ventas/orders.js` usando `money.js`.
-- [ ] T026 [P] [US1] Crear el selector de productos en `modulo-ventas/src/components/ventas/product-picker.js` (búsqueda por código/nombre, stock visible y bloqueo de productos sin stock).
-- [ ] T027 [P] [US1] Crear el editor de líneas en `modulo-ventas/src/components/ventas/line-editor.js` (agregar/quitar/consolidar líneas y totales en vivo).
-- [ ] T028 [US1] Crear el formulario de orden en `modulo-ventas/src/components/ventas/order-form.js` (cliente, vendedor, canal, condición de pago, fecha de entrega y visualización de errores).
-- [ ] T029 [US1] Agregar la vista «Pedidos de Venta», el formulario y el editor de líneas en `modulo-ventas/index.html`.
-- [ ] T030 [US1] Conectar la nueva vista de Ventas, la navegación y el flujo de guardado en `modulo-ventas/src/app.js`.
-- [ ] T031 [US1] Agregar mensajes de validación por campo y estados vacíos de pedidos/productos en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/index.html`.
-- [ ] T032 [US1] Agregar estilos del editor de líneas, totales y advertencias de stock en `modulo-ventas/src/styles.css`.
-- [ ] T033 [US1] Conectar la búsqueda de clientes y productos por campos base y propios en el flujo de la orden en `modulo-ventas/src/components/ventas/order-form.js`.
+- [x] T021 [P] [US1] Implementar el catálogo en `modulo-ventas/src/ventas/catalog.js` para `CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO` y `PRECIO_PRODUCTO`, con unicidad, vigencia y consultas de stock.
+- [x] T022 [P] [US1] Implementar la cotización en `modulo-ventas/src/ventas/quotes.js` (`COTIZACION`, estados `borrador`/`enviada`/`aceptada`/`rechazada`/`vencida`, aceptación que origina pedido).
+- [x] T023 [US1] Implementar el pedido en `modulo-ventas/src/ventas/orders.js` (`PEDIDO_VENTA` + `DETALLE_PEDIDO`, FK de cliente, vendedor, canal, condición de pago, fecha de entrega y estado inicial «cotización»).
+- [x] T024 [US1] Agregar validación y revalidación de stock en `modulo-ventas/src/ventas/orders.js` (stock cero, insuficiente, líneas duplicadas y cantidades no enteras o no positivas).
+- [x] T025 [US1] Agregar cálculo automático de subtotal, IVA por línea y total con redondeo monetario en `modulo-ventas/src/ventas/orders.js` usando `money.js`.
+- [x] T026 [P] [US1] Crear el selector de productos en `modulo-ventas/src/components/ventas/product-picker.js` (búsqueda por código/nombre, stock visible y bloqueo de productos sin stock).
+- [x] T027 [P] [US1] Crear el editor de líneas en `modulo-ventas/src/components/ventas/line-editor.js` (agregar/quitar/consolidar líneas y totales en vivo).
+- [x] T028 [US1] Crear el formulario de orden en `modulo-ventas/src/components/ventas/order-form.js` (cliente, vendedor, canal, condición de pago, fecha de entrega y visualización de errores).
+- [x] T029 [US1] Agregar la vista «Pedidos de Venta», el formulario y el editor de líneas en `modulo-ventas/index.html`.
+- [x] T030 [US1] Conectar la nueva vista de Ventas, la navegación y el flujo de guardado en `modulo-ventas/src/app.js`.
+- [x] T031 [US1] Agregar mensajes de validación por campo y estados vacíos de pedidos/productos en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/index.html`.
+- [x] T032 [US1] Agregar estilos del editor de líneas, totales y advertencias de stock en `modulo-ventas/src/styles.css`.
+- [x] T033 [US1] Conectar la búsqueda de clientes y productos por campos base y propios en el flujo de la orden en `modulo-ventas/src/components/ventas/order-form.js`.
 
 **Punto de control**: US1 completamente funcional y validable de forma aislada (MVP).
 
@@ -102,13 +102,13 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Prueba independiente**: Seleccionar un pedido «facturado», cambiarlo a «entregado», verificar la persistencia y el reflejo en listas; intentar modificarlo y comprobar el bloqueo por estado terminal.
 
-- [ ] T034 [P] [US2] Escribir pruebas unitarias de reglas de entrega y estado terminal en `modulo-ventas/tests/ventas/delivery.test.js`.
-- [ ] T035 [P] [US2] Escribir la prueba de integración del recorrido «marcar pedido entregado» en `modulo-ventas/tests/ventas/us2-delivery.test.js`.
-- [ ] T036 [US2] Implementar el servicio de entrega en `modulo-ventas/src/ventas/delivery.js` (solo `facturado → entregado`, persistencia, bloqueo terminal y mensajes de estado previo requerido).
-- [ ] T037 [US2] Crear el panel de entrega en `modulo-ventas/src/components/ventas/delivery-panel.js` (selección de pedido facturado, confirmación y feedback).
-- [ ] T038 [US2] Agregar la vista/sección de entrega en `modulo-ventas/index.html`.
-- [ ] T039 [US2] Conectar el panel de entrega, el guardián de rol de operaciones y la actualización de listas/resumen en `modulo-ventas/src/app.js`.
-- [ ] T040 [US2] Bloquear la edición de pedidos «entregado» en `modulo-ventas/src/components/ventas/order-form.js` y en el despacho de `modulo-ventas/src/app.js`.
+- [x] T034 [P] [US2] Escribir pruebas unitarias de reglas de entrega y estado terminal en `modulo-ventas/tests/ventas/delivery.test.js`.
+- [x] T035 [P] [US2] Escribir la prueba de integración del recorrido «marcar pedido entregado» en `modulo-ventas/tests/ventas/us2-delivery.test.js`.
+- [x] T036 [US2] Implementar el servicio de entrega en `modulo-ventas/src/ventas/delivery.js` (solo `facturado → entregado`, persistencia, bloqueo terminal y mensajes de estado previo requerido).
+- [x] T037 [US2] Crear el panel de entrega en `modulo-ventas/src/components/ventas/delivery-panel.js` (selección de pedido facturado, confirmación y feedback).
+- [x] T038 [US2] Agregar la vista/sección de entrega en `modulo-ventas/index.html`.
+- [x] T039 [US2] Conectar el panel de entrega, el guardián de rol de operaciones y la actualización de listas/resumen en `modulo-ventas/src/app.js`.
+- [x] T040 [US2] Bloquear la edición de pedidos «entregado» en `modulo-ventas/src/components/ventas/order-form.js` y en el despacho de `modulo-ventas/src/app.js`.
 
 **Punto de control**: US1 y US2 funcionan de forma independiente.
 
@@ -120,13 +120,13 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Prueba independiente**: Registrar ventas en distintos estados, entrar al resumen con rol gerente y verificar cantidades, montos y estados; comprobar el estado vacío con totales en cero.
 
-- [ ] T041 [P] [US3] Escribir pruebas unitarias de agregación del resumen en `modulo-ventas/tests/ventas/summary.test.js`.
-- [ ] T042 [P] [US3] Escribir la prueba de integración de la vista de resumen para gerente en `modulo-ventas/tests/ventas/us3-summary.test.js`.
-- [ ] T043 [US3] Implementar la agregación del resumen en `modulo-ventas/src/ventas/summary.js` (cantidades, montos, estados y datos persistidos más recientes).
-- [ ] T044 [US3] Crear la vista de resumen en `modulo-ventas/src/components/ventas/summary-view.js` con totales y estado vacío en cero.
-- [ ] T045 [US3] Agregar el marcado de la vista de resumen y el mensaje de acceso restringido en `modulo-ventas/index.html`.
-- [ ] T046 [US3] Conectar la vista de resumen y la restricción del rol gerente en `modulo-ventas/src/app.js`.
-- [ ] T047 [US3] Agregar estilos y semántica accesible de tabla/lista del resumen en `modulo-ventas/src/styles.css`.
+- [x] T041 [P] [US3] Escribir pruebas unitarias de agregación del resumen en `modulo-ventas/tests/ventas/summary.test.js`.
+- [x] T042 [P] [US3] Escribir la prueba de integración de la vista de resumen para gerente en `modulo-ventas/tests/ventas/us3-summary.test.js`.
+- [x] T043 [US3] Implementar la agregación del resumen en `modulo-ventas/src/ventas/summary.js` (cantidades, montos, estados y datos persistidos más recientes).
+- [x] T044 [US3] Crear la vista de resumen en `modulo-ventas/src/components/ventas/summary-view.js` con totales y estado vacío en cero.
+- [x] T045 [US3] Agregar el marcado de la vista de resumen y el mensaje de acceso restringido en `modulo-ventas/index.html`.
+- [x] T046 [US3] Conectar la vista de resumen y la restricción del rol gerente en `modulo-ventas/src/app.js`.
+- [x] T047 [US3] Agregar estilos y semántica accesible de tabla/lista del resumen en `modulo-ventas/src/styles.css`.
 
 **Punto de control**: US1, US2 y US3 funcionan de forma independiente.
 
@@ -138,15 +138,15 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Prueba independiente**: Seleccionar una venta dentro del plazo, registrar un motivo válido y verificar el cambio a «en proceso de devolución», el número de seguimiento y la auditoría; comprobar el rechazo fuera de plazo, con motivo inválido y con cantidad excesiva.
 
-- [ ] T048 [P] [US4] Escribir pruebas unitarias de plazo, motivo y límites de devolución en `modulo-ventas/tests/ventas/returns.test.js`.
-- [ ] T049 [P] [US4] Escribir la prueba de integración del recorrido «registrar devolución» en `modulo-ventas/tests/ventas/us4-returns.test.js`.
-- [ ] T050 [US4] Implementar el almacén de devoluciones en `modulo-ventas/src/ventas/returns.js` (`DEVOLUCION` + `DETALLE_DEVOLUCION`, número de seguimiento y estados `solicitada`/`aprobada`/`rechazada`/`completada`).
-- [ ] T051 [US4] Agregar las validaciones de plazo de 30 días, motivo no vacío y cantidad máxima devolvible en `modulo-ventas/src/ventas/returns.js`.
-- [ ] T052 [US4] Actualizar el estado del producto a «en proceso de devolución» y registrar la auditoría en `modulo-ventas/src/ventas/returns.js` usando `audit.js`.
-- [ ] T053 [P] [US4] Crear el panel de devoluciones en `modulo-ventas/src/components/ventas/returns-panel.js` (selección de venta, productos, cantidad, motivo y errores).
-- [ ] T054 [US4] Agregar la vista y el formulario de devoluciones en `modulo-ventas/index.html`.
-- [ ] T055 [US4] Conectar el panel de devoluciones, el guardián de rol y la actualización de estados en `modulo-ventas/src/app.js`.
-- [ ] T056 [US4] Agregar estilos de devoluciones y resaltado de campos inválidos en `modulo-ventas/src/styles.css`.
+- [x] T048 [P] [US4] Escribir pruebas unitarias de plazo, motivo y límites de devolución en `modulo-ventas/tests/ventas/returns.test.js`.
+- [x] T049 [P] [US4] Escribir la prueba de integración del recorrido «registrar devolución» en `modulo-ventas/tests/ventas/us4-returns.test.js`.
+- [x] T050 [US4] Implementar el almacén de devoluciones en `modulo-ventas/src/ventas/returns.js` (`DEVOLUCION` + `DETALLE_DEVOLUCION`, número de seguimiento y estados `solicitada`/`aprobada`/`rechazada`/`completada`).
+- [x] T051 [US4] Agregar las validaciones de plazo de 30 días, motivo no vacío y cantidad máxima devolvible en `modulo-ventas/src/ventas/returns.js`.
+- [x] T052 [US4] Actualizar el estado del producto a «en proceso de devolución» y registrar la auditoría en `modulo-ventas/src/ventas/returns.js` usando `audit.js`.
+- [x] T053 [P] [US4] Crear el panel de devoluciones en `modulo-ventas/src/components/ventas/returns-panel.js` (selección de venta, productos, cantidad, motivo y errores).
+- [x] T054 [US4] Agregar la vista y el formulario de devoluciones en `modulo-ventas/index.html`.
+- [x] T055 [US4] Conectar el panel de devoluciones, el guardián de rol y la actualización de estados en `modulo-ventas/src/app.js`.
+- [x] T056 [US4] Agregar estilos de devoluciones y resaltado de campos inválidos en `modulo-ventas/src/styles.css`.
 
 **Punto de control**: US1 a US4 funcionan de forma independiente.
 
@@ -158,13 +158,13 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Prueba independiente**: Seleccionar un cliente con pedidos asociados y verificar el listado completo con estados; comprobar el estado vacío de un cliente sin movimientos.
 
-- [ ] T057 [P] [US5] Escribir pruebas unitarias de agregación del historial comercial en `modulo-ventas/tests/ventas/history.test.js`.
-- [ ] T058 [P] [US5] Escribir la prueba de integración de la vista de historial de cliente en `modulo-ventas/tests/ventas/us5-client-history.test.js`.
-- [ ] T059 [US5] Implementar la agregación del historial en `modulo-ventas/src/ventas/history.js` (cotizaciones y pedidos con fecha, importe y estado actual).
-- [ ] T060 [US5] Crear el componente de historial en `modulo-ventas/src/components/ventas/client-history.js` con estado vacío.
-- [ ] T061 [US5] Agregar la vista de historial comercial del cliente en `modulo-ventas/index.html`.
-- [ ] T062 [US5] Conectar la vista de historial, el selector de cliente y el guardián del rol jefe de ventas en `modulo-ventas/src/app.js`.
-- [ ] T063 [US5] Refrescar el historial cuando cambie el estado de una cotización o pedido en `modulo-ventas/src/ventas/history.js` y `modulo-ventas/src/app.js`.
+- [x] T057 [P] [US5] Escribir pruebas unitarias de agregación del historial comercial en `modulo-ventas/tests/ventas/history.test.js`.
+- [x] T058 [P] [US5] Escribir la prueba de integración de la vista de historial de cliente en `modulo-ventas/tests/ventas/us5-client-history.test.js`.
+- [x] T059 [US5] Implementar la agregación del historial en `modulo-ventas/src/ventas/history.js` (cotizaciones y pedidos con fecha, importe y estado actual).
+- [x] T060 [US5] Crear el componente de historial en `modulo-ventas/src/components/ventas/client-history.js` con estado vacío.
+- [x] T061 [US5] Agregar la vista de historial comercial del cliente en `modulo-ventas/index.html`.
+- [x] T062 [US5] Conectar la vista de historial, el selector de cliente y el guardián del rol jefe de ventas en `modulo-ventas/src/app.js`.
+- [x] T063 [US5] Refrescar el historial cuando cambie el estado de una cotización o pedido en `modulo-ventas/src/ventas/history.js` y `modulo-ventas/src/app.js`.
 
 **Punto de control**: US1 a US5 funcionan de forma independiente.
 
@@ -176,18 +176,18 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Prueba independiente**: Generar una factura desde un pedido en estado «pedido», verificar la copia de líneas e impuestos, el estado «pendiente de pago»; comprobar el bloqueo desde «cotización» y la prevención de una segunda factura.
 
-- [ ] T064 [P] [US6] Escribir pruebas unitarias de reglas de facturación y unicidad en `modulo-ventas/tests/ventas/invoices.test.js`.
-- [ ] T065 [P] [US6] Escribir pruebas unitarias de registro de pagos y recálculo de saldo en `modulo-ventas/tests/ventas/payments.test.js`.
-- [ ] T066 [P] [US6] Escribir la prueba de integración del recorrido «generar factura» en `modulo-ventas/tests/ventas/us6-invoice.test.js`.
-- [ ] T067 [US6] Implementar el almacén de facturas en `modulo-ventas/src/ventas/invoices.js` (`FACTURA` desde pedido confirmado, copia de cliente/líneas/precios/impuestos, estado «pendiente de pago» y saldo).
-- [ ] T068 [US6] Agregar elegibilidad y protección de duplicados en `modulo-ventas/src/ventas/invoices.js` (solo estado «pedido», una factura por pedido y guardia ante solicitudes concurrentes).
-- [ ] T069 [P] [US6] Implementar el registro de pagos y recálculo de saldo en `modulo-ventas/src/ventas/payments.js` (`PAGO`, monto positivo y suma de pagos ≤ total facturado).
-- [ ] T070 [P] [US6] Crear el panel de facturación en `modulo-ventas/src/components/ventas/invoice-panel.js` (pedido elegible, detalle de factura, saldo y mensajes de bloqueo).
-- [ ] T071 [US6] Agregar la vista de facturación y el detalle de factura/pagos en `modulo-ventas/index.html`.
-- [ ] T072 [US6] Conectar la generación de facturas, los mensajes de bloqueo y el guardián del rol facturación en `modulo-ventas/src/app.js`.
-- [ ] T073 [US6] Propagar el estado «facturado» a pedido, entrega y resumen en `modulo-ventas/src/ventas/orders.js`, `modulo-ventas/src/ventas/delivery.js` y `modulo-ventas/src/ventas/summary.js`.
-- [ ] T074 [US6] Agregar estilos de facturación, saldos y estados de pago en `modulo-ventas/src/styles.css`.
-- [ ] T075 [US6] Agregar la prueba de concurrencia/idempotencia que garantiza una sola factura persistida por pedido en `modulo-ventas/tests/ventas/us6-invoice-concurrency.test.js`.
+- [x] T064 [P] [US6] Escribir pruebas unitarias de reglas de facturación y unicidad en `modulo-ventas/tests/ventas/invoices.test.js`.
+- [x] T065 [P] [US6] Escribir pruebas unitarias de registro de pagos y recálculo de saldo en `modulo-ventas/tests/ventas/payments.test.js`.
+- [x] T066 [P] [US6] Escribir la prueba de integración del recorrido «generar factura» en `modulo-ventas/tests/ventas/us6-invoice.test.js`.
+- [x] T067 [US6] Implementar el almacén de facturas en `modulo-ventas/src/ventas/invoices.js` (`FACTURA` desde pedido confirmado, copia de cliente/líneas/precios/impuestos, estado «pendiente de pago» y saldo).
+- [x] T068 [US6] Agregar elegibilidad y protección de duplicados en `modulo-ventas/src/ventas/invoices.js` (solo estado «pedido», una factura por pedido y guardia ante solicitudes concurrentes).
+- [x] T069 [P] [US6] Implementar el registro de pagos y recálculo de saldo en `modulo-ventas/src/ventas/payments.js` (`PAGO`, monto positivo y suma de pagos ≤ total facturado).
+- [x] T070 [P] [US6] Crear el panel de facturación en `modulo-ventas/src/components/ventas/invoice-panel.js` (pedido elegible, detalle de factura, saldo y mensajes de bloqueo).
+- [x] T071 [US6] Agregar la vista de facturación y el detalle de factura/pagos en `modulo-ventas/index.html`.
+- [x] T072 [US6] Conectar la generación de facturas, los mensajes de bloqueo y el guardián del rol facturación en `modulo-ventas/src/app.js`.
+- [x] T073 [US6] Propagar el estado «facturado» a pedido, entrega y resumen en `modulo-ventas/src/ventas/orders.js`, `modulo-ventas/src/ventas/delivery.js` y `modulo-ventas/src/ventas/summary.js`.
+- [x] T074 [US6] Agregar estilos de facturación, saldos y estados de pago en `modulo-ventas/src/styles.css`.
+- [x] T075 [US6] Agregar la prueba de concurrencia/idempotencia que garantiza una sola factura persistida por pedido en `modulo-ventas/tests/ventas/us6-invoice-concurrency.test.js`.
 
 **Punto de control**: Las seis historias de usuario funcionan de forma independiente.
 
@@ -197,17 +197,17 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Propósito**: Cerrar requisitos transversales de permisos, accesibilidad, rendimiento, consistencia y documentación.
 
-- [ ] T076 [P] Cubrir la autorización por rol de todas las acciones en `modulo-ventas/tests/ventas/roles-guard.test.js` (crear, facturar, entregar, devolver, resumen e historial).
-- [ ] T077 [P] Completar los estados vacíos de productos, pedidos, facturas, devoluciones, historial y resumen en sus componentes de `modulo-ventas/src/components/ventas/`.
-- [ ] T078 [P] Agregar etiquetas, `aria-live` y encabezados de tabla accesibles a las nuevas vistas en `modulo-ventas/index.html`.
-- [ ] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen en `modulo-ventas/tests/ventas/performance.test.js`.
-- [ ] T080 Agregar pruebas transversales de consistencia (sin pedidos huérfanos, una factura por pedido y límites de devolución) en `modulo-ventas/tests/ventas/consistency.test.js`.
-- [ ] T081 Actualizar la tabla de estado de implementación de `specs/002-modulo-ventas/data-model.md` con las entidades implementadas y parciales.
-- [ ] T082 Actualizar las fases y la sección de cambios de `specs/002-modulo-ventas/plan.md` con el estado final de la entrega.
-- [ ] T083 Documentar las nuevas colecciones, roles y `businessRules` en `specs/002-modulo-ventas/data-model.md` §7 y §8.
-- [ ] T084 Eliminar cálculos duplicados y código sin uso en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
-- [ ] T085 Ejecutar `npm test` desde la raíz y corregir cualquier regresión de la suite completa.
-- [ ] T086 Ejecutar `npm run build` desde la raíz y verificar la salida en `modulo-ventas/dist/`.
+- [x] T076 [P] Cubrir la autorización por rol de todas las acciones en `modulo-ventas/tests/ventas/roles-guard.test.js` (crear, facturar, entregar, devolver, resumen e historial).
+- [x] T077 [P] Completar los estados vacíos de productos, pedidos, facturas, devoluciones, historial y resumen en sus componentes de `modulo-ventas/src/components/ventas/`.
+- [x] T078 [P] Agregar etiquetas, `aria-live` y encabezados de tabla accesibles a las nuevas vistas en `modulo-ventas/index.html`.
+- [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen en `modulo-ventas/tests/ventas/performance.test.js`.
+- [x] T080 Agregar pruebas transversales de consistencia (sin pedidos huérfanos, una factura por pedido y límites de devolución) en `modulo-ventas/tests/ventas/consistency.test.js`.
+- [x] T081 Actualizar la tabla de estado de implementación de `specs/002-modulo-ventas/data-model.md` con las entidades implementadas y parciales.
+- [x] T082 Actualizar las fases y la sección de cambios de `specs/002-modulo-ventas/plan.md` con el estado final de la entrega.
+- [x] T083 Documentar las nuevas colecciones, roles y `businessRules` en `specs/002-modulo-ventas/data-model.md` §7 y §8.
+- [x] T084 Eliminar cálculos duplicados y código sin uso en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
+- [x] T085 Ejecutar `npm test` desde la raíz y corregir cualquier regresión de la suite completa.
+- [x] T086 Ejecutar `npm run build` desde la raíz y verificar la salida en `modulo-ventas/dist/`.
 
 ---
 

@@ -14,6 +14,10 @@
           <span id="logo-mark" class="logo-mark" aria-hidden="true"></span>
           <span id="brand-name" class="brand-name">Módulo Base ERP</span>
         </div>
+        <div class="role-switcher">
+          <label for="role-select">Rol activo</label>
+          <select id="role-select" name="role-select" aria-label="Rol activo"></select>
+        </div>
       </header>
 
       <aside class="sidebar">
@@ -33,6 +37,28 @@
           <button type="button" class="nav-module" data-module="search" id="nav-search">
             <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="5"></circle><path d="m12.8 12.8 4.2 4.2"></path></svg>
             <span class="nav-label" id="nav-search-label">Búsqueda</span>
+          </button>
+        </nav>
+
+        <nav class="side-nav sales-nav" aria-label="Ventas">
+          <p class="side-nav-heading">Ventas</p>
+          <button type="button" class="nav-ventas" data-module="sales-order" id="nav-sales-order">
+            <span class="nav-label">Pedidos de Venta</span>
+          </button>
+          <button type="button" class="nav-ventas" data-module="delivery" id="nav-delivery">
+            <span class="nav-label">Entregas</span>
+          </button>
+          <button type="button" class="nav-ventas" data-module="summary" id="nav-summary">
+            <span class="nav-label">Resumen general</span>
+          </button>
+          <button type="button" class="nav-ventas" data-module="returns" id="nav-returns">
+            <span class="nav-label">Devoluciones</span>
+          </button>
+          <button type="button" class="nav-ventas" data-module="history" id="nav-history">
+            <span class="nav-label">Historial de clientes</span>
+          </button>
+          <button type="button" class="nav-ventas" data-module="invoices" id="nav-invoices">
+            <span class="nav-label">Facturación y pagos</span>
           </button>
         </nav>
       </aside>
@@ -257,6 +283,234 @@
             <div id="search-empty" class="empty" hidden>Sin coincidencias para tu búsqueda.</div>
             <ul id="search-results-list" aria-live="polite"></ul>
           </section>
+        </section>
+        <section id="view-sales-order" aria-labelledby="sales-order-heading" hidden>
+          <h1 id="sales-order-heading">Pedidos de Venta</h1>
+          <p class="muted">Registra una orden con cliente existente, productos con stock, canal y condición de pago. Se guarda como cotización.</p>
+
+          <section class="card" aria-labelledby="order-form-heading">
+            <h2 id="order-form-heading">Nueva orden de venta</h2>
+            <form id="order-form" novalidate>
+              <div class="field-row">
+                <div>
+                  <label for="order-client">Cliente *</label>
+                  <select id="order-client" name="order-client"></select>
+                  <div class="error" id="order-client-error" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="order-seller">Vendedor *</label>
+                  <input id="order-seller" name="order-seller" />
+                  <div class="error" id="order-seller-error" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div>
+                  <label for="order-channel">Canal de venta *</label>
+                  <select id="order-channel" name="order-channel">
+                    <option value="Tienda">Tienda</option>
+                    <option value="Web">Web</option>
+                    <option value="Teléfono">Teléfono</option>
+                    <option value="Distribuidor">Distribuidor</option>
+                  </select>
+                  <div class="error" id="order-channel-error" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="order-payment">Condición de pago *</label>
+                  <select id="order-payment" name="order-payment">
+                    <option value="contado">Contado</option>
+                    <option value="credito">Crédito</option>
+                  </select>
+                  <div class="error" id="order-payment-error" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div>
+                  <label for="order-date">Fecha de emisión</label>
+                  <input id="order-date" name="order-date" type="date" />
+                  <div class="error" id="order-date-error" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="order-delivery-date">Fecha de entrega</label>
+                  <input id="order-delivery-date" name="order-delivery-date" type="date" />
+                </div>
+                <div>
+                  <label for="order-currency">Moneda</label>
+                  <input id="order-currency" name="order-currency" maxlength="3" />
+                </div>
+                <div>
+                  <label for="order-discount">Descuento</label>
+                  <input id="order-discount" name="order-discount" type="number" min="0" step="0.01" value="0" />
+                </div>
+              </div>
+
+              <h3>Productos</h3>
+              <label for="order-product-search">Buscar producto por código o nombre</label>
+              <input id="order-product-search" name="order-product-search" placeholder="Ej.: SKU-1 o Producto" />
+              <ul id="order-product-results" class="product-results" aria-live="polite"></ul>
+
+              <table class="data-table" aria-label="Líneas de la orden">
+                <thead>
+                  <tr><th scope="col">Producto</th><th scope="col">Cantidad</th><th scope="col">Precio</th><th scope="col">Subtotal</th><th scope="col">Acciones</th></tr>
+                </thead>
+                <tbody id="order-lines-body"></tbody>
+              </table>
+              <p id="order-totals" class="totals" aria-live="polite"></p>
+              <div class="error" id="order-lines-error" aria-live="polite"></div>
+              <p id="order-feedback" class="feedback" role="status" aria-live="polite"></p>
+              <div class="form-actions">
+                <button type="submit" id="order-save" class="primary">Guardar orden</button>
+                <button type="button" id="order-reset" class="secondary">Limpiar</button>
+              </div>
+            </form>
+          </section>
+        </section>
+
+        <section id="view-delivery" aria-labelledby="delivery-heading" hidden>
+          <h1 id="delivery-heading">Entregas</h1>
+          <p class="muted">Solo los pedidos facturados pueden marcarse como entregados. El estado entregado es terminal.</p>
+          <section class="card" aria-labelledby="delivery-panel-heading">
+            <h2 id="delivery-panel-heading">Confirmar entrega</h2>
+            <div>
+              <label for="delivery-order">Pedido facturado</label>
+              <select id="delivery-order"></select>
+            </div>
+            <p id="delivery-detail" aria-live="polite">Selecciona un pedido facturado para confirmar su entrega.</p>
+            <div id="delivery-empty" class="empty" hidden>No hay pedidos facturados pendientes de entrega.</div>
+            <p id="delivery-feedback" class="feedback" role="status" aria-live="polite"></p>
+            <div class="form-actions">
+              <button type="button" id="delivery-confirm" class="primary">Marcar como entregado</button>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-summary" aria-labelledby="summary-heading" hidden>
+          <h1 id="summary-heading">Resumen general de ventas</h1>
+          <div id="summary-restricted" class="empty" hidden>El resumen general está restringido al rol gerente.</div>
+          <div id="summary-content">
+            <div class="stat-grid">
+              <div class="stat-card"><span class="stat-value" id="summary-total-ventas">0</span><span class="stat-label">Ventas</span></div>
+              <div class="stat-card"><span class="stat-value" id="summary-total-cotizaciones">0</span><span class="stat-label">Cotizaciones</span></div>
+              <div class="stat-card"><span class="stat-value" id="summary-total-pedidos">0</span><span class="stat-label">Pedidos</span></div>
+              <div class="stat-card"><span class="stat-value" id="summary-monto-total">0</span><span class="stat-label">Monto total</span></div>
+            </div>
+            <section class="card" aria-labelledby="summary-amounts-heading">
+              <h2 id="summary-amounts-heading">Montos</h2>
+              <p>Ventas: <span id="summary-monto-ventas">0</span> · Cotizaciones: <span id="summary-monto-cotizaciones">0</span> · Pedidos: <span id="summary-monto-pedidos">0</span></p>
+            </section>
+            <div id="summary-empty" class="empty" hidden>No hay ventas, cotizaciones ni pedidos registrados.</div>
+            <section class="card" aria-labelledby="summary-states-heading">
+              <h2 id="summary-states-heading">Pedidos por estado</h2>
+              <table class="data-table">
+                <thead><tr><th scope="col">Estado</th><th scope="col">Cantidad</th></tr></thead>
+                <tbody id="summary-states-body"></tbody>
+              </table>
+            </section>
+            <section class="card" aria-labelledby="summary-orders-heading">
+              <h2 id="summary-orders-heading">Detalle de pedidos</h2>
+              <table class="data-table">
+                <thead><tr><th scope="col">Número</th><th scope="col">Cliente</th><th scope="col">Fecha</th><th scope="col">Estado</th><th scope="col">Total</th></tr></thead>
+                <tbody id="summary-orders-body"></tbody>
+              </table>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-returns" aria-labelledby="returns-heading" hidden>
+          <h1 id="returns-heading">Devoluciones</h1>
+          <p class="muted">Registra devoluciones dentro del plazo configurado, con motivo válido y cantidades no devueltas previamente.</p>
+          <section class="card" aria-labelledby="return-form-heading">
+            <h2 id="return-form-heading">Nueva devolución</h2>
+            <form id="return-form" novalidate>
+              <div class="field-row">
+                <div>
+                  <label for="return-invoice">Factura *</label>
+                  <select id="return-invoice"></select>
+                </div>
+                <div>
+                  <label for="return-date">Fecha de devolución</label>
+                  <input id="return-date" name="return-date" type="date" />
+                </div>
+              </div>
+              <div>
+                <label for="return-reason">Motivo *</label>
+                <input id="return-reason" name="return-reason" />
+              </div>
+              <h3>Productos a devolver</h3>
+              <div id="return-empty" class="empty">Selecciona una factura para cargar sus productos.</div>
+              <div id="return-lines" class="return-lines"></div>
+              <p id="return-feedback" class="feedback" role="status" aria-live="polite"></p>
+              <div class="form-actions">
+                <button type="submit" id="return-save" class="primary">Registrar devolución</button>
+              </div>
+            </form>
+          </section>
+          <section class="card" aria-labelledby="returns-list-heading">
+            <h2 id="returns-list-heading">Devoluciones registradas</h2>
+            <ul id="returns-list" aria-live="polite"></ul>
+          </section>
+        </section>
+
+        <section id="view-history" aria-labelledby="history-heading" hidden>
+          <h1 id="history-heading">Historial comercial del cliente</h1>
+          <section class="card" aria-labelledby="history-panel-heading">
+            <h2 id="history-panel-heading">Perfil comercial</h2>
+            <div>
+              <label for="history-client">Cliente</label>
+              <select id="history-client"></select>
+            </div>
+            <p id="history-total" class="totals" aria-live="polite"></p>
+            <div id="history-empty" class="empty" hidden>Este cliente no tiene cotizaciones ni pedidos registrados.</div>
+            <table class="data-table">
+              <thead><tr><th scope="col">Número</th><th scope="col">Tipo</th><th scope="col">Fecha</th><th scope="col">Estado</th><th scope="col">Importe</th></tr></thead>
+              <tbody id="history-body"></tbody>
+            </table>
+          </section>
+        </section>
+
+        <section id="view-invoices" aria-labelledby="invoices-heading" hidden>
+          <h1 id="invoices-heading">Facturación y pagos</h1>
+          <div id="invoice-restricted" class="empty" hidden>La facturación está restringida al rol de facturación.</div>
+          <div id="invoice-content">
+            <section class="card" aria-labelledby="invoice-create-heading">
+              <h2 id="invoice-create-heading">Generar factura</h2>
+              <div>
+                <label for="invoice-order">Pedido confirmado</label>
+                <select id="invoice-order"></select>
+              </div>
+              <p id="invoice-feedback" class="feedback" role="status" aria-live="polite"></p>
+              <div class="form-actions">
+                <button type="button" id="invoice-create" class="primary">Generar factura</button>
+              </div>
+            </section>
+            <section class="card" aria-labelledby="invoice-detail-heading">
+              <h2 id="invoice-detail-heading">Factura y saldo</h2>
+              <div>
+                <label for="invoice-select">Factura</label>
+                <select id="invoice-select"></select>
+              </div>
+              <div id="invoice-detail" aria-live="polite">Selecciona una factura para ver su detalle y registrar pagos.</div>
+              <form id="payment-form">
+                <div class="field-row">
+                  <div>
+                    <label for="payment-amount">Monto del pago</label>
+                    <input id="payment-amount" name="payment-amount" type="number" min="0" step="0.01" />
+                  </div>
+                  <div>
+                    <label for="payment-method">Método</label>
+                    <select id="payment-method" name="payment-method">
+                      <option value="efectivo">Efectivo</option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="tarjeta">Tarjeta</option>
+                    </select>
+                  </div>
+                </div>
+                <p id="payment-feedback" class="feedback" role="status" aria-live="polite"></p>
+                <div class="form-actions">
+                  <button type="submit" id="payment-save" class="primary">Registrar pago</button>
+                </div>
+              </form>
+            </section>
+          </div>
         </section>
       </main>
     </div>

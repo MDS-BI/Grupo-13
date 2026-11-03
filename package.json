@@ -6,7 +6,8 @@
     "dev": "vite modulo-ventas",
     "build": "vite build modulo-ventas",
     "preview": "vite preview modulo-ventas --port 4173",
-    "test": "vitest run modulo-ventas"
+    "test": "vitest run modulo-ventas",
+    "test:ventas": "vitest run modulo-ventas/tests/ventas"
   },
   "devDependencies": {
     "jsdom": "^30.0.1",

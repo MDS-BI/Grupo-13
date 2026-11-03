@@ -2,9 +2,9 @@
 
 **Módulo**: Ventas (`002-modulo-ventas`)  
 **Base reutilizable**: Módulo Base ERP (`001-erp-base-module`)  
-**Implementación de referencia**: `modulo-ventas/src/module-config.js` (configuración) y `modulo-ventas/src/storage.js` (persistencia)  
-**Versión del modelo**: 2.0 — modelo entidad-relación completo  
-**Última actualización**: 2026-11-02
+**Implementación de referencia**: `modulo-ventas/src/module-config.js` (configuración), `modulo-ventas/src/storage.js` (persistencia base) y `modulo-ventas/src/ventas/` (dominio)
+**Versión del modelo**: 3.0 — modelo entidad-relación completo implementado
+**Última actualización**: 2026-11-03
 
 ## 1. Alcance, niveles del modelo y convenciones
 
@@ -33,20 +33,20 @@ La separación permite especificar el dominio completo sin confundirlo con el av
 
 | Entidad | Estado | Evidencia en el prototipo |
 |---|---|---|
-| `ZONA` | Parcial | Campo propio `zona` de tipo `select` en el cliente. |
-| `VENDEDOR` | Parcial | Campo propio `vendedor` de tipo `text` en el cliente. |
+| `ZONA` | Implementada | Colección `erp_ventas:zonas` (`masters.js`). |
+| `VENDEDOR` | Implementada | Colección `erp_ventas:vendedores` con FK validada a `ZONA` (`masters.js`). |
 | `CLIENTE` | Implementada | Colección `erp_base_module:entities`. |
-| `CATEGORIA_PRODUCTO` | Planificada | — |
-| `LISTA_PRECIO` | Planificada | — |
-| `PRODUCTO` | Planificada | — |
-| `PRECIO_PRODUCTO` | Planificada | — |
-| `COTIZACION` | Parcial | Estado `cotización` del pedido; no existe entidad propia. |
-| `PEDIDO_VENTA` | Implementada | Colección `erp_base_module:documents`. |
-| `DETALLE_PEDIDO` | Parcial | Agregados `quantity`, `subtotal`, `discount`, `taxAmount` y `totalAmount` en la cabecera del pedido, sin líneas. |
-| `FACTURA` | Parcial | Estado `facturado` del pedido; no existe entidad propia. |
-| `PAGO` | Planificada | — |
-| `DEVOLUCION` | Planificada | — |
-| `DETALLE_DEVOLUCION` | Planificada | — |
+| `CATEGORIA_PRODUCTO` | Implementada | Colección `erp_ventas:categorias` (`catalog.js`). |
+| `LISTA_PRECIO` | Implementada | Colección `erp_ventas:listas_precio` (`catalog.js`). |
+| `PRODUCTO` | Implementada | Colección `erp_ventas:productos` con SKU único y stock (`catalog.js`). |
+| `PRECIO_PRODUCTO` | Implementada | Colección `erp_ventas:precios_producto` con vigencia por lista (`catalog.js`). |
+| `COTIZACION` | Implementada | Colección `erp_ventas:cotizaciones` con estados propios y `acceptQuote` (`quotes.js`). |
+| `PEDIDO_VENTA` | Implementada | Colección `erp_ventas:pedidos` con ciclo de vida y totales (`orders.js`). |
+| `DETALLE_PEDIDO` | Implementada | Colección `erp_ventas:detalles_pedido` con líneas consolidadas (`orders.js`). |
+| `FACTURA` | Implementada | Colección `erp_ventas:facturas` con saldo y unicidad por pedido (`invoices.js`). |
+| `PAGO` | Implementada | Colección `erp_ventas:pagos` con recálculo de saldo (`payments.js`). |
+| `DEVOLUCION` | Implementada | Colección `erp_ventas:devoluciones` con seguimiento `DEV` (`returns.js`). |
+| `DETALLE_DEVOLUCION` | Implementada | Colección `erp_ventas:detalles_devolucion` (`returns.js`). |
 
 ---
 
@@ -734,10 +734,24 @@ Reglas asociadas:
 
 | Colección | Clave en `localStorage` | Contenido |
 |---|---|---|
-| Clientes | `erp_base_module:entities` | Array JSON de objetos `CLIENTE` |
-| Pedidos | `erp_base_module:documents` | Array JSON de objetos `PEDIDO_VENTA` |
+| Clientes | `erp_base_module:entities` | Array JSON de objetos `CLIENTE` (maestro base reutilizado) |
+| Zonas | `erp_ventas:zonas` | `ZONA` |
+| Vendedores | `erp_ventas:vendedores` | `VENDEDOR` con FK a `ZONA` |
+| Categorías | `erp_ventas:categorias` | `CATEGORIA_PRODUCTO` |
+| Listas de precio | `erp_ventas:listas_precio` | `LISTA_PRECIO` |
+| Productos | `erp_ventas:productos` | `PRODUCTO` con SKU único y stock |
+| Precios | `erp_ventas:precios_producto` | `PRECIO_PRODUCTO` con vigencia |
+| Cotizaciones | `erp_ventas:cotizaciones` | `COTIZACION` |
+| Pedidos | `erp_ventas:pedidos` | `PEDIDO_VENTA` |
+| Detalles de pedido | `erp_ventas:detalles_pedido` | `DETALLE_PEDIDO` |
+| Facturas | `erp_ventas:facturas` | `FACTURA` |
+| Pagos | `erp_ventas:pagos` | `PAGO` |
+| Devoluciones | `erp_ventas:devoluciones` | `DEVOLUCION` |
+| Detalles de devolución | `erp_ventas:detalles_devolucion` | `DETALLE_DEVOLUCION` |
+| Auditoría | `erp_ventas:auditoria` | Bitácora de devoluciones y acciones |
+| Secuencias | `erp_ventas:secuencias` | Folios persistidos por serie (`COT`, `PED`, `FAC`, `DEV`) |
 
-Las claves son las del módulo base: la especificación de Ventas reutiliza el mismo almacén, por lo que un cliente y un pedido conviven en el mismo espacio de trabajo.
+Las entidades base (`CLIENTE`) se mantienen en las claves del módulo base; el dominio de Ventas usa el prefijo `erp_ventas:` para no alterar el núcleo. Un cliente, un pedido y sus documentos asociados conviven en el mismo espacio de trabajo.
 
 ### 7.2 Documento almacenado de un cliente
 
@@ -806,20 +820,20 @@ Las claves son las del módulo base: la especificación de Ventas reutiliza el m
 
 | Entidad lógica | Representación en el prototipo | Cobertura |
 |---|---|---|
-| `CLIENTE` | Colección `entities` | Completa para los atributos base; `vendedor` y `zona` sin normalizar |
-| `PEDIDO_VENTA` | Colección `documents` | Completa para los atributos base y campos propios |
-| `ZONA` | `entities[].zona` (`select`) | Parcial: catálogo cerrado, sin tabla |
-| `VENDEDOR` | `entities[].vendedor` (`text`) | Parcial: texto libre, sin tabla |
-| `COTIZACION` | `documents[].status = "cotización"` | Parcial: estado, sin entidad |
-| `FACTURA` | `documents[].status = "facturado"` | Parcial: estado, sin entidad |
-| `DETALLE_PEDIDO` | `documents[].quantity` + importes agregados | Parcial: sin líneas |
-| `CATEGORIA_PRODUCTO` | — | Planificada |
-| `LISTA_PRECIO` | — | Planificada |
-| `PRODUCTO` | — | Planificada |
-| `PRECIO_PRODUCTO` | — | Planificada |
-| `PAGO` | — | Planificada |
-| `DEVOLUCION` | — | Planificada |
-| `DETALLE_DEVOLUCION` | — | Planificada |
+| `CLIENTE` | Colección `erp_base_module:entities` | Completa para atributos base; `vendedor` y `zona` se conservan como campos propios |
+| `PEDIDO_VENTA` | Colección `erp_ventas:pedidos` | Completa: cliente, vendedor, canal, pago, fechas, moneda y totales |
+| `ZONA` | Colección `erp_ventas:zonas` | Completa: código único y siembra desde configuración |
+| `VENDEDOR` | Colección `erp_ventas:vendedores` | Completa: FK a zona validada |
+| `COTIZACION` | Colección `erp_ventas:cotizaciones` | Completa: estados `borrador`/`enviada`/`aceptada`/`rechazada`/`vencida` |
+| `FACTURA` | Colección `erp_ventas:facturas` | Completa: una factura por pedido, saldo y estados de pago |
+| `DETALLE_PEDIDO` | Colección `erp_ventas:detalles_pedido` | Completa: líneas consolidadas por producto |
+| `CATEGORIA_PRODUCTO` | Colección `erp_ventas:categorias` | Completa |
+| `LISTA_PRECIO` | Colección `erp_ventas:listas_precio` | Completa |
+| `PRODUCTO` | Colección `erp_ventas:productos` | Completa: SKU único, stock y estado |
+| `PRECIO_PRODUCTO` | Colección `erp_ventas:precios_producto` | Completa: vigencia y moneda |
+| `PAGO` | Colección `erp_ventas:pagos` | Completa: monto positivo y tope por factura |
+| `DEVOLUCION` | Colección `erp_ventas:devoluciones` | Completa: plazo, motivo, estados y auditoría |
+| `DETALLE_DEVOLUCION` | Colección `erp_ventas:detalles_devolucion` | Completa: cantidades y montos devueltos |
 
 ---
 
@@ -852,11 +866,42 @@ El modelo implementado se inyecta en el módulo base mediante un único archivo 
       "cancelado": []
     }
   },
+  "businessRules": {
+    "returnWindowDays": 30,
+    "defaultCurrency": "CLP",
+    "roles": ["vendedor", "operaciones", "gerente", "devoluciones", "jefe_ventas", "facturacion"]
+  },
   "theme": { "accentColor": "#0f62fe" }
 }
 ```
 
 Tipos admitidos para campos personalizados: `text`, `number`, `date`, `select`.
+
+### 8.1 Roles y permisos
+
+| Rol | Permisos |
+|---|---|
+| `vendedor` | `crear_orden`, `editar_orden`, `ver_pedidos` |
+| `operaciones` | `entregar`, `ver_pedidos` |
+| `gerente` | `ver_resumen`, `ver_pedidos` |
+| `devoluciones` | `devolver`, `ver_pedidos` |
+| `jefe_ventas` | `ver_historial`, `ver_pedidos` |
+| `facturacion` | `facturar`, `registrar_pago`, `ver_pedidos` |
+
+El rol activo se persiste en `erp_ventas:current_role` y por defecto es `vendedor`. Los módulos de dominio rechazan la operación con un mensaje de permiso cuando el rol no corresponde.
+
+### 8.2 Reglas de negocio configurables
+
+| Regla | Valor por defecto | Uso |
+|---|---|---|
+| `returnWindowDays` | `30` | Plazo máximo de devolución desde la emisión de la factura o pedido |
+| `defaultCurrency` | `CLP` | Moneda usada cuando la orden no especifica otra |
+| `roles` | Los seis roles del módulo | Catálogo de roles disponibles para autorización |
+| `vendedores` | Opcional | Siembra inicial del maestro de vendedores |
+
+### 8.3 Colecciones y series
+
+Cada colección se guarda como JSON en `localStorage` bajo el prefijo `erp_ventas:`. Las secuencias de folios se persisten por serie (`COT`, `PED`, `FAC`, `DEV`) y el formato de número es `SERIE-folio`. La auditoría registra venta, factura, devolución, productos, cantidad, motivo, fecha y usuario.
 
 ---
 
@@ -884,4 +929,5 @@ Tipos admitidos para campos personalizados: `text`, `number`, `date`, `select`.
 - **14 entidades** organizadas en tres grupos: maestros (`ZONA`, `VENDEDOR`, `CLIENTE`), catálogo y precios (`CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO`, `PRECIO_PRODUCTO`) y transacciones (`COTIZACION`, `PEDIDO_VENTA`, `DETALLE_PEDIDO`, `FACTURA`, `PAGO`, `DEVOLUCION`, `DETALLE_DEVOLUCION`).
 - **23 relaciones** especificadas con cardinalidad, participación, clave foránea y política de borrado.
 - **18 restricciones implementadas** (R-01 a R-18) y **35 restricciones adicionales** del modelo completo (R-19 a R-53).
-- **2 entidades implementadas**: `CLIENTE` y `PEDIDO_VENTA`; **5 parciales** y **7 planificadas**, según la tabla de estado de implementación.
+- **14 entidades implementadas**: maestros (`ZONA`, `VENDEDOR`, `CLIENTE`), catálogo y precios (`CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO`, `PRECIO_PRODUCTO`) y transacciones (`COTIZACION`, `PEDIDO_VENTA`, `DETALLE_PEDIDO`, `FACTURA`, `PAGO`, `DEVOLUCION`, `DETALLE_DEVOLUCION`). No quedan entidades parciales ni planificadas.
+- **Persistencia**: 16 colecciones en `localStorage` (una base y quince de Ventas, incluida auditoría y secuencias) y numeración persistida por serie.

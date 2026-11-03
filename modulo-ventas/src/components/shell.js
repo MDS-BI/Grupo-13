@@ -28,7 +28,7 @@ export function applyShellLabels(){
 }
 
 export function setActiveModule(name){
-  document.querySelectorAll('.nav-module').forEach(btn => {
+  document.querySelectorAll('.nav-module, .nav-ventas').forEach(btn => {
     const active = btn.dataset.module === name;
     btn.classList.toggle('active', active);
     if(active) btn.setAttribute('aria-current', 'page');

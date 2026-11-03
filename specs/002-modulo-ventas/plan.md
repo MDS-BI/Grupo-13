@@ -21,7 +21,7 @@ La implementación vigente mantiene los clientes y pedidos en las colecciones ge
 
 **Lenguaje/Versión**: JavaScript (ES2022), HTML, CSS  
 **Dependencias Principales**: Vite, Vitest + jsdom (sin framework de interfaz)  
-**Almacenamiento**: localStorage del navegador — colecciones `erp_base_module:entities` (Clientes) y `erp_base_module:documents` (Pedidos de Venta)  
+**Almacenamiento**: localStorage del navegador — clientes en `erp_base_module:entities` y colecciones de dominio con prefijo `erp_ventas:` (zonas, vendedores, catálogo, cotizaciones, pedidos, facturas, pagos, devoluciones, auditoría y secuencias)
 **Modelo de Datos**: modelo de dos niveles (lógico completo y físico implementado) documentado en [data-model.md](data-model.md); este plan no replica el modelo entidad-relación  
 **Estructura**: la carpeta `modulo-ventas/` es autocontenida (index.html, src/, tests/) y se ejecuta con `vite modulo-ventas` desde la raíz del repositorio  
 **Comandos**: `npm run dev`, `npm run build`, `npm test` (apuntan a `modulo-ventas/`)
@@ -75,38 +75,45 @@ modulo-ventas/
 
 Las fases se derivan del estado de implementación declarado en `data-model.md` (§1.2 y §7.5). No se listan aquí entidades ni relaciones; cada fase referencia la sección correspondiente del modelo.
 
-### Fase 0 — Subconjunto implementado (actual)
+### Fase 0 — Subconjunto base (completada)
 
 - Clientes y Pedidos de Venta sobre las colecciones genéricas.
 - Campos propios de Ventas, búsqueda y ciclo de vida configurado.
 - Validaciones R-01 a R-18 y cascada cliente → pedidos.
 - Sin cambios en el núcleo del módulo base.
 
-### Fase 1 — Maestros normalizados
+### Fase 1 — Maestros normalizados (completada)
 
-- Normalizar las entidades maestras que hoy existen como campos parciales, según `data-model.md` §3.1, §3.2 y §4.
-- Sustituir los valores de texto libre o enumerados por referencias validadas.
-- Incorporar las restricciones del modelo lógico asociadas a esos maestros.
+- `ZONA` y `VENDEDOR` normalizados en `masters.js` con referencias validadas y siembra desde configuración.
+- Restricciones de unicidad, correo y FK aplicadas.
+- Cliente base reutilizado desde `erp_base_module:entities`.
 
-### Fase 2 — Catálogo y precios
+### Fase 2 — Catálogo y precios (completada)
 
-- Incorporar las entidades de catálogo y tarifario descritas en `data-model.md` §3.4 a §3.7.
-- Añadir sus restricciones de unicidad, vigencia y valoración.
-- Preparar la base para que los pedidos tomen precios desde listas.
+- `CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO` y `PRECIO_PRODUCTO` implementados en `catalog.js`.
+- Unicidad de SKU, vigencia de precios por lista, control de stock y búsqueda por código/nombre.
+- Los pedidos consolidan líneas y toman precios desde el catálogo o el valor informado.
 
-### Fase 3 — Cotizaciones y líneas de pedido
+### Fase 3 — Cotizaciones y líneas de pedido (completada)
 
-- Incorporar la cotización como entidad propia y las líneas de pedido, según `data-model.md` §3.8, §3.10 y §4.3.
-- Derivar los importes de la cabecera a partir de las líneas.
-- Aplicar las restricciones de coherencia de importes y de líneas.
+- `COTIZACION` con estados propios y aceptación que origina un pedido (`quotes.js`).
+- `PEDIDO_VENTA` y `DETALLE_PEDIDO` con consolidación de líneas y totales derivados (`orders.js`).
+- Cálculo de subtotal, IVA por línea y total con redondeo monetario (`money.js`).
 
-### Fase 4 — Facturación, pagos y devoluciones
+### Fase 4 — Facturación, pagos y devoluciones (completada)
 
-- Incorporar factura, pago y devolución con sus detalles, según `data-model.md` §3.11 a §3.14 y §4.4 a §4.5.
-- Aplicar las reglas de saldo, sobrepago y límites de devolución.
-- Completar la trazabilidad del ciclo comercial de punta a punta.
+- `FACTURA`, `PAGO`, `DEVOLUCION` y `DETALLE_DEVOLUCION` implementados en `invoices.js`, `payments.js` y `returns.js`.
+- Reglas de saldo, sobrepago, plazo de 30 días, motivo obligatorio y límites de devolución.
+- Ciclo completo `cotización → pedido → facturado → entregado`, con auditoría y estados terminales.
 
-Cada fase debe conservar la compatibilidad con los datos ya persistidos, mantener la configuración como punto de entrada del dominio y actualizar `data-model.md` cuando cambie el estado de implementación.
+Las fases se completaron manteniendo la compatibilidad con los datos persistidos, la configuración como punto de entrada del dominio y `data-model.md` como fuente de verdad del modelo.
+
+## Interfaz de usuario
+
+- Nuevas vistas en `modulo-ventas/index.html` para pedidos, entregas, resumen, devoluciones, historial y facturación.
+- Componentes de dominio en `modulo-ventas/src/components/ventas/` conectados desde `modulo-ventas/src/app.js`.
+- Selector de rol activo en la barra superior y navegación de Ventas con clase propia (`nav-ventas`) para no alterar las pruebas del shell base.
+- Estados vacíos, mensajes `aria-live`, tablas accesibles y estilos responsivos en `styles.css`.
 
 ## Cambios Realizados en esta Iteración
 
@@ -116,15 +123,19 @@ Cada fase debe conservar la compatibilidad con los datos ya persistidos, mantene
    - `index.html`: título por defecto → "Ventas".
    - `tests/unit/module-config.test.js`: verifica la configuración de Ventas en lugar del default nulo.
    - `package.json` (raíz): scripts `dev`, `build`, `preview` y `test` apuntan a `modulo-ventas/`.
-4. **Reencuadre del alcance**: lo que antes se consideraba fuera de alcance (catálogo, líneas, cotización, facturación, pagos y devoluciones) pasa a ser roadmap por fases del modelo lógico, sin alterar la implementación física actual.
+4. **Reencuadre del alcance**: lo que antes se consideraba fuera de alcance (catálogo, líneas, cotización, facturación, pagos y devoluciones) quedó implementado en `modulo-ventas/src/ventas/` y expuesto en la interfaz.
+5. **Dominio de Ventas**: 16 módulos JavaScript (`collections`, `money`, `numbering`, `lifecycle`, `roles`, `audit`, `masters`, `catalog`, `quotes`, `orders`, `delivery`, `summary`, `returns`, `history`, `invoices`, `payments`) y un barrel `index.js`.
+6. **Pruebas**: suite nueva en `modulo-ventas/tests/ventas/` con cobertura de historias US1-US6, roles, concurrencia, rendimiento y consistencia.
+7. **Documentación**: `data-model.md` v3.0 actualizado con las 14 entidades implementadas, colecciones, roles y `businessRules`.
 
 ## Verificación
 
-- `npm test`: **111/111 pruebas pasan** (12 archivos: unit + integration).
+- `npm test`: **226/226 pruebas pasan** (39 archivos; incluye las 111 pruebas base y las nuevas pruebas de Ventas).
+- `npm run test:ventas`: suite específica de Ventas en `modulo-ventas/tests/ventas/`.
 - `npm run build`: compila sin errores (salida en `modulo-ventas/dist/`).
-- Coherencia con el modelo: la terminología, los campos propios, el ciclo de vida, las validaciones R-01 a R-18 y la persistencia del plan coinciden con `data-model.md` §7 y §8.
+- Coherencia con el modelo: la terminología, el ciclo de vida, las validaciones y la persistencia coinciden con `data-model.md` §7 y §8.
 - El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.
 
 ## Seguimiento de Complejidad
 
-La adaptación actual no introduce violaciones de la constitución: se realiza únicamente a través del mecanismo de configuración del módulo base, con cero cambios en el código central. Las fases futuras deberán justificar cualquier extensión del núcleo (nuevas colecciones, servicios de cálculo o validaciones transversales) y mantener el modelo lógico documentado en `data-model.md` como única fuente de verdad.
+La entrega mantiene el núcleo base sin bifurcaciones: `storage.js` y los componentes base conservan sus responsabilidades, mientras el dominio nuevo vive en `modulo-ventas/src/ventas/` y sus vistas en `modulo-ventas/src/components/ventas/`. Las extensiones se justifican por el modelo lógico documentado en `data-model.md`, que sigue siendo la única fuente de verdad.
