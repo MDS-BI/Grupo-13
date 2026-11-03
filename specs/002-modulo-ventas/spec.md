@@ -23,18 +23,20 @@
   - Demonstrated to users independently
 -->
 
-### User Story 1 - [Brief Title] (Priority: P1)
+### User Story 1 - [Vendedor] (Priority: P1)
 
-[Describe this user journey in plain language]
+Descripción: Como vendedor, necesito poder crear una orden de venta. Quiero buscar y seleccionar a un cliente, ir agregando los distintos productos que va a llevar, y anotar cómo nos va a pagar. Todo esto para registrar la compra y que el resto de mis compañeros (como facturación o el jefe de ventas) tengan la información que necesitan para hacer su parte.
 
-**Why this priority**: [Explain the value and why it has this priority level]
+¿Por qué esta prioridad?: Porque es el inicio de todo el proceso (Prioridad 1). Si yo como vendedor no registro la venta con todos los detalles (quién compra, qué compra y quién lo vende), los demás roles no tienen datos para revisar, cobrar o analizar.
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+Prueba independiente: Un vendedor se mete al sistema, crea una orden nueva, elige a un cliente que ya existe, le agrega dos productos diferentes fijándose que haya stock, y pone que pagará al contado (condición de pago). El sistema le suma todo, le saca el IVA y le guarda el documento como "Cotización".
 
-**Acceptance Scenarios**:
+Escenarios de aceptación:
+1. Dado que estoy armando una venta nueva, cuando elijo al cliente, entonces el sistema tiene que guardar sí o sí el ID del cliente para que le quede guardado en su historial.
+2.​ Dado que estoy agregando productos a la boleta, cuando pongo la cantidad de cada cosa, entonces el sistema tiene que multiplicar los precios solo y sumarme el total final con el IVA incluido.
+​3. Dado que busco un producto para agregarlo, cuando el sistema ve que el stock está en cero, entonces me tiene que tirar un aviso en pantalla y no dejarme venderlo.
+​4. Dado que ya terminé de anotar todo, cuando le doy a guardar, entonces el sistema me tiene que pedir de forma obligatoria el Canal de Venta, la Condición de Pago y mi ID de vendedor, y lo deja guardado en estado inicial de "Cotización".
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
 
