@@ -96,7 +96,7 @@ Las fases se derivan del estado de implementación declarado en `data-model.md` 
 
 ### Fase 3 — Cotizaciones y líneas de pedido (completada)
 
-- `COTIZACION` con estados propios y aceptación que origina un pedido (`quotes.js`).
+- `COTIZACION` como entidad de pre-venta con estados propios; `acceptQuote` origina un `PEDIDO_VENTA` en estado «pedido» (`quotes.js`). El estado «cotización» de un pedido registrado directamente es distinto de esta entidad.
 - `PEDIDO_VENTA` y `DETALLE_PEDIDO` con consolidación de líneas y totales derivados (`orders.js`).
 - Cálculo de subtotal, IVA por línea y total con redondeo monetario (`money.js`).
 
@@ -134,6 +134,7 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 - `npm run test:ventas`: suite específica de Ventas en `modulo-ventas/tests/ventas/`.
 - `npm run build`: compila sin errores (salida en `modulo-ventas/dist/`).
 - Coherencia con el modelo: la terminología, el ciclo de vida, las validaciones y la persistencia coinciden con `data-model.md` §7 y §8.
+- `npm run lint` y `npm run format:check`: sin errores (Quality Standards de la constitución).
 - El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.
 
 ## Seguimiento de Complejidad

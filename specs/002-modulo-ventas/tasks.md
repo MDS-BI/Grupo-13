@@ -79,7 +79,7 @@ description: "Task list for Módulo de Ventas implementation"
 ### Implementación de US1
 
 - [x] T021 [P] [US1] Implementar el catálogo en `modulo-ventas/src/ventas/catalog.js` para `CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO` y `PRECIO_PRODUCTO`, con unicidad, vigencia y consultas de stock.
-- [x] T022 [P] [US1] Implementar la cotización en `modulo-ventas/src/ventas/quotes.js` (`COTIZACION`, estados `borrador`/`enviada`/`aceptada`/`rechazada`/`vencida`, aceptación que origina pedido).
+- [x] T022 [P] [US1] Implementar la entidad Cotización en `modulo-ventas/src/ventas/quotes.js` (`COTIZACION` con estados `borrador`/`enviada`/`aceptada`/`rechazada`/`vencida` y `acceptQuote` que origina un Pedido de Venta en estado «pedido»), distinta del estado «cotización» de un pedido registrado directamente.
 - [x] T023 [US1] Implementar el pedido en `modulo-ventas/src/ventas/orders.js` (`PEDIDO_VENTA` + `DETALLE_PEDIDO`, FK de cliente, vendedor, canal, condición de pago, fecha de entrega y estado inicial «cotización»).
 - [x] T024 [US1] Agregar validación y revalidación de stock en `modulo-ventas/src/ventas/orders.js` (stock cero, insuficiente, líneas duplicadas y cantidades no enteras o no positivas).
 - [x] T025 [US1] Agregar cálculo automático de subtotal, IVA por línea y total con redondeo monetario en `modulo-ventas/src/ventas/orders.js` usando `money.js`.
@@ -99,6 +99,8 @@ description: "Task list for Módulo de Ventas implementation"
 ## Fase 4: US2 - Marcar pedido como entregado (Prioridad P2)
 
 **Meta**: El encargado de operaciones y logística cambia un pedido «facturado» a «entregado», y el sistema bloquea cualquier modificación o reversión posterior.
+
+**Dependencia**: requiere un Pedido de Venta en estado «facturado»; completar Fase 8 (US6) antes de validar el recorrido extremo a extremo o sembrar un pedido facturado en la prueba.
 
 **Prueba independiente**: Seleccionar un pedido «facturado», cambiarlo a «entregado», verificar la persistencia y el reflejo en listas; intentar modificarlo y comprobar el bloqueo por estado terminal.
 
@@ -200,7 +202,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T076 [P] Cubrir la autorización por rol de todas las acciones en `modulo-ventas/tests/ventas/roles-guard.test.js` (crear, facturar, entregar, devolver, resumen e historial).
 - [x] T077 [P] Completar los estados vacíos de productos, pedidos, facturas, devoluciones, historial y resumen en sus componentes de `modulo-ventas/src/components/ventas/`.
 - [x] T078 [P] Agregar etiquetas, `aria-live` y encabezados de tabla accesibles a las nuevas vistas en `modulo-ventas/index.html`.
-- [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen en `modulo-ventas/tests/ventas/performance.test.js`.
+- [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen, verificando <500 ms por operación, en `modulo-ventas/tests/ventas/performance.test.js`.
 - [x] T080 Agregar pruebas transversales de consistencia (sin pedidos huérfanos, una factura por pedido y límites de devolución) en `modulo-ventas/tests/ventas/consistency.test.js`.
 - [x] T081 Actualizar la tabla de estado de implementación de `specs/002-modulo-ventas/data-model.md` con las entidades implementadas y parciales.
 - [x] T082 Actualizar las fases y la sección de cambios de `specs/002-modulo-ventas/plan.md` con el estado final de la entrega.
@@ -208,6 +210,14 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T084 Eliminar cálculos duplicados y código sin uso en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
 - [x] T085 Ejecutar `npm test` desde la raíz y corregir cualquier regresión de la suite completa.
 - [x] T086 Ejecutar `npm run build` desde la raíz y verificar la salida en `modulo-ventas/dist/`.
+- [ ] T087 [P] Configurar ESLint + Prettier en la raíz (`package.json`, `.eslintrc`, `.prettierrc`) para `modulo-ventas/src/`.
+- [ ] T088 [P] Ejecutar lint/format y corregir hallazgos en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
+- [ ] T089 Agregar scripts `lint` y `format:check` y ejecutarlos junto a `npm test` y `npm run build` antes de cerrar la entrega.
+- [ ] T090 [P] [US1] Escribir prueba de edición de pedido con recálculo y revalidación de stock en `modulo-ventas/tests/ventas/edit-order.test.js`.
+- [ ] T091 [US1] Implementar la edición de pedidos en estados modificables en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/src/ventas/orders.js`.
+- [ ] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/lifecycle.test.js`.
+- [ ] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
+- [ ] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
 
 ---
 
@@ -239,7 +249,7 @@ description: "Task list for Módulo de Ventas implementation"
 - Las pruebas MUST escribirse antes de la implementación y fallar primero.
 - Modelos/almacenes antes que servicios; servicios antes que componentes de interfaz.
 - La implementación central antes de la integración con el shell.
-- Cada historia debe quedar completa y validada antes de pasar a la siguiente prioridad.
+- Cada historia debe quedar completa y validada antes de considerarse entregada; cuando una historia dependa de otra de mayor prioridad funcional (p. ej., US2 depende de US6), se permite adelantar la dependencia.
 
 ### Oportunidades de paralelización
 

@@ -407,6 +407,8 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 
 ### 3.8 `COTIZACION` (pre-venta)
 
+**Distinción de nombres**: `COTIZACION` es la entidad de pre-venta con estados propios. El estado «cotización» del ciclo de `PEDIDO_VENTA` (§6.1) es el estado inicial de un pedido registrado directamente y no una instancia de esta entidad. Una Cotización aceptada origina un `PEDIDO_VENTA` en estado «pedido» mediante `acceptQuote`.
+
 | Atributo | Clave | Tipo | Nulo | Regla / dominio | Implementación |
 |---|---|---|---|---|---|
 | `id` | PK | string | NN | Generado automáticamente | — |
@@ -692,6 +694,8 @@ El prototipo actual **no recalcula** estos importes: `subtotal`, `discount`, `ta
 
 ### 6.1 Ciclo de vida del pedido de venta (implementado)
 
+El estado «cotización» representa un Pedido de Venta en borrador comercial y no implica la existencia de una entidad `COTIZACION`; una Cotización aceptada crea un `PEDIDO_VENTA` en estado «pedido».
+
 ```mermaid
 stateDiagram-v2
     [*] --> cotizacion : se registra el pedido
@@ -718,7 +722,7 @@ Reglas asociadas:
 - Una transición no permitida se rechaza con el mensaje `Transición de estado inválida de "<origen>" a "<destino>"`.
 - Si se retira el ciclo de vida de la configuración, `status` vuelve a ser texto libre.
 
-### 6.2 Ciclos de vida de las entidades planificadas
+### 6.2 Ciclos de vida de las demás entidades
 
 | Entidad | Estados | Transiciones |
 |---|---|---|

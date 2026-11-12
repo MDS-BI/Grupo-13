@@ -163,7 +163,7 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 - **FR-002**: El sistema DEBE presentar el módulo con el nombre «Ventas» y la terminología Cliente(s) / Pedido(s) de Venta en todas las pantallas.
 - **FR-003**: El sistema DEBE registrar los campos propios del dominio: vendedor y zona del cliente; canal de venta y fecha de entrega del pedido.
 - **FR-004**: El sistema DEBE permitir buscar clientes y productos por sus datos identificatorios y descriptivos, incluidos los campos propios del dominio.
-- **FR-005**: El sistema DEBE gestionar el ciclo de vida del pedido de venta con los estados «cotización», «pedido», «facturado», «entregado» y «cancelado», aplicando únicamente las transiciones permitidas.
+- **FR-005**: El sistema DEBE gestionar el ciclo de vida del pedido de venta con los estados «cotización», «pedido», «facturado», «entregado» y «cancelado», aplicando únicamente las transiciones permitidas. El estado «cotización» corresponde al Pedido de Venta registrado directamente y no debe confundirse con la entidad Cotización (ver Key Entities).
 - **FR-006**: El sistema DEBE mantener la integridad referencial entre clientes, pedidos, facturas y devoluciones, impidiendo registros huérfanos o referencias inexistentes.
 
 **Registro de la venta (Vendedor)**
@@ -212,11 +212,11 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 
 **Facturación (Encargado de facturación)**
 
-- **FR-036**: El sistema DEBE permitir al encargado de facturación generar una factura a partir de una orden de venta confirmada o aprobada.
+- **FR-036**: El sistema DEBE permitir al encargado de facturación generar una factura a partir de un Pedido de Venta en estado «pedido».
 - **FR-037**: El sistema DEBE copiar automáticamente a la factura el cliente, las líneas de productos, los precios y los impuestos de la orden de origen.
 - **FR-038**: El sistema DEBE calcular automáticamente el subtotal, el impuesto y el monto total a cobrar de la factura.
 - **FR-039**: El sistema DEBE crear la factura en estado inicial «pendiente de pago».
-- **FR-040**: El sistema DEBE bloquear la emisión de facturas sobre órdenes en estado «cotización» o no aprobadas, sin generar ningún registro.
+- **FR-040**: El sistema DEBE bloquear la emisión de facturas sobre pedidos en estado «cotización» (no confirmados), sin generar ningún registro.
 - **FR-041**: El sistema DEBE impedir que una misma orden de venta tenga más de una factura asociada.
 - **FR-042**: El sistema DEBE vincular cada factura con su orden de venta y su cliente, conservando la trazabilidad del documento fiscal.
 
@@ -236,7 +236,7 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 - **Producto**: Bien o servicio vendible, con código único, categoría, unidad de medida, tasa de impuesto, stock actual, stock mínimo y estado de vigencia.
 - **Detalle de Pedido de Venta**: Línea de una orden que registra un producto, la cantidad vendida, el precio unitario, el descuento, el impuesto y el subtotal de la línea.
 - **Pedido de Venta**: Transacción comercial que vincula a un cliente con uno o más productos. Conserva vendedor, canal de venta, fecha de emisión, fecha de entrega, condición de pago, moneda, subtotal, descuento, impuesto, total y estado del ciclo de vida.
-- **Cotización**: Oferta previa a la venta dirigida a un cliente, con fecha de emisión, vigencia, vendedor, líneas de productos e importes. Puede originar un pedido de venta cuando es aceptada.
+- **Cotización**: Documento de pre-venta dirigido a un cliente, con fecha de emisión, vigencia, vendedor, líneas de productos e importes. Tiene estados propios y, al aceptarse, origina un Pedido de Venta en estado «pedido» vinculado por su identificador. No debe confundirse con el estado «cotización» de un pedido registrado directamente.
 - **Factura**: Documento fiscal generado a partir de un pedido confirmado. Registra cliente, líneas, subtotal, impuesto, total, saldo, fecha de emisión, vencimiento y estado de cobro. Una orden admite como máximo una factura.
 - **Pago**: Abono aplicado a una factura, con fecha, monto, método y referencia. Reduce el saldo pendiente de la factura.
 - **Devolución**: Solicitud de devolución asociada a una factura y a su pedido, con número de seguimiento, fecha, motivo, estado, moneda e importe total devuelto. Se compone de una o más líneas devueltas.
@@ -246,9 +246,9 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 
 ### Measurable Outcomes
 
-- **SC-001**: Un vendedor puede registrar un cliente con vendedor y zona, y encontrarlo mediante búsqueda, en menos de 2 minutos.
+- **SC-001**: Un vendedor puede buscar y seleccionar un cliente existente (con vendedor y zona asignados) y agregarlo a una orden en menos de 2 minutos.
 - **SC-002**: Un pedido de venta puede recorrerse desde «cotización» hasta «entregado» sin que el sistema permita una sola transición inválida.
-- **SC-003**: Al eliminar un cliente, el 100% de sus pedidos de venta asociados desaparecen de la lista, la búsqueda y el historial comercial.
+- **SC-003**: Al desactivar un cliente, el 100% de sus pedidos históricos permanecen consultables con su referencia y no se generan registros huérfanos.
 - **SC-004**: El resumen general del gerente coincide exactamente con los datos persistidos en el 100% de las consultas, incluyendo cantidades, montos y estados.
 - **SC-005**: El 100% de las devoluciones fuera de plazo, con motivo inválido o con cantidades excesivas son rechazadas sin modificar el estado del producto.
 - **SC-006**: El 100% de las facturas emitidas provienen de órdenes confirmadas y ninguna orden genera más de una factura.
@@ -256,7 +256,7 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 - **SC-008**: El 100% de los intentos de vender un producto con stock cero son bloqueados con un mensaje visible para el vendedor.
 - **SC-009**: Los cálculos de subtotal, impuesto y total coinciden con el resultado esperado en el 100% de las órdenes, incluidos pedidos con varias tasas de impuesto.
 - **SC-010**: Al menos el 90% de los usuarios de prueba completan las tareas de crear una venta, entregar un pedido, facturar y registrar una devolución sin ayuda.
-- **SC-011**: El sistema mantiene una respuesta ágil y consistente al consultar listados y resúmenes con al menos 500 registros de pedidos.
+- **SC-011**: El sistema responde en menos de 500 ms por operación al consultar listados y resúmenes con 500 pedidos persistidos.
 - **SC-012**: Un pedido en estado «entregado» no puede modificarse ni revertirse en el 100% de los intentos.
 
 ## Assumptions
@@ -265,7 +265,7 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 - Los clientes, productos, vendedores, zonas y listas de precios ya existen o se gestionan en los maestros correspondientes antes de registrar una venta.
 - Los precios de los productos se expresan sin impuesto y el IVA se suma para obtener el total; la tasa aplicable proviene de la configuración tributaria vigente de cada producto.
 - La condición de pago «contado» y las condiciones a crédito se registran como texto o selección acordada con el cliente; el módulo no procesa cobros en línea.
-- Una orden «confirmada» o «aprobada» corresponde al estado «pedido» del ciclo de vida; la facturación solo se habilita desde ese estado.
+- El estado «pedido» es el único que habilita la facturación; «cotización» no se considera confirmado.
 - El plazo de devolución es de 30 días calendario desde la fecha de compra, salvo que la política de la empresa configure otro plazo.
 - Las devoluciones pueden ser totales o parciales por producto, siempre que no superen la cantidad vendida y no devuelta previamente.
 - El estado visible «en proceso de devolución» puede corresponder internamente a las etapas solicitada, aprobada o completada del flujo de devolución.
@@ -273,4 +273,5 @@ Se puede probar ingresando al módulo de ventas con un usuario que tenga el rol 
 - Los importes se manejan en la moneda configurada para la orden y se redondean según la precisión de esa moneda.
 - La cancelación de un pedido solo se permite desde los estados «cotización» y «pedido», conforme al ciclo de vida definido.
 - La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren un usuario autenticado con el rol correspondiente.
+- Los clientes se desactivan lógicamente; los pedidos, facturas y devoluciones no se eliminan para preservar la trazabilidad (FR-006).
 - Los datos deben conservarse entre sesiones y no deben perderse al navegar entre pantallas o al recargar la aplicación.
