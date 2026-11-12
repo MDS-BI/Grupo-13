@@ -288,6 +288,13 @@
           <h1 id="sales-order-heading">Pedidos de Venta</h1>
           <p class="muted">Registra una orden con cliente existente, productos con stock, canal y condición de pago. Se guarda como cotización.</p>
 
+          <section class="card" aria-labelledby="order-edit-heading">
+            <h2 id="order-edit-heading">Editar un pedido existente</h2>
+            <label for="order-edit-select">Selecciona un pedido editable</label>
+            <select id="order-edit-select"></select>
+            <div class="error" id="order-edit-error" aria-live="polite"></div>
+          </section>
+
           <section class="card" aria-labelledby="order-form-heading">
             <h2 id="order-form-heading">Nueva orden de venta</h2>
             <form id="order-form" novalidate>

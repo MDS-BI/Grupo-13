@@ -7,7 +7,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Entrada**: Documentos de diseño en `/specs/002-modulo-ventas/`
 
-**Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio para historias), data-model.md (modelo entidad-relación v2.0). No existen `research.md`, `contracts/` ni `quickstart.md` para esta funcionalidad.
+**Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio para historias), data-model.md (modelo entidad-relación v3.0). No existen `research.md`, `contracts/` ni `quickstart.md` para esta funcionalidad.
 
 **Pruebas**: Las tareas de prueba se incluyen porque la constitución del proyecto (Principio II, Test-First & Verification) exige cobertura automatizada de comportamiento visible y lógica de negocio.
 
@@ -210,14 +210,14 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T084 Eliminar cálculos duplicados y código sin uso en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
 - [x] T085 Ejecutar `npm test` desde la raíz y corregir cualquier regresión de la suite completa.
 - [x] T086 Ejecutar `npm run build` desde la raíz y verificar la salida en `modulo-ventas/dist/`.
-- [ ] T087 [P] Configurar ESLint + Prettier en la raíz (`package.json`, `.eslintrc`, `.prettierrc`) para `modulo-ventas/src/`.
-- [ ] T088 [P] Ejecutar lint/format y corregir hallazgos en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
-- [ ] T089 Agregar scripts `lint` y `format:check` y ejecutarlos junto a `npm test` y `npm run build` antes de cerrar la entrega.
-- [ ] T090 [P] [US1] Escribir prueba de edición de pedido con recálculo y revalidación de stock en `modulo-ventas/tests/ventas/edit-order.test.js`.
-- [ ] T091 [US1] Implementar la edición de pedidos en estados modificables en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/src/ventas/orders.js`.
-- [ ] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/lifecycle.test.js`.
-- [ ] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
-- [ ] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
+- [x] T087 [P] Configurar ESLint + Prettier en la raíz (`package.json`, `eslint.config.mjs`, `.prettierrc`) para `modulo-ventas/src/`.
+- [x] T088 [P] Ejecutar lint/format y corregir hallazgos en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
+- [x] T089 Agregar scripts `lint` y `format:check` y ejecutarlos junto a `npm test` y `npm run build` antes de cerrar la entrega.
+- [x] T090 [P] [US1] Escribir prueba de edición de pedido con recálculo y revalidación de stock en `modulo-ventas/tests/ventas/edit-order.test.js`.
+- [x] T091 [US1] Implementar la edición de pedidos en estados modificables en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/src/ventas/orders.js`.
+- [x] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/us1-cancel-order.test.js`.
+- [x] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
+- [x] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
 
 ---
 

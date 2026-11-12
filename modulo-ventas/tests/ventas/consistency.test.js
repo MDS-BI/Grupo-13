@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { installLocalStorage, resetVentasStorage, seedVentas, seedQuoteOrder, seedConfirmedOrder, seedInvoicedOrder, seedDeliveredOrder } from './fixtures.js';
-import { loadEntities } from '../../src/storage.js';
-import { listOrders } from '../../src/ventas/orders.js';
+import { loadEntities, updateEntity } from '../../src/storage.js';
+import { listOrders, assertClienteEliminable } from '../../src/ventas/orders.js';
 import { listInvoices } from '../../src/ventas/invoices.js';
 import { createReturn } from '../../src/ventas/returns.js';
 import { ROLES, setCurrentRole } from '../../src/ventas/roles.js';
@@ -26,6 +26,23 @@ describe('cross-cutting consistency', () => {
     expect(orders.every(order => clients.has(order.clienteId))).toBe(true);
     const orderIds = new Set(orders.map(order => order.id));
     expect(listInvoices().every(invoice => orderIds.has(invoice.pedidoId))).toBe(true);
+  });
+
+  it('keeps historical orders consultable after a client is logically deactivated', () => {
+    const order = seedQuoteOrder(seed);
+    updateEntity(seed.client.id, { estado: 'inactivo' });
+
+    const client = loadEntities().find((entity) => entity.id === seed.client.id);
+    expect(client.estado).toBe('inactivo');
+
+    const orders = listOrders();
+    expect(orders.some((item) => item.id === order.id)).toBe(true);
+    expect(orders.every((item) => loadEntities().some((entity) => entity.entity_id === item.clienteId))).toBe(true);
+  });
+
+  it('blocks deleting a client that still has associated orders', () => {
+    seedQuoteOrder(seed);
+    expect(() => assertClienteEliminable(seed.client.entity_id)).toThrow(/no puede eliminarse/);
   });
 
   it('keeps at most one invoice per order', () => {

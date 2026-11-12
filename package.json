@@ -7,10 +7,15 @@
     "build": "vite build modulo-ventas",
     "preview": "vite preview modulo-ventas --port 4173",
     "test": "vitest run modulo-ventas",
-    "test:ventas": "vitest run modulo-ventas/tests/ventas"
+    "test:ventas": "vitest run modulo-ventas/tests/ventas",
+    "lint": "eslint modulo-ventas/src",
+    "format:check": "prettier --check modulo-ventas/src"
   },
   "devDependencies": {
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
     "jsdom": "^30.0.1",
+    "prettier": "^3.0.0",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
   }

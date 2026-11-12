@@ -42,6 +42,33 @@ describe('Ventas UI wiring', () => {
     expect(document.getElementById('order-feedback').textContent).toMatch(/registrado/);
   });
 
+  it('loads an existing order into the form and saves the changes', () => {
+    clickNav('nav-sales-order');
+    const search = document.getElementById('order-product-search');
+    search.value = 'SKU-1';
+    search.dispatchEvent(new window.Event('input', { bubbles: true }));
+    document.querySelector('#order-product-results .product-option-button').click();
+    document.getElementById('order-client').value = seed.client.entity_id;
+    document.getElementById('order-seller').value = 'Vendedor Demo';
+    document.getElementById('order-form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+
+    const [order] = listOrders();
+    const select = document.getElementById('order-edit-select');
+    select.value = order.id;
+    select.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+    expect(document.getElementById('order-form-heading').textContent).toMatch(/Editar/);
+    expect(document.getElementById('order-save').textContent).toMatch(/Guardar cambios/);
+
+    document.getElementById('order-channel').value = 'Web';
+    document.getElementById('order-form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+
+    const orders = listOrders();
+    expect(orders).toHaveLength(1);
+    expect(orders[0].canal).toBe('Web');
+    expect(document.getElementById('order-feedback').textContent).toMatch(/actualizado/);
+  });
+
   it('shows the empty states of the sales panels without errors', () => {
     clickNav('nav-delivery');
     expect(document.getElementById('delivery-empty').hidden).toBe(false);

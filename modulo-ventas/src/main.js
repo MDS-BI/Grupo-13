@@ -1,4 +1,4 @@
-import './styles.css';
-import { boot } from './app.js';
+import "./styles.css";
+import { boot } from "./app.js";
 
 boot();

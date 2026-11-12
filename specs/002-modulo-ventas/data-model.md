@@ -639,7 +639,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | # | Restricción | Entidad | Comportamiento esperado | Estado |
 |---|---|---|---|---|
 | R-19 | `CLIENTE.codigo` es único | Cliente | Rechaza el alta o edición con un código ya existente | Especificada (no implementada) |
-| R-20 | `CLIENTE.estado` ∈ {`activo`, `inactivo`, `bloqueado`} | Cliente | Rechaza valores fuera del dominio | Planificada |
+| R-20 | `CLIENTE.estado` ∈ {`activo`, `inactivo`, `bloqueado`} | Cliente | Rechaza valores fuera del dominio | Implementada |
 | R-21 | `CLIENTE.vendedor_id` existe en `VENDEDOR` | Cliente | Rechaza la referencia inexistente | Planificada |
 | R-22 | `CLIENTE.zona_id` existe en `ZONA` | Cliente | Rechaza la referencia inexistente | Parcial (enum actual) |
 | R-23 | `CLIENTE.lista_precio_id` existe en `LISTA_PRECIO` | Cliente | Rechaza la referencia inexistente | Planificada |
@@ -772,6 +772,7 @@ Las entidades base (`CLIENTE`) se mantienen en las claves del módulo base; el d
   "category": "Distribuidor",
   "creditLimit": 5000000,
   "paymentTerms": "neto 30",
+  "estado": "activo",
   "vendedor": "C. Rojas",
   "zona": "Centro",
   "createdAt": "2026-10-20T14:03:11.482Z",
