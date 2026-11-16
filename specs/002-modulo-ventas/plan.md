@@ -41,7 +41,10 @@ La entrega actual cubre el modelo lógico completo: clientes y pedidos sobre las
 specs/002-modulo-ventas/
 ├── spec.md
 ├── data-model.md
-└── plan.md
+├── plan.md
+├── tasks.md
+└── checklists/
+    └── requirements.md
 ```
 
 ### Código Fuente (carpeta `modulo-ventas/`)
@@ -128,7 +131,7 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
    - `package.json` (raíz): scripts `dev`, `build`, `preview` y `test` apuntan a `modulo-ventas/`.
 4. **Reencuadre del alcance**: lo que antes se consideraba fuera de alcance (catálogo, líneas, cotización, facturación, pagos y devoluciones) quedó implementado en `modulo-ventas/src/ventas/` y expuesto en la interfaz.
 5. **Dominio de Ventas**: 16 módulos JavaScript (`collections`, `money`, `numbering`, `lifecycle`, `roles`, `audit`, `masters`, `catalog`, `quotes`, `orders`, `delivery`, `summary`, `returns`, `history`, `invoices`, `payments`) y un barrel `index.js`.
-6. **Pruebas**: suite nueva en `modulo-ventas/tests/ventas/` con cobertura de historias US1-US6, roles, concurrencia, rendimiento y consistencia.
+6. **Pruebas**: suite nueva en `modulo-ventas/tests/ventas/` con cobertura de historias US1-US7, roles, concurrencia, rendimiento y consistencia.
 7. **Documentación**: `data-model.md` v3.0 actualizado con las 14 entidades implementadas, colecciones, roles y `businessRules`.
 
 ## Verificación
