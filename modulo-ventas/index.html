@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Ventas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="config-errors" class="config-error" role="alert" hidden></div>
@@ -22,20 +28,83 @@
 
       <aside class="sidebar">
         <nav class="side-nav" aria-label="Módulos">
-          <button type="button" class="nav-module active" data-module="dashboard" id="nav-dashboard" aria-current="page">
-            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1"></rect><rect x="11" y="3" width="6" height="6" rx="1"></rect><rect x="3" y="11" width="6" height="6" rx="1"></rect><rect x="11" y="11" width="6" height="6" rx="1"></rect></svg>
+          <button
+            type="button"
+            class="nav-module active"
+            data-module="dashboard"
+            id="nav-dashboard"
+            aria-current="page"
+          >
+            <svg
+              viewBox="0 0 20 20"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="6" height="6" rx="1"></rect>
+              <rect x="11" y="3" width="6" height="6" rx="1"></rect>
+              <rect x="3" y="11" width="6" height="6" rx="1"></rect>
+              <rect x="11" y="11" width="6" height="6" rx="1"></rect>
+            </svg>
             <span class="nav-label" id="nav-dashboard-label">Panel</span>
           </button>
           <button type="button" class="nav-module" data-module="entities" id="nav-entities">
-            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5 3.5 6v8L10 17.5 16.5 14V6L10 2.5z"></path><path d="M3.5 6 10 9.5 16.5 6"></path><path d="M10 9.5v8"></path></svg>
+            <svg
+              viewBox="0 0 20 20"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M10 2.5 3.5 6v8L10 17.5 16.5 14V6L10 2.5z"></path>
+              <path d="M3.5 6 10 9.5 16.5 6"></path>
+              <path d="M10 9.5v8"></path>
+            </svg>
             <span class="nav-label" id="nav-entities-label">Entidades</span>
           </button>
           <button type="button" class="nav-module" data-module="documents" id="nav-documents">
-            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 2.5h6l4 4v11h-10z"></path><path d="M11.5 2.5v4h4"></path><path d="M8 10h5"></path><path d="M8 13h5"></path></svg>
+            <svg
+              viewBox="0 0 20 20"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5.5 2.5h6l4 4v11h-10z"></path>
+              <path d="M11.5 2.5v4h4"></path>
+              <path d="M8 10h5"></path>
+              <path d="M8 13h5"></path>
+            </svg>
             <span class="nav-label" id="nav-documents-label">Documentos</span>
           </button>
           <button type="button" class="nav-module" data-module="search" id="nav-search">
-            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="5"></circle><path d="m12.8 12.8 4.2 4.2"></path></svg>
+            <svg
+              viewBox="0 0 20 20"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="9" cy="9" r="5"></circle>
+              <path d="m12.8 12.8 4.2 4.2"></path>
+            </svg>
             <span class="nav-label" id="nav-search-label">Búsqueda</span>
           </button>
         </nav>
@@ -66,7 +135,9 @@
       <main class="content" id="app">
         <section id="view-dashboard" aria-labelledby="dashboard-heading">
           <h1 id="dashboard-heading">Módulo Base ERP</h1>
-          <p id="dashboard-subtitle" class="muted">Gestiona tus entidades y documentos en un solo lugar.</p>
+          <p id="dashboard-subtitle" class="muted">
+            Gestiona tus entidades y documentos en un solo lugar.
+          </p>
 
           <div class="stat-grid">
             <div class="stat-card">
@@ -87,7 +158,9 @@
             </button>
             <button type="button" class="action-card" id="action-new-document">
               <strong id="action-new-document-title">Nuevo Documento</strong>
-              <span class="muted" id="action-new-document-sub">Registrar un registro de documento</span>
+              <span class="muted" id="action-new-document-sub"
+                >Registrar un registro de documento</span
+              >
             </button>
             <button type="button" class="action-card" id="action-open-entities">
               <strong id="action-open-entities-title">Entidades</strong>
@@ -154,12 +227,18 @@
               </div>
               <div>
                 <label for="paymentTerms">Condiciones de pago</label>
-                <input id="paymentTerms" name="paymentTerms" placeholder="p. ej., contado, neto 30" />
+                <input
+                  id="paymentTerms"
+                  name="paymentTerms"
+                  placeholder="p. ej., contado, neto 30"
+                />
               </div>
               <div id="entity-custom-fields"></div>
               <div class="form-actions">
                 <button type="submit" id="submit-button" class="primary">Guardar</button>
-                <button type="button" id="cancel-edit" class="secondary" hidden>Cancelar edición</button>
+                <button type="button" id="cancel-edit" class="secondary" hidden>
+                  Cancelar edición
+                </button>
               </div>
             </form>
           </section>
@@ -172,7 +251,9 @@
               <div class="error" id="error-edit-entity" aria-live="polite"></div>
             </div>
             <div class="form-actions">
-              <button type="button" id="delete-entity" class="danger">Eliminar la entidad seleccionada</button>
+              <button type="button" id="delete-entity" class="danger">
+                Eliminar la entidad seleccionada
+              </button>
             </div>
           </section>
         </section>
@@ -242,7 +323,11 @@
               </div>
               <div>
                 <label for="docPaymentTerms">Condiciones de pago</label>
-                <input id="docPaymentTerms" name="docPaymentTerms" placeholder="p. ej., contado, neto 30" />
+                <input
+                  id="docPaymentTerms"
+                  name="docPaymentTerms"
+                  placeholder="p. ej., contado, neto 30"
+                />
               </div>
               <div>
                 <label for="notes">Notas</label>
@@ -251,8 +336,12 @@
               <div id="document-status-control"></div>
               <div id="document-custom-fields"></div>
               <div class="form-actions">
-                <button type="submit" id="document-submit-button" class="primary">Guardar Documento</button>
-                <button type="button" id="document-cancel-edit" class="secondary" hidden>Cancelar edición</button>
+                <button type="submit" id="document-submit-button" class="primary">
+                  Guardar Documento
+                </button>
+                <button type="button" id="document-cancel-edit" class="secondary" hidden>
+                  Cancelar edición
+                </button>
               </div>
             </form>
           </section>
@@ -265,7 +354,9 @@
               <div class="error" id="error-edit-document" aria-live="polite"></div>
             </div>
             <div class="form-actions">
-              <button type="button" id="delete-document" class="danger">Eliminar el documento seleccionado</button>
+              <button type="button" id="delete-document" class="danger">
+                Eliminar el documento seleccionado
+              </button>
             </div>
           </section>
         </section>
@@ -275,7 +366,12 @@
 
           <section class="card" aria-labelledby="search-heading">
             <h2 id="search-heading">Buscar una entidad</h2>
-            <input id="search-input" name="search-input" placeholder="Buscar por nombre, código, categoría..." aria-label="Buscar entidades" />
+            <input
+              id="search-input"
+              name="search-input"
+              placeholder="Buscar por nombre, código, categoría..."
+              aria-label="Buscar entidades"
+            />
           </section>
 
           <section class="card" aria-labelledby="results-heading">
@@ -286,7 +382,10 @@
         </section>
         <section id="view-sales-order" aria-labelledby="sales-order-heading" hidden>
           <h1 id="sales-order-heading">Pedidos de Venta</h1>
-          <p class="muted">Registra una orden con cliente existente, productos con stock, canal y condición de pago. Se guarda como cotización.</p>
+          <p class="muted">
+            Registra una orden con cliente existente, productos con stock, canal y condición de
+            pago. Se guarda como cotización.
+          </p>
 
           <section class="card" aria-labelledby="order-edit-heading">
             <h2 id="order-edit-heading">Editar un pedido existente</h2>
@@ -346,18 +445,35 @@
                 </div>
                 <div>
                   <label for="order-discount">Descuento</label>
-                  <input id="order-discount" name="order-discount" type="number" min="0" step="0.01" value="0" />
+                  <input
+                    id="order-discount"
+                    name="order-discount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                  />
                 </div>
               </div>
 
               <h3>Productos</h3>
               <label for="order-product-search">Buscar producto por código o nombre</label>
-              <input id="order-product-search" name="order-product-search" placeholder="Ej.: SKU-1 o Producto" />
+              <input
+                id="order-product-search"
+                name="order-product-search"
+                placeholder="Ej.: SKU-1 o Producto"
+              />
               <ul id="order-product-results" class="product-results" aria-live="polite"></ul>
 
               <table class="data-table" aria-label="Líneas de la orden">
                 <thead>
-                  <tr><th scope="col">Producto</th><th scope="col">Cantidad</th><th scope="col">Precio</th><th scope="col">Subtotal</th><th scope="col">Acciones</th></tr>
+                  <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Subtotal</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
                 </thead>
                 <tbody id="order-lines-body"></tbody>
               </table>
@@ -374,48 +490,90 @@
 
         <section id="view-delivery" aria-labelledby="delivery-heading" hidden>
           <h1 id="delivery-heading">Entregas</h1>
-          <p class="muted">Solo los pedidos facturados pueden marcarse como entregados. El estado entregado es terminal.</p>
+          <p class="muted">
+            Solo los pedidos facturados pueden marcarse como entregados. El estado entregado es
+            terminal.
+          </p>
           <section class="card" aria-labelledby="delivery-panel-heading">
             <h2 id="delivery-panel-heading">Confirmar entrega</h2>
             <div>
               <label for="delivery-order">Pedido facturado</label>
               <select id="delivery-order"></select>
             </div>
-            <p id="delivery-detail" aria-live="polite">Selecciona un pedido facturado para confirmar su entrega.</p>
-            <div id="delivery-empty" class="empty" hidden>No hay pedidos facturados pendientes de entrega.</div>
+            <p id="delivery-detail" aria-live="polite">
+              Selecciona un pedido facturado para confirmar su entrega.
+            </p>
+            <div id="delivery-empty" class="empty" hidden>
+              No hay pedidos facturados pendientes de entrega.
+            </div>
             <p id="delivery-feedback" class="feedback" role="status" aria-live="polite"></p>
             <div class="form-actions">
-              <button type="button" id="delivery-confirm" class="primary">Marcar como entregado</button>
+              <button type="button" id="delivery-confirm" class="primary">
+                Marcar como entregado
+              </button>
             </div>
           </section>
         </section>
 
         <section id="view-summary" aria-labelledby="summary-heading" hidden>
           <h1 id="summary-heading">Resumen general de ventas</h1>
-          <div id="summary-restricted" class="empty" hidden>El resumen general está restringido al rol gerente.</div>
+          <div id="summary-restricted" class="empty" hidden>
+            El resumen general está restringido al rol gerente.
+          </div>
           <div id="summary-content">
             <div class="stat-grid">
-              <div class="stat-card"><span class="stat-value" id="summary-total-ventas">0</span><span class="stat-label">Ventas</span></div>
-              <div class="stat-card"><span class="stat-value" id="summary-total-cotizaciones">0</span><span class="stat-label">Cotizaciones</span></div>
-              <div class="stat-card"><span class="stat-value" id="summary-total-pedidos">0</span><span class="stat-label">Pedidos</span></div>
-              <div class="stat-card"><span class="stat-value" id="summary-monto-total">0</span><span class="stat-label">Monto total</span></div>
+              <div class="stat-card">
+                <span class="stat-value" id="summary-total-ventas">0</span
+                ><span class="stat-label">Ventas</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="summary-total-cotizaciones">0</span
+                ><span class="stat-label">Cotizaciones</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="summary-total-pedidos">0</span
+                ><span class="stat-label">Pedidos</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="summary-monto-total">0</span
+                ><span class="stat-label">Monto total</span>
+              </div>
             </div>
             <section class="card" aria-labelledby="summary-amounts-heading">
               <h2 id="summary-amounts-heading">Montos</h2>
-              <p>Ventas: <span id="summary-monto-ventas">0</span> · Cotizaciones: <span id="summary-monto-cotizaciones">0</span> · Pedidos: <span id="summary-monto-pedidos">0</span></p>
+              <p>
+                Ventas: <span id="summary-monto-ventas">0</span> · Cotizaciones:
+                <span id="summary-monto-cotizaciones">0</span> · Pedidos:
+                <span id="summary-monto-pedidos">0</span>
+              </p>
             </section>
-            <div id="summary-empty" class="empty" hidden>No hay ventas, cotizaciones ni pedidos registrados.</div>
+            <div id="summary-empty" class="empty" hidden>
+              No hay ventas, cotizaciones ni pedidos registrados.
+            </div>
             <section class="card" aria-labelledby="summary-states-heading">
               <h2 id="summary-states-heading">Pedidos por estado</h2>
               <table class="data-table">
-                <thead><tr><th scope="col">Estado</th><th scope="col">Cantidad</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Cantidad</th>
+                  </tr>
+                </thead>
                 <tbody id="summary-states-body"></tbody>
               </table>
             </section>
             <section class="card" aria-labelledby="summary-orders-heading">
               <h2 id="summary-orders-heading">Detalle de pedidos</h2>
               <table class="data-table">
-                <thead><tr><th scope="col">Número</th><th scope="col">Cliente</th><th scope="col">Fecha</th><th scope="col">Estado</th><th scope="col">Total</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th scope="col">Número</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
                 <tbody id="summary-orders-body"></tbody>
               </table>
             </section>
@@ -424,7 +582,10 @@
 
         <section id="view-returns" aria-labelledby="returns-heading" hidden>
           <h1 id="returns-heading">Devoluciones</h1>
-          <p class="muted">Registra devoluciones dentro del plazo configurado, con motivo válido y cantidades no devueltas previamente.</p>
+          <p class="muted">
+            Registra devoluciones dentro del plazo configurado, con motivo válido y cantidades no
+            devueltas previamente.
+          </p>
           <section class="card" aria-labelledby="return-form-heading">
             <h2 id="return-form-heading">Nueva devolución</h2>
             <form id="return-form" novalidate>
@@ -443,7 +604,9 @@
                 <input id="return-reason" name="return-reason" />
               </div>
               <h3>Productos a devolver</h3>
-              <div id="return-empty" class="empty">Selecciona una factura para cargar sus productos.</div>
+              <div id="return-empty" class="empty">
+                Selecciona una factura para cargar sus productos.
+              </div>
               <div id="return-lines" class="return-lines"></div>
               <p id="return-feedback" class="feedback" role="status" aria-live="polite"></p>
               <div class="form-actions">
@@ -466,9 +629,19 @@
               <select id="history-client"></select>
             </div>
             <p id="history-total" class="totals" aria-live="polite"></p>
-            <div id="history-empty" class="empty" hidden>Este cliente no tiene cotizaciones ni pedidos registrados.</div>
+            <div id="history-empty" class="empty" hidden>
+              Este cliente no tiene cotizaciones ni pedidos registrados.
+            </div>
             <table class="data-table">
-              <thead><tr><th scope="col">Número</th><th scope="col">Tipo</th><th scope="col">Fecha</th><th scope="col">Estado</th><th scope="col">Importe</th></tr></thead>
+              <thead>
+                <tr>
+                  <th scope="col">Número</th>
+                  <th scope="col">Tipo</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Importe</th>
+                </tr>
+              </thead>
               <tbody id="history-body"></tbody>
             </table>
           </section>
@@ -476,7 +649,9 @@
 
         <section id="view-invoices" aria-labelledby="invoices-heading" hidden>
           <h1 id="invoices-heading">Facturación y pagos</h1>
-          <div id="invoice-restricted" class="empty" hidden>La facturación está restringida al rol de facturación.</div>
+          <div id="invoice-restricted" class="empty" hidden>
+            La facturación está restringida al rol de facturación.
+          </div>
           <div id="invoice-content">
             <section class="card" aria-labelledby="invoice-create-heading">
               <h2 id="invoice-create-heading">Generar factura</h2>
@@ -495,12 +670,20 @@
                 <label for="invoice-select">Factura</label>
                 <select id="invoice-select"></select>
               </div>
-              <div id="invoice-detail" aria-live="polite">Selecciona una factura para ver su detalle y registrar pagos.</div>
+              <div id="invoice-detail" aria-live="polite">
+                Selecciona una factura para ver su detalle y registrar pagos.
+              </div>
               <form id="payment-form">
                 <div class="field-row">
                   <div>
                     <label for="payment-amount">Monto del pago</label>
-                    <input id="payment-amount" name="payment-amount" type="number" min="0" step="0.01" />
+                    <input
+                      id="payment-amount"
+                      name="payment-amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                    />
                   </div>
                   <div>
                     <label for="payment-method">Método</label>
