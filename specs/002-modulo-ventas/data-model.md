@@ -299,7 +299,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | `createdAt` | | datetime | NN | ISO 8601 | — |
 | `updatedAt` | | datetime | NN | ISO 8601 | — |
 
-**Nota de implementación**: hoy la zona existe como campo propio `zona` del cliente, con los valores cerrados `Norte`, `Sur`, `Este`, `Oeste` y `Centro`. No hay tabla de zonas ni FK.
+**Nota de implementación**: `ZONA` se implementa como colección `erp_ventas:zonas` en `masters.js`, con `codigo` único (R-24) y siembra desde las opciones del campo `zona` de la configuración. El cliente conserva además `zona` como campo propio; la validación de referencia está disponible vía `validateZonaReference`.
 
 ### 3.2 `VENDEDOR` (maestro de comerciales)
 
@@ -315,7 +315,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | `createdAt` | | datetime | NN | ISO 8601 | — |
 | `updatedAt` | | datetime | NN | ISO 8601 | — |
 
-**Nota de implementación**: hoy el vendedor es texto libre en `CLIENTE.vendedor`; no existe entidad normalizada ni FK.
+**Nota de implementación**: `VENDEDOR` se implementa como colección `erp_ventas:vendedores` en `masters.js`, con `codigo` único (R-25), formato de email validado (R-26) y FK validada a `ZONA` (R-27). El cliente conserva `vendedor` como campo propio; la validación de referencia está disponible vía `validateVendedorReference`.
 
 ### 3.3 `CLIENTE` (maestro del comprador)
 
@@ -543,9 +543,9 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 
 | # | Relación | Cardinalidad | Participación | Clave foránea | Borrado | Estado |
 |---|---|---|---|---|---|---|
-| RL-01 | `ZONA` → `VENDEDOR` | 1 : N | Vendedor 0..N por zona | `VENDEDOR.zona_id` | `SET NULL` | Planificada |
-| RL-02 | `ZONA` → `CLIENTE` | 1 : N | Cliente 0..N por zona | `CLIENTE.zona_id` | `SET NULL` | Parcial |
-| RL-03 | `VENDEDOR` → `CLIENTE` | 1 : N | Cliente 0..N por vendedor | `CLIENTE.vendedor_id` | `SET NULL` | Parcial |
+| RL-01 | `ZONA` → `VENDEDOR` | 1 : N | Vendedor 0..N por zona | `VENDEDOR.zona_id` | `SET NULL` | **Implementada** |
+| RL-02 | `ZONA` → `CLIENTE` | 1 : N | Cliente 0..N por zona | `CLIENTE.zona_id` | `SET NULL` | Parcial (validador `validateZonaReference`) |
+| RL-03 | `VENDEDOR` → `CLIENTE` | 1 : N | Cliente 0..N por vendedor | `CLIENTE.vendedor_id` | `SET NULL` | Parcial (validador `validateVendedorReference`) |
 | RL-04 | `VENDEDOR` → `COTIZACION` | 1 : N | Cotización 0..N por vendedor | `COTIZACION.vendedor_id` | `SET NULL` | Planificada |
 | RL-05 | `VENDEDOR` → `PEDIDO_VENTA` | 1 : N | Pedido 0..N por vendedor | `PEDIDO_VENTA.vendedor_id` | `SET NULL` | Planificada |
 | RL-06 | `LISTA_PRECIO` → `CLIENTE` | 1 : N | Cliente 0..N por lista | `CLIENTE.lista_precio_id` | `SET NULL` | Planificada |
@@ -575,7 +575,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | Cardinalidad cliente → pedido | `1 .. N` (un cliente puede no tener pedidos) |
 | Cardinalidad pedido → cliente | `1 .. 1` (obligatoria; un pedido siempre tiene cliente) |
 | Integridad referencial | Se valida al crear y al editar: el `entity_id` debe existir en la colección de clientes |
-| Borrado en cascada | Al eliminar un cliente se eliminan todos sus pedidos (`deleteDocumentsForEntity`) |
+| Borrado en cascada | Al eliminar **físicamente** un cliente se eliminan todos sus pedidos (`deleteDocumentsForEntity`). La **desactivación lógica** del cliente (estado `inactivo`/`bloqueado`) preserva sus pedidos, facturas y devoluciones (FR-006, SC-003). |
 | Borrado de pedido | Nunca afecta al cliente; solo se retira el pedido |
 
 ### 4.3 `PEDIDO_VENTA` 1 : N `DETALLE_PEDIDO` (relación parcial)
@@ -599,7 +599,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 ### 4.6 Reglas de negocio derivadas de las relaciones
 
 1. No existen pedidos huérfanos: un pedido sin cliente válido no se persiste.
-2. Al eliminar un cliente, sus pedidos desaparecen de la lista, de la gestión y de la búsqueda (cascada implementada).
+2. La **desactivación lógica** de un cliente preserva sus pedidos, facturas y devoluciones; solo el **borrado físico** del cliente (no expuesto por el módulo) elimina sus pedidos en cascada (`deleteDocumentsForEntity`).
 3. Un cliente puede tener pedidos en cualquier estado; la cascada no distingue por estado.
 4. Un pedido no puede eliminar o alterar un producto con el que tiene líneas (`RESTRICT`).
 5. Una factura no puede existir sin pedido y un pedido no puede tener dos facturas.
@@ -640,13 +640,13 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 |---|---|---|---|---|
 | R-19 | `CLIENTE.codigo` es único | Cliente | Rechaza el alta o edición con un código ya existente | Especificada (no implementada) |
 | R-20 | `CLIENTE.estado` ∈ {`activo`, `inactivo`, `bloqueado`} | Cliente | Rechaza valores fuera del dominio | Implementada |
-| R-21 | `CLIENTE.vendedor_id` existe en `VENDEDOR` | Cliente | Rechaza la referencia inexistente | Planificada |
-| R-22 | `CLIENTE.zona_id` existe en `ZONA` | Cliente | Rechaza la referencia inexistente | Parcial (enum actual) |
+| R-21 | `CLIENTE.vendedor_id` existe en `VENDEDOR` | Cliente | Rechaza la referencia inexistente | Parcial (validador `validateVendedorReference`) |
+| R-22 | `CLIENTE.zona_id` existe en `ZONA` | Cliente | Rechaza la referencia inexistente | Parcial (enum + `validateZonaReference`) |
 | R-23 | `CLIENTE.lista_precio_id` existe en `LISTA_PRECIO` | Cliente | Rechaza la referencia inexistente | Planificada |
-| R-24 | `ZONA.codigo` es único | Zona | Rechaza duplicados | Planificada |
-| R-25 | `VENDEDOR.codigo` es único | Vendedor | Rechaza duplicados | Planificada |
-| R-26 | `VENDEDOR.email` tiene formato válido si se informa | Vendedor | Rechaza el guardado | Planificada |
-| R-27 | `VENDEDOR.zona_id` existe en `ZONA` | Vendedor | Rechaza la referencia inexistente | Planificada |
+| R-24 | `ZONA.codigo` es único | Zona | Rechaza duplicados | Implementada |
+| R-25 | `VENDEDOR.codigo` es único | Vendedor | Rechaza duplicados | Implementada |
+| R-26 | `VENDEDOR.email` tiene formato válido si se informa | Vendedor | Rechaza el guardado | Implementada |
+| R-27 | `VENDEDOR.zona_id` existe en `ZONA` | Vendedor | Rechaza la referencia inexistente | Implementada |
 | R-28 | `CATEGORIA_PRODUCTO.nombre` es único | Categoría | Rechaza duplicados | Planificada |
 | R-29 | `CATEGORIA_PRODUCTO.padre_id` ≠ `id` y no forma ciclos | Categoría | Rechaza la jerarquía inválida | Planificada |
 | R-30 | `PRODUCTO.sku` es único | Producto | Rechaza duplicados | Planificada |

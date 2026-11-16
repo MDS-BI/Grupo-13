@@ -11,12 +11,12 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Pruebas**: Las tareas de prueba se incluyen porque la constitución del proyecto (Principio II, Test-First & Verification) exige cobertura automatizada de comportamiento visible y lógica de negocio.
 
-**Organización**: Las tareas se agrupan por historia de usuario para permitir implementación y validación independientes. Las historias P2-P6 dependen de los datos creados por US1, pero cada una se valida con su propia prueba aislada.
+**Organización**: Las tareas se agrupan por historia de usuario para permitir implementación y validación independientes. Las historias P2-P7 dependen de los datos creados por US1, pero cada una se valida con su propia prueba aislada.
 
 ## Formato: `[ID] [P?] [Story] Descripción`
 
 - **[P]**: Puede ejecutarse en paralelo (archivos distintos, sin dependencias pendientes).
-- **[Story]**: Historia de usuario a la que pertenece la tarea (US1-US6).
+- **[Story]**: Historia de usuario a la que pertenece la tarea (US1-US7).
 - Todas las rutas son relativas a la raíz del repositorio.
 
 ## Convenciones de ruta
@@ -174,16 +174,16 @@ description: "Task list for Módulo de Ventas implementation"
 
 ## Fase 8: US6 - Generar factura desde pedido confirmado (Prioridad P6)
 
-**Meta**: El encargado de facturación genera una factura desde un pedido confirmado, copiando cliente, líneas, precios e impuestos, en estado «pendiente de pago», sin duplicados.
+**Meta**: El encargado de facturación genera una factura desde un pedido confirmado, copiando cliente, líneas, precios e impuestos, en estado «pendiente de pago», sin duplicados, y registra pagos que reducen el saldo (US7).
 
 **Prueba independiente**: Generar una factura desde un pedido en estado «pedido», verificar la copia de líneas e impuestos, el estado «pendiente de pago»; comprobar el bloqueo desde «cotización» y la prevención de una segunda factura.
 
 - [x] T064 [P] [US6] Escribir pruebas unitarias de reglas de facturación y unicidad en `modulo-ventas/tests/ventas/invoices.test.js`.
-- [x] T065 [P] [US6] Escribir pruebas unitarias de registro de pagos y recálculo de saldo en `modulo-ventas/tests/ventas/payments.test.js`.
+- [x] T065 [P] [US6][US7] Escribir pruebas unitarias de registro de pagos y recálculo de saldo en `modulo-ventas/tests/ventas/payments.test.js`.
 - [x] T066 [P] [US6] Escribir la prueba de integración del recorrido «generar factura» en `modulo-ventas/tests/ventas/us6-invoice.test.js`.
 - [x] T067 [US6] Implementar el almacén de facturas en `modulo-ventas/src/ventas/invoices.js` (`FACTURA` desde pedido confirmado, copia de cliente/líneas/precios/impuestos, estado «pendiente de pago» y saldo).
 - [x] T068 [US6] Agregar elegibilidad y protección de duplicados en `modulo-ventas/src/ventas/invoices.js` (solo estado «pedido», una factura por pedido y guardia ante solicitudes concurrentes).
-- [x] T069 [P] [US6] Implementar el registro de pagos y recálculo de saldo en `modulo-ventas/src/ventas/payments.js` (`PAGO`, monto positivo y suma de pagos ≤ total facturado).
+- [x] T069 [P] [US6][US7] Implementar el registro de pagos y recálculo de saldo en `modulo-ventas/src/ventas/payments.js` (`PAGO`, monto positivo y suma de pagos ≤ total facturado; cubre FR-048 / US7).
 - [x] T070 [P] [US6] Crear el panel de facturación en `modulo-ventas/src/components/ventas/invoice-panel.js` (pedido elegible, detalle de factura, saldo y mensajes de bloqueo).
 - [x] T071 [US6] Agregar la vista de facturación y el detalle de factura/pagos en `modulo-ventas/index.html`.
 - [x] T072 [US6] Conectar la generación de facturas, los mensajes de bloqueo y el guardián del rol facturación en `modulo-ventas/src/app.js`.
@@ -191,7 +191,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T074 [US6] Agregar estilos de facturación, saldos y estados de pago en `modulo-ventas/src/styles.css`.
 - [x] T075 [US6] Agregar la prueba de concurrencia/idempotencia que garantiza una sola factura persistida por pedido en `modulo-ventas/tests/ventas/us6-invoice-concurrency.test.js`.
 
-**Punto de control**: Las seis historias de usuario funcionan de forma independiente.
+**Punto de control**: Las siete historias de usuario funcionan de forma independiente.
 
 ---
 
@@ -202,7 +202,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T076 [P] Cubrir la autorización por rol de todas las acciones en `modulo-ventas/tests/ventas/roles-guard.test.js` (crear, facturar, entregar, devolver, resumen e historial).
 - [x] T077 [P] Completar los estados vacíos de productos, pedidos, facturas, devoluciones, historial y resumen en sus componentes de `modulo-ventas/src/components/ventas/`.
 - [x] T078 [P] Agregar etiquetas, `aria-live` y encabezados de tabla accesibles a las nuevas vistas en `modulo-ventas/index.html`.
-- [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen, verificando <500 ms por operación, en `modulo-ventas/tests/ventas/performance.test.js`.
+- [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen, verificando un umbral de percepción ~0,5 s por operación, en `modulo-ventas/tests/ventas/performance.test.js`.
 - [x] T080 Agregar pruebas transversales de consistencia (sin pedidos huérfanos, una factura por pedido y límites de devolución) en `modulo-ventas/tests/ventas/consistency.test.js`.
 - [x] T081 Actualizar la tabla de estado de implementación de `specs/002-modulo-ventas/data-model.md` con las entidades implementadas y parciales.
 - [x] T082 Actualizar las fases y la sección de cambios de `specs/002-modulo-ventas/plan.md` con el estado final de la entrega.
@@ -213,9 +213,9 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T087 [P] Configurar ESLint + Prettier en la raíz (`package.json`, `eslint.config.mjs`, `.prettierrc`) para `modulo-ventas/src/`.
 - [x] T088 [P] Ejecutar lint/format y corregir hallazgos en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
 - [x] T089 Agregar scripts `lint` y `format:check` y ejecutarlos junto a `npm test` y `npm run build` antes de cerrar la entrega.
-- [x] T090 [P] [US1] Escribir prueba de edición de pedido con recálculo y revalidación de stock en `modulo-ventas/tests/ventas/edit-order.test.js`.
-- [x] T091 [US1] Implementar la edición de pedidos en estados modificables en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/src/ventas/orders.js`.
-- [x] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/us1-cancel-order.test.js`.
+- [x] T090 [P] [US1] Escribir prueba de edición de pedido con recálculo y revalidación de stock en `modulo-ventas/tests/ventas/edit-order.test.js`. (Diferida de US1: se ejecuta en la fase Polish por conveniencia de secuencia.)
+- [x] T091 [US1] Implementar la edición de pedidos en estados modificables en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/src/ventas/orders.js`. (Diferida de US1: se ejecuta en la fase Polish.)
+- [x] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/us1-cancel-order.test.js`. (Diferida de US1: se ejecuta en la fase Polish.)
 - [x] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
 - [x] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
 
@@ -233,6 +233,7 @@ description: "Task list for Módulo de Ventas implementation"
 - **US4 (Fase 6)**: depende de Foundational y de una venta/factura generada por US1/US6.
 - **US5 (Fase 7)**: depende de Foundational y de cotizaciones/pedidos generados por US1.
 - **US6 (Fase 8)**: depende de Foundational y de un pedido confirmado generado por US1.
+- **US7 (Fase 8)**: comparte fase con US6; depende de una factura emitida por US6 para registrar pagos.
 - **Polish (Fase 9)**: depende de todas las historias que se deseen entregar.
 
 ### Dependencias entre historias
@@ -243,6 +244,7 @@ description: "Task list for Módulo de Ventas implementation"
 - **US4 (P4)**: requiere ventas/facturas de US1/US6; su prueba puede sembrar la factura necesaria.
 - **US5 (P5)**: requiere cotizaciones/pedidos de US1; es de solo lectura.
 - **US6 (P6)**: requiere pedidos confirmados de US1; habilita la entrega de US2.
+- **US7 (P7)**: requiere facturas de US6; registra pagos y recalcula el saldo sin permitir sobrepagos (FR-048).
 
 ### Dentro de cada historia
 
@@ -328,5 +330,5 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 - US1 es el MVP mínimo; las demás historias agregan valor sin romperla.
 - El modelo lógico de `data-model.md` es la única fuente de verdad de entidades y relaciones.
 - Mantener `modulo-ventas/src/storage.js` y los componentes base sin bifurcaciones: el dominio nuevo vive en `modulo-ventas/src/ventas/`.
-- `PAGO` se incluye en US6 porque figura en el modelo de datos y en las entidades clave de la especificación, aunque no tenga un requisito funcional explícito.
+- `PAGO` se incluye en US6/US7: figura en el modelo de datos y en las entidades clave de la especificación, y ahora responde al requisito FR-048 (US7).
 - Confirmar que las pruebas fallan antes de implementar y ejecutar la suite completa antes de cerrar cada fase.
