@@ -218,6 +218,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/us1-cancel-order.test.js`. (Diferida de US1: se ejecuta en la fase Polish.)
 - [x] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
 - [x] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
+- [x] T095 Verificar y documentar la desviación del Principio III (estados de carga): confirmar que el dominio de Ventas no tiene operaciones asíncronas de red/E/S y que FR-049, FR-046 y los mensajes `aria-live` cubren la retroalimentación inmediata; reflejar la justificación en `plan.md`.
 
 ---
 
@@ -331,4 +332,5 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 - El modelo lógico de `data-model.md` es la única fuente de verdad de entidades y relaciones.
 - Mantener `modulo-ventas/src/storage.js` y los componentes base sin bifurcaciones: el dominio nuevo vive en `modulo-ventas/src/ventas/`.
 - `PAGO` se incluye en US6/US7: figura en el modelo de datos y en las entidades clave de la especificación, y ahora responde al requisito FR-048 (US7).
+- T095 rastrea la desviación justificada del Principio III (sin estados de carga por operaciones síncronas); FR-049 y FR-046 definen la retroalimentación inmediata equivalente.
 - Confirmar que las pruebas fallan antes de implementar y ejecutar la suite completa antes de cerrar cada fase.

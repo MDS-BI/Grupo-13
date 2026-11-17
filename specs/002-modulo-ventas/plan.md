@@ -30,7 +30,7 @@ La entrega actual cubre el modelo lógico completo: clientes y pedidos sobre las
 
 - **Calidad**: la personalización se realiza mediante configuración, sin bifurcar el código central; `storage.js` y los componentes conservan sus límites y responsabilidades.
 - **Pruebas**: los flujos de clientes, pedidos, campos propios, ciclo de vida, búsqueda y cascada están cubiertos por la suite automatizada.
-- **Experiencia de Usuario**: terminología de Ventas coherente, mensajes de validación claros y comportamiento consistente con el módulo base.
+- **Experiencia de Usuario**: terminología de Ventas coherente, mensajes de validación claros, estados vacíos accesibles y comportamiento consistente con el módulo base. **Desviación documentada (Principio III - estados de carga)**: el dominio de Ventas no realiza operaciones asíncronas de red ni de E/S; todas las lecturas y escrituras son síncronas sobre `localStorage` (la carga de configuración y la siembra son inmediatas), por lo que no existen estados de carga que mostrar. La retroalimentación inmediata queda cubierta por FR-049, FR-046, mensajes `aria-live` y la actualización directa de listas y totales. T095 registra y verifica esta desviación conforme a Gobernanza.
 - **Rendimiento**: las colecciones se mantienen en el rango previsto por el módulo base y las operaciones de búsqueda y renderizado no cambian su complejidad.
 
 ## Estructura del Proyecto

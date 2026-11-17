@@ -237,6 +237,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-046**: El sistema DEBE mostrar estados vacíos claros cuando no existan clientes, productos, ventas, cotizaciones, pedidos o devoluciones que mostrar.
 - **FR-047**: El sistema DEBE mantener la consistencia de los datos ante operaciones simultáneas o repetidas, evitando duplicados de facturas, devoluciones y líneas de pedido.
 - **FR-048**: El sistema DEBE registrar pagos aplicados a una factura, con fecha, monto, método y referencia, recalculando el saldo pendiente sin permitir sobrepagos.
+- **FR-049**: El sistema DEBE mostrar el resultado de cada operación de forma inmediata e inequívoca mediante estados vacíos, mensajes de validación/error y la actualización directa de listas y totales, sin requerir indicadores de carga: todas las operaciones del dominio son lecturas y escrituras síncronas sobre `localStorage`.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -286,3 +287,4 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren un usuario autenticado con el rol correspondiente.
 - Los clientes se desactivan lógicamente sin eliminar sus pedidos, facturas ni devoluciones (trazabilidad, FR-006); el borrado en cascada de pedidos solo aplica al borrado físico del cliente, que el módulo no expone.
 - Los datos deben conservarse entre sesiones y no deben perderse al navegar entre pantallas o al recargar la aplicación.
+- No existen operaciones asíncronas de red ni de entrada/salida en el dominio de Ventas: la carga de configuración y la siembra de datos son síncronas. Por ello no se requieren estados de carga; la retroalimentación inmediata (FR-049), los estados vacíos (FR-046) y los mensajes accesibles satisfacen el patrón de estados de carga del Principio III de la constitución.
