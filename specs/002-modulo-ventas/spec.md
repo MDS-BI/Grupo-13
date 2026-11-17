@@ -208,7 +208,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-026**: El sistema DEBE permitir al encargado de devoluciones seleccionar una venta anterior y solicitar la devolución de uno o más productos vendidos.
 - **FR-027**: El sistema DEBE definir el plazo de devolución (por defecto 30 días calendario desde la fecha de compra) y usarlo como referencia para validar la solicitud.
 - **FR-028**: El sistema DEBE exigir un motivo de devolución válido y no vacío para registrar la devolución.
-- **FR-029**: El sistema DEBE registrar la devolución en estado «en proceso de devolución» (etapas internas `solicitada` → `aprobada` → `completada`) para los productos devueltos cuando la fecha y el motivo sean válidos.
+- **FR-029**: El sistema DEBE registrar la devolución en estado «en proceso de devolución» (etapas internas `solicitada` → `aprobada` → `completada`, con soporte del estado `rechazada` cuando la solicitud sea denegada) para los productos devueltos cuando la fecha y el motivo sean válidos.
 - **FR-030**: El sistema DEBE emitir un número de seguimiento único de la devolución para el cliente.
 - **FR-031**: El sistema DEBE rechazar, sin registrar la devolución, las solicitudes fuera de plazo (FR-027), con motivo inválido (FR-028) o con cantidades superiores a las vendidas y no devueltas.
 - **FR-032**: El sistema DEBE registrar en una bitácora de auditoría la venta afectada, los productos devueltos, la cantidad, el motivo, la fecha y el usuario que procesó la devolución.

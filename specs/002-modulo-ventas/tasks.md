@@ -142,7 +142,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 - [x] T048 [P] [US4] Escribir pruebas unitarias de plazo, motivo y límites de devolución en `modulo-ventas/tests/ventas/returns.test.js`.
 - [x] T049 [P] [US4] Escribir la prueba de integración del recorrido «registrar devolución» en `modulo-ventas/tests/ventas/us4-returns.test.js`.
-- [x] T050 [US4] Implementar el almacén de devoluciones en `modulo-ventas/src/ventas/returns.js` (`DEVOLUCION` + `DETALLE_DEVOLUCION`, número de seguimiento y estados `solicitada`/`aprobada`/`rechazada`/`completada`).
+- [x] T050 [US4] Implementar el almacén de devoluciones en `modulo-ventas/src/ventas/returns.js` (`DEVOLUCION` + `DETALLE_DEVOLUCION` y número de seguimiento), con manejo y soporte explícitos de los estados internos `solicitada`/`aprobada`/`rechazada`/`completada`, incluida la transición a `rechazada`.
 - [x] T051 [US4] Agregar las validaciones de plazo de 30 días, motivo no vacío y cantidad máxima devolvible en `modulo-ventas/src/ventas/returns.js`.
 - [x] T052 [US4] Actualizar el estado del producto a «en proceso de devolución» y registrar la auditoría en `modulo-ventas/src/ventas/returns.js` usando `audit.js`.
 - [x] T053 [P] [US4] Crear el panel de devoluciones en `modulo-ventas/src/components/ventas/returns-panel.js` (selección de venta, productos, cantidad, motivo y errores).
