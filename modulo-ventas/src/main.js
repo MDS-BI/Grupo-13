@@ -1,4 +1,8 @@
 import "./styles.css";
-import { boot } from "./app.js";
+import { boot, refreshActiveView } from "./app.js";
+import { loadDemoData } from "./ventas/mock-data.js";
 
-boot();
+boot().then(() => {
+  loadDemoData();
+  refreshActiveView();
+});
