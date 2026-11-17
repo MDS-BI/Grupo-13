@@ -51,7 +51,7 @@ const ALIASES = Object.freeze({
   pago: "registrar_pago",
 });
 
-const ROLE_STORAGE_KEY = "erp_ventas:current_role";
+export const ROLE_STORAGE_KEY = "erp_ventas:current_role";
 
 export function normalizeRole(role) {
   const value = String(role || "")

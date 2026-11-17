@@ -36,12 +36,20 @@ import {
   resetOrderForm,
 } from "./components/ventas/order-form.js";
 import { listOrders, canEditOrder, assertClienteEliminable } from "./ventas/orders.js";
+import { listProductos } from "./ventas/catalog.js";
 import { initDeliveryPanel, renderDeliveryPanel } from "./components/ventas/delivery-panel.js";
 import { renderSummaryView } from "./components/ventas/summary-view.js";
 import { initReturnsPanel, renderReturnsPanel } from "./components/ventas/returns-panel.js";
 import { initClientHistory, renderClientHistory } from "./components/ventas/client-history.js";
 import { initInvoicePanel, renderInvoicePanel } from "./components/ventas/invoice-panel.js";
+import { initQuotesPanel, renderQuotesPanel } from "./components/ventas/quotes-panel.js";
+import { initProductsPanel, renderProductsPanel } from "./components/ventas/products-panel.js";
 import { ALL_ROLES, ROLE_LABELS, getCurrentRole, setCurrentRole } from "./ventas/roles.js";
+import { seedMockData } from "./ventas/mock-data.js";
+import { listDeliverableOrders } from "./ventas/delivery.js";
+import { listQuotes } from "./ventas/quotes.js";
+import { listInvoices } from "./ventas/invoices.js";
+import { listReturns } from "./ventas/returns.js";
 
 function qs(id) {
   return document.getElementById(id);
@@ -62,6 +70,8 @@ const MODULES = [
   "documents",
   "search",
   "sales-order",
+  "quotes",
+  "products",
   "delivery",
   "summary",
   "returns",
@@ -74,6 +84,8 @@ const VIEWS = {
   documents: "view-documents",
   search: "view-search",
   "sales-order": "view-sales-order",
+  quotes: "view-quotes",
+  products: "view-products",
   delivery: "view-delivery",
   summary: "view-summary",
   returns: "view-returns",
@@ -81,8 +93,80 @@ const VIEWS = {
   invoices: "view-invoices",
 };
 
+const VIEW_TITLES = {
+  dashboard: "Panel general",
+  entities: "Entidades",
+  documents: "Documentos",
+  search: "Búsqueda",
+  "sales-order": "Pedido de venta",
+  quotes: "Cotizaciones",
+  products: "Productos",
+  delivery: "Despacho",
+  summary: "Resumen",
+  returns: "Devoluciones",
+  history: "Historial de clientes",
+  invoices: "Facturación",
+};
+
 let wired = false;
 let currentModule = "dashboard";
+
+function updateBreadcrumb(name) {
+  const moduleLabel = qs("breadcrumb-module");
+  const currentLabel = qs("breadcrumb-current");
+  const back = qs("breadcrumb-back");
+  if (moduleLabel) moduleLabel.textContent = "Ventas";
+  if (currentLabel) currentLabel.textContent = VIEW_TITLES[name] || "Panel general";
+  if (back) {
+    const isDashboard = name === "dashboard";
+    back.hidden = isDashboard;
+    back.setAttribute("aria-disabled", String(isDashboard));
+  }
+}
+
+function refreshNavCounts() {
+  const counts = {
+    "nav-sales-order": listOrders().length,
+    "nav-quotes": listQuotes().length,
+    "nav-products": listProductos().length,
+    "nav-delivery": listDeliverableOrders().length,
+    "nav-summary": listInvoices().length,
+    "nav-returns": listReturns().length,
+    "nav-history": loadEntities().length,
+    "nav-invoices": listInvoices().length,
+  };
+  Object.entries(counts).forEach(([id, value]) => {
+    const badge = qs(id)?.querySelector(".nav-count");
+    if (badge) badge.textContent = String(value);
+  });
+}
+
+function updateDemoStatus() {
+  const status = qs("demo-status");
+  if (!status) return;
+  const hasData =
+    loadEntities().length > 0 ||
+    listOrders().length > 0 ||
+    listQuotes().length > 0 ||
+    listInvoices().length > 0 ||
+    listReturns().length > 0;
+  status.textContent = hasData
+    ? "Datos de ejemplo disponibles en el módulo."
+    : "Sin datos de ejemplo. Cárgalos para explorar los flujos.";
+  status.dataset.loaded = String(hasData);
+  status.closest(".demo-card")?.setAttribute("data-loaded", String(hasData));
+}
+
+function animateView(name) {
+  document
+    .querySelectorAll(".view-panel")
+    .forEach((panel) => panel.classList.remove("is-entering"));
+  const active = qs(VIEWS[name]);
+  if (!active) return;
+  active.classList.remove("is-entering");
+  void active.offsetWidth;
+  active.classList.add("is-entering");
+}
 
 function showModule(name, opts = {}) {
   if (!MODULES.includes(name)) name = "dashboard";
@@ -115,11 +199,17 @@ function showModule(name, opts = {}) {
     refreshOrderForm();
     populateOrderEditSelect();
   }
+  if (name === "quotes") renderQuotesPanel();
+  if (name === "products") renderProductsPanel();
   if (name === "delivery") renderDeliveryPanel();
   if (name === "summary") renderSummaryView();
   if (name === "returns") renderReturnsPanel();
   if (name === "history") renderClientHistory();
   if (name === "invoices") renderInvoicePanel();
+  updateBreadcrumb(name);
+  refreshNavCounts();
+  updateDemoStatus();
+  animateView(name);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -373,7 +463,33 @@ function applyLabels(config) {
 }
 
 function applyTheme(config) {
-  document.documentElement.style.setProperty("--accent", config.theme.accentColor);
+  const accent = config.theme.accentColor;
+  document.documentElement.style.setProperty("--accent", accent);
+  document.documentElement.style.setProperty(
+    "--accent-dark",
+    `color-mix(in srgb, ${accent} 78%, #0b1220)`,
+  );
+  document.documentElement.style.setProperty(
+    "--accent-soft",
+    `color-mix(in srgb, ${accent} 12%, transparent)`,
+  );
+}
+
+function handleDemoReset() {
+  const button = qs("demo-reset");
+  const original = button?.textContent || "Recargar datos de ejemplo";
+  seedMockData({ force: true });
+  if (button) {
+    button.textContent = "Datos de ejemplo listos";
+    window.setTimeout(() => {
+      button.textContent = original;
+    }, 1800);
+  }
+  showModule(currentModule);
+}
+
+export function refreshActiveView() {
+  showModule(currentModule);
 }
 
 function showConfigErrors(errors) {
@@ -424,6 +540,23 @@ function wireEvents() {
   initReturnsPanel({ onReturned: () => renderSummaryView() });
   initClientHistory();
   initInvoicePanel({ onInvoiced: () => renderSummaryView() });
+  initQuotesPanel({ onChanged: () => renderSummaryView() });
+  initProductsPanel();
+  const demoReset = qs("demo-reset");
+  if (demoReset) demoReset.addEventListener("click", handleDemoReset);
+  qs("demo-load")?.addEventListener("click", () => {
+    seedMockData();
+    updateDemoStatus();
+    showModule(currentModule);
+  });
+  qs("breadcrumb-home")?.addEventListener("click", () => showModule("dashboard"));
+  qs("breadcrumb-back")?.addEventListener("click", () => showModule("dashboard"));
+  document.querySelectorAll("[data-goto]").forEach((button) => {
+    button.addEventListener("click", () => showModule(button.dataset.goto));
+  });
+  qs("action-open-sales-order")?.addEventListener("click", () => showModule("sales-order"));
+  qs("action-open-invoices")?.addEventListener("click", () => showModule("invoices"));
+  qs("action-open-returns")?.addEventListener("click", () => showModule("returns"));
   qs("action-new-entity").addEventListener("click", () =>
     showModule("entities", { newRecord: true, focusForm: true }),
   );

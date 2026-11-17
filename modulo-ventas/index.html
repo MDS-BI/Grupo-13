@@ -111,29 +111,101 @@
 
         <nav class="side-nav sales-nav" aria-label="Ventas">
           <p class="side-nav-heading">Ventas</p>
-          <button type="button" class="nav-ventas" data-module="sales-order" id="nav-sales-order">
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="sales-order"
+            id="nav-sales-order"
+            aria-label="Pedidos y cotizaciones"
+          >
             <span class="nav-label">Pedidos de Venta</span>
+            <span class="nav-count" id="nav-count-sales-order" aria-hidden="true"></span>
           </button>
-          <button type="button" class="nav-ventas" data-module="delivery" id="nav-delivery">
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="quotes"
+            id="nav-quotes"
+            aria-label="Cotizaciones"
+          >
+            <span class="nav-label">Cotizaciones</span>
+            <span class="nav-count" id="nav-count-quotes" aria-hidden="true"></span>
+          </button>
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="products"
+            id="nav-products"
+            aria-label="Catálogo de productos"
+          >
+            <span class="nav-label">Productos</span>
+            <span class="nav-count" id="nav-count-products" aria-hidden="true"></span>
+          </button>
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="delivery"
+            id="nav-delivery"
+            aria-label="Entregas"
+          >
             <span class="nav-label">Entregas</span>
+            <span class="nav-count" id="nav-count-delivery" aria-hidden="true"></span>
           </button>
-          <button type="button" class="nav-ventas" data-module="summary" id="nav-summary">
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="summary"
+            id="nav-summary"
+            aria-label="Resumen general"
+          >
             <span class="nav-label">Resumen general</span>
           </button>
-          <button type="button" class="nav-ventas" data-module="returns" id="nav-returns">
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="returns"
+            id="nav-returns"
+            aria-label="Devoluciones"
+          >
             <span class="nav-label">Devoluciones</span>
+            <span class="nav-count" id="nav-count-returns" aria-hidden="true"></span>
           </button>
-          <button type="button" class="nav-ventas" data-module="history" id="nav-history">
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="history"
+            id="nav-history"
+            aria-label="Historial de clientes"
+          >
             <span class="nav-label">Historial de clientes</span>
+            <span class="nav-count" id="nav-count-history" aria-hidden="true"></span>
           </button>
-          <button type="button" class="nav-ventas" data-module="invoices" id="nav-invoices">
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="invoices"
+            id="nav-invoices"
+            aria-label="Facturación y pagos"
+          >
             <span class="nav-label">Facturación y pagos</span>
+            <span class="nav-count" id="nav-count-invoices" aria-hidden="true"></span>
           </button>
         </nav>
       </aside>
 
       <main class="content" id="app">
-        <section id="view-dashboard" aria-labelledby="dashboard-heading">
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <button type="button" id="breadcrumb-home" class="breadcrumb-link">
+            <span id="breadcrumb-module">Ventas</span>
+          </button>
+          <span class="breadcrumb-separator" aria-hidden="true">/</span>
+          <span id="breadcrumb-current" class="breadcrumb-current" aria-current="page">Panel</span>
+          <button type="button" id="breadcrumb-back" class="breadcrumb-back">
+            Volver al panel
+          </button>
+        </nav>
+
+        <section class="view-panel" id="view-dashboard" aria-labelledby="dashboard-heading">
           <h1 id="dashboard-heading">Módulo Base ERP</h1>
           <p id="dashboard-subtitle" class="muted">
             Gestiona tus entidades y documentos en un solo lugar.
@@ -170,10 +242,50 @@
               <strong id="action-find-title">Buscar registros</strong>
               <span class="muted" id="action-find-sub">Buscar entidades</span>
             </button>
+            <button type="button" class="action-card" id="action-open-sales-order">
+              <strong id="action-open-sales-order-title">Pedidos y cotizaciones</strong>
+              <span class="muted" id="action-open-sales-order-sub">Registrar una nueva venta</span>
+            </button>
+            <button type="button" class="action-card" id="action-open-invoices">
+              <strong id="action-open-invoices-title">Facturación y pagos</strong>
+              <span class="muted" id="action-open-invoices-sub"
+                >Emitir facturas y registrar pagos</span
+              >
+            </button>
+            <button type="button" class="action-card" id="action-open-returns">
+              <strong id="action-open-returns-title">Devoluciones</strong>
+              <span class="muted" id="action-open-returns-sub"
+                >Gestionar solicitudes de devolución</span
+              >
+            </button>
           </div>
+
+          <section class="card demo-card" aria-labelledby="demo-heading">
+            <div class="demo-card-heading">
+              <span class="demo-icon" aria-hidden="true">✦</span>
+              <div>
+                <h2 id="demo-heading">Datos de demostración</h2>
+                <p id="demo-status" class="muted">
+                  Carga clientes, productos, cotizaciones, facturas, pagos y devoluciones de ejemplo
+                  para probar todos los flujos del módulo.
+                </p>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="demo-load" class="primary">Cargar datos de ejemplo</button>
+              <button type="button" id="demo-reset" class="secondary">
+                Recargar datos de ejemplo
+              </button>
+            </div>
+          </section>
         </section>
 
-        <section id="view-entities" aria-labelledby="entities-view-heading" hidden>
+        <section
+          class="view-panel"
+          id="view-entities"
+          aria-labelledby="entities-view-heading"
+          hidden
+        >
           <h1 id="entities-view-heading">Entidades</h1>
 
           <section class="card" aria-labelledby="entity-form-heading">
@@ -258,7 +370,12 @@
           </section>
         </section>
 
-        <section id="view-documents" aria-labelledby="documents-view-heading" hidden>
+        <section
+          class="view-panel"
+          id="view-documents"
+          aria-labelledby="documents-view-heading"
+          hidden
+        >
           <h1 id="documents-view-heading">Documentos</h1>
 
           <section class="card" aria-labelledby="document-form-heading">
@@ -361,7 +478,7 @@
           </section>
         </section>
 
-        <section id="view-search" aria-labelledby="search-view-heading" hidden>
+        <section class="view-panel" id="view-search" aria-labelledby="search-view-heading" hidden>
           <h1 id="search-view-heading">Buscar Entidades</h1>
 
           <section class="card" aria-labelledby="search-heading">
@@ -380,7 +497,12 @@
             <ul id="search-results-list" aria-live="polite"></ul>
           </section>
         </section>
-        <section id="view-sales-order" aria-labelledby="sales-order-heading" hidden>
+        <section
+          class="view-panel"
+          id="view-sales-order"
+          aria-labelledby="sales-order-heading"
+          hidden
+        >
           <h1 id="sales-order-heading">Pedidos de Venta</h1>
           <p class="muted">
             Registra una orden con cliente existente, productos con stock, canal y condición de
@@ -486,9 +608,105 @@
               </div>
             </form>
           </section>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Continuar con</span>
+            <button type="button" class="secondary" data-goto="invoices">
+              Facturación y pagos →
+            </button>
+            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
+          </nav>
         </section>
 
-        <section id="view-delivery" aria-labelledby="delivery-heading" hidden>
+        <section class="view-panel" id="view-quotes" aria-labelledby="quotes-heading" hidden>
+          <h1 id="quotes-heading">Cotizaciones</h1>
+          <p class="muted">Revisa, envía y cierra cotizaciones registradas para tus clientes.</p>
+          <section class="card" aria-labelledby="quotes-list-heading">
+            <h2 id="quotes-list-heading">Listado de cotizaciones</h2>
+            <p id="quotes-count" class="muted" aria-live="polite"></p>
+            <div class="table-scroll">
+              <table class="data-table" aria-label="Cotizaciones registradas">
+                <thead>
+                  <tr>
+                    <th scope="col">Número</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Emisión</th>
+                    <th scope="col">Validez</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="quotes-body"></tbody>
+              </table>
+            </div>
+            <p id="quotes-empty" class="empty-state" hidden>
+              Aún no hay cotizaciones. Carga los datos de ejemplo para comenzar.
+            </p>
+            <p id="quotes-feedback" class="feedback" role="status" aria-live="polite"></p>
+          </section>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Continuar con</span>
+            <button type="button" class="secondary" data-goto="sales-order">Nueva orden →</button>
+            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
+          </nav>
+        </section>
+
+        <section class="view-panel" id="view-products" aria-labelledby="products-heading" hidden>
+          <h1 id="products-heading">Productos</h1>
+          <p class="muted">
+            Consulta el catálogo, precios vigentes, stock y estado de cada producto.
+          </p>
+          <section class="card" aria-labelledby="products-list-heading">
+            <h2 id="products-list-heading">Catálogo</h2>
+            <div class="field-row">
+              <div>
+                <label for="product-search">Buscar producto</label>
+                <input
+                  id="product-search"
+                  type="search"
+                  placeholder="Nombre, SKU o categoría"
+                  aria-label="Buscar producto"
+                />
+              </div>
+              <div>
+                <label for="product-stock-filter">Stock</label>
+                <select id="product-stock-filter" aria-label="Filtrar por stock">
+                  <option value="all">Todos</option>
+                  <option value="available">Con stock</option>
+                  <option value="low">Stock bajo</option>
+                </select>
+              </div>
+            </div>
+            <p id="products-count" class="muted" aria-live="polite"></p>
+            <div class="table-scroll">
+              <table class="data-table" aria-label="Productos del catálogo">
+                <thead>
+                  <tr>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Unidad</th>
+                    <th scope="col">Impuesto</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Precio vigente</th>
+                    <th scope="col">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="products-body"></tbody>
+              </table>
+            </div>
+            <p id="products-empty" class="empty-state" hidden>
+              No hay productos para los filtros seleccionados.
+            </p>
+          </section>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Continuar con</span>
+            <button type="button" class="secondary" data-goto="sales-order">Nueva orden →</button>
+            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
+          </nav>
+        </section>
+
+        <section class="view-panel" id="view-delivery" aria-labelledby="delivery-heading" hidden>
           <h1 id="delivery-heading">Entregas</h1>
           <p class="muted">
             Solo los pedidos facturados pueden marcarse como entregados. El estado entregado es
@@ -513,9 +731,16 @@
               </button>
             </div>
           </section>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Continuar con</span>
+            <button type="button" class="secondary" data-goto="invoices">
+              Facturación y pagos →
+            </button>
+            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
+          </nav>
         </section>
 
-        <section id="view-summary" aria-labelledby="summary-heading" hidden>
+        <section class="view-panel" id="view-summary" aria-labelledby="summary-heading" hidden>
           <h1 id="summary-heading">Resumen general de ventas</h1>
           <div id="summary-restricted" class="empty" hidden>
             El resumen general está restringido al rol gerente.
@@ -578,9 +803,18 @@
               </table>
             </section>
           </div>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Explorar también</span>
+            <button type="button" class="secondary" data-goto="sales-order">
+              Pedidos y cotizaciones →
+            </button>
+            <button type="button" class="secondary" data-goto="history">
+              Historial de clientes →
+            </button>
+          </nav>
         </section>
 
-        <section id="view-returns" aria-labelledby="returns-heading" hidden>
+        <section class="view-panel" id="view-returns" aria-labelledby="returns-heading" hidden>
           <h1 id="returns-heading">Devoluciones</h1>
           <p class="muted">
             Registra devoluciones dentro del plazo configurado, con motivo válido y cantidades no
@@ -618,9 +852,16 @@
             <h2 id="returns-list-heading">Devoluciones registradas</h2>
             <ul id="returns-list" aria-live="polite"></ul>
           </section>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Continuar con</span>
+            <button type="button" class="secondary" data-goto="invoices">
+              Facturación y pagos →
+            </button>
+            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
+          </nav>
         </section>
 
-        <section id="view-history" aria-labelledby="history-heading" hidden>
+        <section class="view-panel" id="view-history" aria-labelledby="history-heading" hidden>
           <h1 id="history-heading">Historial comercial del cliente</h1>
           <section class="card" aria-labelledby="history-panel-heading">
             <h2 id="history-panel-heading">Perfil comercial</h2>
@@ -645,9 +886,16 @@
               <tbody id="history-body"></tbody>
             </table>
           </section>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Explorar también</span>
+            <button type="button" class="secondary" data-goto="sales-order">
+              Pedidos y cotizaciones →
+            </button>
+            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
+          </nav>
         </section>
 
-        <section id="view-invoices" aria-labelledby="invoices-heading" hidden>
+        <section class="view-panel" id="view-invoices" aria-labelledby="invoices-heading" hidden>
           <h1 id="invoices-heading">Facturación y pagos</h1>
           <div id="invoice-restricted" class="empty" hidden>
             La facturación está restringida al rol de facturación.
@@ -701,6 +949,11 @@
               </form>
             </section>
           </div>
+          <nav class="related-nav" aria-label="Siguientes pasos">
+            <span>Continuar con</span>
+            <button type="button" class="secondary" data-goto="delivery">Entregas →</button>
+            <button type="button" class="secondary" data-goto="returns">Devoluciones →</button>
+          </nav>
         </section>
       </main>
     </div>

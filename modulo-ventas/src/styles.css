@@ -719,6 +719,202 @@ button.danger:hover {
 }
 
 /* ==========================================================================
+   Navegación contextual y datos de demostración
+   ========================================================================== */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 20px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.breadcrumb-link,
+.breadcrumb-back {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.breadcrumb-link:hover,
+.breadcrumb-back:hover {
+  background: var(--accent-soft);
+}
+
+.breadcrumb-back {
+  margin-left: auto;
+}
+
+.breadcrumb-back[aria-disabled="true"] {
+  color: var(--muted);
+  cursor: default;
+  pointer-events: none;
+}
+
+.breadcrumb-separator {
+  opacity: 0.6;
+}
+
+.breadcrumb-current {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.nav-count {
+  min-width: 20px;
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--sidebar-active);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.nav-ventas.active .nav-count {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.demo-card {
+  margin-top: 20px;
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--border));
+  background: linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 100%);
+}
+
+.demo-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.demo-card-heading h2 {
+  margin-bottom: 4px;
+}
+
+.demo-card-heading .muted {
+  margin: 0;
+  max-width: 62ch;
+}
+
+.demo-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.demo-card[data-loaded="true"] .demo-icon {
+  background: var(--success);
+}
+
+.related-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-strong);
+}
+
+.related-nav > span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.empty-state {
+  padding: 18px;
+  color: var(--muted);
+  text-align: center;
+  background: var(--surface-alt);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.row-action {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    border-color var(--transition);
+}
+
+.row-action:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.stock-low {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.product-description {
+  font-size: 0.8rem;
+  max-width: 32ch;
+}
+
+.view-panel.is-entering {
+  animation: view-enter 220ms ease-out both;
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
    Responsive
    ========================================================================== */
 @media (max-width: 900px) {
@@ -753,5 +949,25 @@ button.danger:hover {
   }
   .card {
     padding: 18px;
+  }
+  .breadcrumb {
+    margin-bottom: 16px;
+  }
+  .breadcrumb-back {
+    width: 100%;
+    margin-left: 0;
+  }
+  .nav-count {
+    display: none;
+  }
+  .demo-card-heading {
+    flex-direction: column;
+  }
+  .related-nav {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .related-nav button {
+    text-align: left;
   }
 }
