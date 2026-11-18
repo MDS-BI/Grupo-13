@@ -16,7 +16,8 @@
 //     statuses: ['cotización', 'pedido', 'facturado'],
 //     transitions: { cotización: ['pedido'], pedido: ['facturado'], facturado: [] }
 //   },
-//   theme: { accentColor: '#0f62fe' }
+//   theme: { accentColor: '#0f62fe' },
+//   features: { hideClientDelete: true, documentsStockNotice: true }
 // }
 export const userConfig = {
   moduleName: "Ventas",
@@ -59,6 +60,10 @@ export const userConfig = {
     defaultCurrency: "CLP",
     roles: ["vendedor", "operaciones", "gerente", "devoluciones", "jefe_ventas", "facturacion"],
   },
+  features: {
+    hideClientDelete: true,
+    documentsStockNotice: true,
+  },
   theme: { accentColor: "#0f62fe" },
 };
 
@@ -87,6 +92,10 @@ export const DEFAULT_CONFIG = Object.freeze({
       "jefe_ventas",
       "facturacion",
     ]),
+  }),
+  features: Object.freeze({
+    hideClientDelete: false,
+    documentsStockNotice: false,
   }),
   theme: Object.freeze({ accentColor: "#2563eb" }),
 });
@@ -274,6 +283,25 @@ function validateBusinessRules(raw, errors) {
   return out;
 }
 
+function validateFeatures(raw, errors) {
+  if (raw === null || raw === undefined) return structuredClone(DEFAULT_CONFIG.features);
+  if (typeof raw !== "object") {
+    errors.push("features debe ser un objeto");
+    return structuredClone(DEFAULT_CONFIG.features);
+  }
+  const out = structuredClone(DEFAULT_CONFIG.features);
+  for (const key of Object.keys(out)) {
+    if (raw[key] !== undefined && raw[key] !== null) {
+      if (typeof raw[key] !== "boolean") {
+        errors.push(`features.${key} debe ser un booleano`);
+      } else {
+        out[key] = raw[key];
+      }
+    }
+  }
+  return out;
+}
+
 export function normalizeConfig(raw) {
   if (raw === null || raw === undefined) {
     return { config: structuredClone(DEFAULT_CONFIG), errors: [] };
@@ -313,6 +341,9 @@ export function normalizeConfig(raw) {
   }
   if (raw.businessRules !== undefined) {
     cfg.businessRules = validateBusinessRules(raw.businessRules, errors);
+  }
+  if (raw.features !== undefined) {
+    cfg.features = validateFeatures(raw.features, errors);
   }
   if (raw.theme !== undefined) {
     cfg.theme = validateTheme(raw.theme, errors);

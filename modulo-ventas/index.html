@@ -363,10 +363,14 @@
               <div class="error" id="error-edit-entity" aria-live="polite"></div>
             </div>
             <div class="form-actions">
-              <button type="button" id="delete-entity" class="danger">
+              <button type="button" id="delete-entity" class="danger" hidden>
                 Eliminar la entidad seleccionada
               </button>
             </div>
+            <p id="entity-delete-note" class="empty" hidden>
+              Los clientes se desactivan lógicamente para conservar la trazabilidad de sus
+              pedidos, facturas y devoluciones. El borrado físico no se expone en este módulo.
+            </p>
           </section>
         </section>
 
@@ -377,6 +381,21 @@
           hidden
         >
           <h1 id="documents-view-heading">Documentos</h1>
+
+          <div id="documents-lifecycle-notice" class="empty" hidden>
+            <p>
+              Los Pedidos de Venta se registran desde la vista dedicada
+              <strong>Pedidos de Venta</strong>, que valida el stock de cada producto y asigna el
+              estado inicial «cotización».
+            </p>
+            <p>
+              Este formulario crea documentos de registro manual: no valida stock y no participa
+              del ciclo de vida de ventas.
+            </p>
+            <button type="button" class="secondary" data-goto="sales-order">
+              Registrar un pedido en la vista dedicada →
+            </button>
+          </div>
 
           <section class="card" aria-labelledby="document-form-heading">
             <h2 id="document-form-heading">Agregar / Editar Documento</h2>

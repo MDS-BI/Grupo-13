@@ -460,6 +460,20 @@ function applyLabels(config) {
     `Eliminar ${articulo(entity)} ${entity.toLowerCase()} ${seleccionada(entity)}`;
   qs("delete-document").textContent =
     `Eliminar ${articulo(document_)} ${document_.toLowerCase()} ${seleccionada(document_)}`;
+
+  const hideClientDelete = Boolean(config.features?.hideClientDelete);
+  const deleteButton = qs("delete-entity");
+  if (deleteButton) deleteButton.hidden = hideClientDelete;
+  const deleteNote = qs("entity-delete-note");
+  if (deleteNote) deleteNote.hidden = !hideClientDelete;
+  const documentsNotice = qs("documents-lifecycle-notice");
+  if (documentsNotice) {
+    documentsNotice.hidden = !config.features?.documentsStockNotice;
+    const noticeText = documentsNotice.querySelector("p");
+    if (noticeText) {
+      noticeText.innerHTML = `Los ${documents} se registran desde la vista dedicada <strong>${documents}</strong>, que valida el stock de cada producto y asigna el estado inicial «cotización».`;
+    }
+  }
 }
 
 function applyTheme(config) {
@@ -540,7 +554,14 @@ function wireEvents() {
   initReturnsPanel({ onReturned: () => renderSummaryView() });
   initClientHistory();
   initInvoicePanel({ onInvoiced: () => renderSummaryView() });
-  initQuotesPanel({ onChanged: () => renderSummaryView() });
+  initQuotesPanel({
+    onChanged: () => renderSummaryView(),
+    onOrderCreated: (order) => {
+      if (!order) return;
+      showModule("sales-order");
+      loadOrderIntoForm(order.id);
+    },
+  });
   initProductsPanel();
   const demoReset = qs("demo-reset");
   if (demoReset) demoReset.addEventListener("click", handleDemoReset);

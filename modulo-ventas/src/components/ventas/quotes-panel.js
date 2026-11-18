@@ -5,10 +5,12 @@ import {
   expireQuote,
   listQuotes,
   rejectQuote,
+  updateQuoteStatus,
 } from "../../ventas/quotes.js";
 
 let wired = false;
 let notify = () => {};
+let onOrderCreated = () => {};
 
 function qs(id) {
   return document.getElementById(id);
@@ -29,30 +31,44 @@ function badge(status) {
   return span;
 }
 
+const ACTION_LABELS = {
+  enviada: "Enviar",
+  aceptada: "Convertir a pedido",
+  rechazada: "Rechazar",
+  vencida: "Vencer",
+};
+
 function actionsFor(status) {
-  const labels = {
-    enviada: "Enviar",
-    aceptada: "Aceptar",
-    rechazada: "Rechazar",
-    vencida: "Vencer",
-  };
-  return (QUOTE_TRANSITIONS[status] || []).filter((action) => labels[action]);
+  return (QUOTE_TRANSITIONS[status] || []).filter((action) => ACTION_LABELS[action]);
 }
 
 export function initQuotesPanel(callbacks = {}) {
   if (wired) return;
   wired = true;
   notify = callbacks.onChanged || notify;
+  onOrderCreated = callbacks.onOrderCreated || onOrderCreated;
   const body = qs("quotes-body");
   if (!body) return;
   body.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-quote-action]");
     if (!button) return;
     const feedback = qs("quotes-feedback");
+    const quoteId = button.dataset.quoteId;
+    const action = button.dataset.quoteAction;
     try {
-      if (button.dataset.quoteAction === "accept") acceptQuote(button.dataset.quoteId);
-      if (button.dataset.quoteAction === "reject") rejectQuote(button.dataset.quoteId);
-      if (button.dataset.quoteAction === "expire") expireQuote(button.dataset.quoteId);
+      if (action === "aceptada") {
+        const { quote, order } = acceptQuote(quoteId);
+        if (feedback) {
+          feedback.textContent = `Cotización ${quote.numero} aceptada: pedido ${order.numero} generado en estado "${order.estado}". Revisa y confirma el pedido en Pedidos de Venta.`;
+        }
+        renderQuotesPanel();
+        notify();
+        onOrderCreated(order);
+        return;
+      }
+      if (action === "rechazada") rejectQuote(quoteId);
+      else if (action === "vencida") expireQuote(quoteId);
+      else if (action === "enviada") updateQuoteStatus(quoteId, "enviada");
       if (feedback) feedback.textContent = "Cotización actualizada correctamente.";
       renderQuotesPanel();
       notify();
@@ -90,14 +106,7 @@ export function renderQuotesPanel() {
       button.className = "row-action";
       button.dataset.quoteAction = action;
       button.dataset.quoteId = quote.id;
-      button.textContent =
-        action === "aceptada"
-          ? "Aceptar"
-          : action === "rechazada"
-            ? "Rechazar"
-            : action === "vencida"
-              ? "Vencer"
-              : "Enviar";
+      button.textContent = ACTION_LABELS[action] || action;
       actions.appendChild(button);
     }
     row.appendChild(actions);

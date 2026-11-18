@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setupDom, bootApp, resetVentasStorage, seedVentas } from './fixtures.js';
 import { listOrders } from '../../src/ventas/orders.js';
 import { setCurrentRole, ROLES } from '../../src/ventas/roles.js';
+import { createQuote } from '../../src/ventas/quotes.js';
 
 let seed;
 
@@ -100,5 +101,54 @@ describe('Ventas UI wiring', () => {
     expect(document.getElementById('history-empty').hidden).toBe(false);
     expect(document.getElementById('history-empty').textContent).toMatch(/no tiene cotizaciones/);
     expect(document.getElementById('history-total').textContent).toContain('0 transacción');
+  });
+
+  it('hides the client delete action and shows the documents stock notice', () => {
+    clickNav('nav-entities');
+    expect(document.getElementById('delete-entity').hidden).toBe(true);
+    expect(document.getElementById('entity-delete-note').hidden).toBe(false);
+
+    clickNav('nav-documents');
+    expect(document.getElementById('documents-lifecycle-notice').hidden).toBe(false);
+    expect(document.getElementById('documents-lifecycle-notice').textContent).toMatch(/cotización/);
+  });
+
+  it('converts a quote into a pedido and opens it in the order form', () => {
+    const quote = createQuote({
+      clienteId: seed.client.entity_id,
+      vendedorId: 'Vendedor Demo',
+      lineas: [{ productoId: seed.productos[0].id, cantidad: 2 }],
+    });
+
+    clickNav('nav-quotes');
+    const accept = document.querySelector('#quotes-body button[data-quote-action="aceptada"]');
+    expect(accept.textContent).toMatch(/Convertir a pedido/);
+    accept.click();
+
+    const [order] = listOrders();
+    expect(order.estado).toBe('pedido');
+    expect(order.cotizacionId).toBe(quote.id);
+    expect(document.getElementById('quotes-feedback').textContent).toMatch(order.numero);
+    expect(document.getElementById('view-sales-order').hidden).toBe(false);
+    expect(document.getElementById('order-form-heading').textContent).toMatch(/Editar/);
+    expect(document.getElementById('order-edit-select').value).toBe(order.id);
+    expect(document.getElementById('order-client').value).toBe(seed.client.entity_id);
+  });
+
+  it('blocks a second conversion of the same quote', () => {
+    const quote = createQuote({
+      clienteId: seed.client.entity_id,
+      vendedorId: 'Vendedor Demo',
+      lineas: [{ productoId: seed.productos[0].id, cantidad: 1 }],
+    });
+    clickNav('nav-quotes');
+    document.querySelector('#quotes-body button[data-quote-action="aceptada"]').click();
+    expect(listOrders()).toHaveLength(1);
+
+    const quoteRow = [...document.querySelectorAll('#quotes-body tr')].find((row) =>
+      row.textContent.includes(quote.numero),
+    );
+    expect(quoteRow.textContent).toMatch(/aceptada/);
+    expect(quoteRow.querySelector('button[data-quote-action]')).toBeNull();
   });
 });

@@ -168,4 +168,27 @@ describe('module-config', () => {
       expect(config.theme.accentColor).toBe(DEFAULT_CONFIG.theme.accentColor);
     });
   });
+
+  describe('features', () => {
+    it('defaults the feature flags for generic modules', () => {
+      const { config, errors } = normalizeConfig(null);
+      expect(errors).toEqual([]);
+      expect(config.features).toEqual({ hideClientDelete: false, documentsStockNotice: false });
+    });
+
+    it('enables the ventas feature flags from userConfig', async () => {
+      const { loadModuleConfig } = await import('../../src/module-config.js');
+      const { config, errors } = await loadModuleConfig();
+      expect(errors).toEqual([]);
+      expect(config.features.hideClientDelete).toBe(true);
+      expect(config.features.documentsStockNotice).toBe(true);
+    });
+
+    it('rejects non-boolean feature flags and keeps defaults', () => {
+      const { config, errors } = normalizeConfig({ features: { hideClientDelete: 'yes' } });
+      expect(errors.some(e => e.includes('features.hideClientDelete'))).toBe(true);
+      expect(config.features.hideClientDelete).toBe(false);
+      expect(config.features.documentsStockNotice).toBe(false);
+    });
+  });
 });

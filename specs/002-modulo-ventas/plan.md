@@ -133,10 +133,15 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 5. **Dominio de Ventas**: 16 módulos JavaScript (`collections`, `money`, `numbering`, `lifecycle`, `roles`, `audit`, `masters`, `catalog`, `quotes`, `orders`, `delivery`, `summary`, `returns`, `history`, `invoices`, `payments`) y un barrel `index.js`.
 6. **Pruebas**: suite nueva en `modulo-ventas/tests/ventas/` con cobertura de historias US1-US7, roles, concurrencia, rendimiento y consistencia.
 7. **Documentación**: `data-model.md` v3.0 actualizado con las 14 entidades implementadas, colecciones, roles y `businessRules`.
+8. **Pulido según feedback del avance 03**:
+   - `module-config.js`: nueva sección `features` (`hideClientDelete`, `documentsStockNotice`) validada en `normalizeConfig` y activada solo para el módulo de Ventas.
+   - `index.html` + `app.js`: la vista Documentos muestra un aviso que dirige la creación de Pedidos de Venta a la vista dedicada, que valida stock (FR-012) y asigna el estado inicial «cotización» (FR-014); el botón de eliminación física del cliente queda oculto en Entidades y se reemplaza por una nota de desactivación lógica (supuestos de la especificación).
+   - `quotes-panel.js` (T022): corrección de la correspondencia acción→estado en los botones de cotización (antes quedaban sin efecto), etiqueta «Convertir a pedido», mensaje con el pedido generado y callback `onOrderCreated` que abre el pedido resultante en el formulario de `order-form.js` para su revisión y edición.
+   - Pruebas: nuevas verificaciones de `features`, de los avisos de la interfaz y del recorrido cotización → pedido → formulario (244 pruebas en total).
 
 ## Verificación
 
-- `npm test`: **226/226 pruebas pasan** (39 archivos; incluye las 111 pruebas base y las nuevas pruebas de Ventas).
+- `npm test`: **244/244 pruebas pasan** (42 archivos; incluye las 111 pruebas base y las nuevas pruebas de Ventas).
 - `npm run test:ventas`: suite específica de Ventas en `modulo-ventas/tests/ventas/`.
 - `npm run build`: compila sin errores (salida en `modulo-ventas/dist/`).
 - Coherencia con el modelo: la terminología, el ciclo de vida, las validaciones y la persistencia coinciden con `data-model.md` §7 y §8.
