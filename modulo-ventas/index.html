@@ -242,6 +242,12 @@
               <strong id="action-find-title">Buscar registros</strong>
               <span class="muted" id="action-find-sub">Buscar entidades</span>
             </button>
+            <button type="button" class="action-card" id="action-open-analytics" data-goto="summary">
+              <strong id="action-open-analytics-title">Panel de análisis</strong>
+              <span class="muted" id="action-open-analytics-sub"
+                >Gráficos de ventas y productos más vendidos</span
+              >
+            </button>
             <button type="button" class="action-card" id="action-open-sales-order">
               <strong id="action-open-sales-order-title">Pedidos y cotizaciones</strong>
               <span class="muted" id="action-open-sales-order-sub">Registrar una nueva venta</span>
@@ -791,6 +797,69 @@
                 <span id="summary-monto-pedidos">0</span>
               </p>
             </section>
+
+            <section class="analytics-panel" aria-labelledby="analytics-heading">
+              <div class="analytics-heading">
+                <div>
+                  <h2 id="analytics-heading">Panel de análisis</h2>
+                  <p class="muted">
+                    Evolución de ventas y productos más vendidos a partir de pedidos y cotizaciones.
+                  </p>
+                </div>
+                <div class="analytics-filters">
+                  <label class="analytics-filter" for="analytics-period">
+                    Período
+                    <select id="analytics-period">
+                      <option value="mes">Por mes</option>
+                      <option value="semana">Por semana</option>
+                      <option value="dia">Por día</option>
+                    </select>
+                  </label>
+                  <label class="analytics-filter" for="analytics-metric">
+                    Métrica
+                    <select id="analytics-metric">
+                      <option value="cantidad">Unidades vendidas</option>
+                      <option value="monto">Monto vendido</option>
+                    </select>
+                  </label>
+                  <label class="analytics-filter" for="analytics-type">
+                    Gráfico
+                    <select id="analytics-type">
+                      <option value="bar">Barras</option>
+                      <option value="doughnut">Pastel</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div id="analytics-empty" class="empty" hidden>
+                No hay pedidos ni cotizaciones para mostrar en los gráficos.
+              </div>
+              <div class="analytics-grid">
+                <article class="card chart-card" id="analytics-evolution-card">
+                  <h3>Evolución de ventas por período</h3>
+                  <p id="analytics-evolution-total" class="chart-caption muted"></p>
+                  <div class="chart-frame" id="analytics-evolution-frame">
+                    <canvas
+                      id="analytics-evolution-chart"
+                      role="img"
+                      aria-label="Gráfico de líneas con la evolución de ventas, pedidos y cotizaciones"
+                    ></canvas>
+                  </div>
+                </article>
+                <article class="card chart-card" id="analytics-products-card">
+                  <h3>Productos más vendidos</h3>
+                  <p id="analytics-products-total" class="chart-caption muted"></p>
+                  <div class="chart-frame" id="analytics-products-frame">
+                    <canvas
+                      id="analytics-products-chart"
+                      role="img"
+                      aria-label="Gráfico de productos más vendidos"
+                    ></canvas>
+                  </div>
+                </article>
+              </div>
+            </section>
+
             <div id="summary-empty" class="empty" hidden>
               No hay ventas, cotizaciones ni pedidos registrados.
             </div>
