@@ -39,6 +39,7 @@ import { listOrders, canEditOrder, assertClienteEliminable } from "./ventas/orde
 import { listProductos } from "./ventas/catalog.js";
 import { initDeliveryPanel, renderDeliveryPanel } from "./components/ventas/delivery-panel.js";
 import { renderSummaryView } from "./components/ventas/summary-view.js";
+import { initSalesAnalytics } from "./components/ventas/sales-analytics.js";
 import { initReturnsPanel, renderReturnsPanel } from "./components/ventas/returns-panel.js";
 import { initClientHistory, renderClientHistory } from "./components/ventas/client-history.js";
 import { initInvoicePanel, renderInvoicePanel } from "./components/ventas/invoice-panel.js";
@@ -533,6 +534,7 @@ function populateRoleSelect() {
 function wireEvents() {
   if (wired) return;
   wired = true;
+  initSalesAnalytics();
   document.querySelectorAll(".nav-module, .nav-ventas").forEach((btn) => {
     btn.addEventListener("click", () => showModule(btn.dataset.module));
   });

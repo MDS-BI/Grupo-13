@@ -1,5 +1,6 @@
 import { buildSummary } from "../../ventas/summary.js";
 import { can } from "../../ventas/roles.js";
+import { clearSalesAnalytics, renderSalesAnalytics } from "./sales-analytics.js";
 
 function qs(id) {
   return document.getElementById(id);
@@ -15,7 +16,10 @@ export function renderSummaryView() {
   const content = qs("summary-content");
   if (restricted) restricted.hidden = can("ver_resumen");
   if (content) content.hidden = !can("ver_resumen");
-  if (!can("ver_resumen")) return;
+  if (!can("ver_resumen")) {
+    clearSalesAnalytics();
+    return;
+  }
 
   const summary = buildSummary({ role: "gerente" });
   fill("summary-total-ventas", summary.totalVentas);
@@ -71,4 +75,6 @@ export function renderSummaryView() {
       ordersBody.appendChild(row);
     }
   }
+
+  renderSalesAnalytics();
 }

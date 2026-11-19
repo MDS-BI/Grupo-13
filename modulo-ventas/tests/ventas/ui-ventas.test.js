@@ -135,6 +135,20 @@ describe('Ventas UI wiring', () => {
     expect(document.getElementById('order-client').value).toBe(seed.client.entity_id);
   });
 
+  it('opens the analytics panel from the dashboard', () => {
+    document.getElementById('action-open-analytics').click();
+    expect(document.getElementById('view-summary').hidden).toBe(false);
+
+    const role = document.getElementById('role-select');
+    role.value = ROLES.GERENTE;
+    role.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+    expect(document.getElementById('summary-content').hidden).toBe(false);
+    expect(document.getElementById('analytics-evolution-chart')).not.toBeNull();
+    expect(document.getElementById('analytics-products-chart')).not.toBeNull();
+    expect(document.getElementById('analytics-empty').hidden).toBe(false);
+  });
+
   it('blocks a second conversion of the same quote', () => {
     const quote = createQuote({
       clienteId: seed.client.entity_id,
