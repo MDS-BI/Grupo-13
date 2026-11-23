@@ -27,6 +27,7 @@ import {
 } from "./components/document-form.js";
 import { folioLabel } from "./components/document-list.js";
 import { renderLogo, applyShellLabels, setActiveModule } from "./components/shell.js";
+import { renderRoleContext } from "./components/role-context.js";
 import { renderDashboard } from "./components/dashboard.js";
 import { setupSearchBar, renderSearchResults } from "./components/search-bar.js";
 import {
@@ -542,6 +543,7 @@ function wireEvents() {
   if (roleSelect) {
     roleSelect.addEventListener("change", () => {
       setCurrentRole(roleSelect.value);
+      renderRoleContext();
       showModule(currentModule);
     });
   }
@@ -606,6 +608,7 @@ export function initApp(resolved) {
   renderLogo(qs("logo-mark"));
   applyLabels(resolved.config);
   populateRoleSelect();
+  renderRoleContext();
   wireEvents();
   clearEntityForm();
   clearDocumentForm();

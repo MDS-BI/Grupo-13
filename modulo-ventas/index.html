@@ -21,6 +21,9 @@
           <span id="brand-name" class="brand-name">Módulo Base ERP</span>
         </div>
         <div class="role-switcher">
+          <span id="role-badge" class="role-badge" aria-live="polite">
+            <span id="role-badge-label">Vendedor</span>
+          </span>
           <label for="role-select">Rol activo</label>
           <select id="role-select" name="role-select" aria-label="Rol activo"></select>
         </div>
@@ -28,6 +31,7 @@
 
       <aside class="sidebar">
         <nav class="side-nav" aria-label="Módulos">
+          <p class="side-nav-heading">General</p>
           <button
             type="button"
             class="nav-module active"
@@ -191,6 +195,47 @@
             <span class="nav-count" id="nav-count-invoices" aria-hidden="true"></span>
           </button>
         </nav>
+
+        <section class="role-context" id="role-context" aria-labelledby="role-context-title">
+          <p class="role-context-eyebrow">Rol activo</p>
+          <h2 id="role-context-title">Vendedor</h2>
+          <p id="role-context-summary" class="role-context-summary">
+            Acciones disponibles para tu rol actual.
+          </p>
+          <p class="role-context-label">
+            <span>Puedes realizar</span>
+            <span id="role-context-count" class="role-context-count">0 accesos</span>
+          </p>
+          <ul id="role-context-tasks" class="role-task-list">
+            <li id="role-task-orders" class="role-task">
+              <button type="button" data-goto="sales-order">Consultar pedidos</button>
+            </li>
+            <li id="role-task-create-order" class="role-task">
+              <button type="button" data-goto="sales-order">Crear pedidos y cotizaciones</button>
+            </li>
+            <li id="role-task-edit-order" class="role-task">
+              <button type="button" data-goto="sales-order">Editar pedidos</button>
+            </li>
+            <li id="role-task-invoices" class="role-task">
+              <button type="button" data-goto="invoices">Generar facturas</button>
+            </li>
+            <li id="role-task-payments" class="role-task">
+              <button type="button" data-goto="invoices">Registrar pagos</button>
+            </li>
+            <li id="role-task-delivery" class="role-task">
+              <button type="button" data-goto="delivery">Confirmar entregas</button>
+            </li>
+            <li id="role-task-returns" class="role-task">
+              <button type="button" data-goto="returns">Gestionar devoluciones</button>
+            </li>
+            <li id="role-task-summary" class="role-task">
+              <button type="button" data-goto="summary">Consultar resumen general</button>
+            </li>
+            <li id="role-task-history" class="role-task">
+              <button type="button" data-goto="history">Consultar historial de clientes</button>
+            </li>
+          </ul>
+        </section>
       </aside>
 
       <main class="content" id="app">
@@ -223,48 +268,72 @@
           </div>
 
           <h2 id="quick-actions-heading">Acciones rápidas</h2>
-          <div class="action-grid">
-            <button type="button" class="action-card" id="action-new-entity">
-              <strong id="action-new-entity-title">Nueva Entidad</strong>
-              <span class="muted" id="action-new-entity-sub">Crear un registro de entidad</span>
-            </button>
-            <button type="button" class="action-card" id="action-new-document">
-              <strong id="action-new-document-title">Nuevo Documento</strong>
-              <span class="muted" id="action-new-document-sub"
-                >Registrar un registro de documento</span
+          <p class="muted">Elige una acción para empezar o continuar con tu trabajo.</p>
+
+          <section class="action-group" aria-labelledby="create-actions-heading">
+            <div class="action-group-heading">
+              <h3 id="create-actions-heading">Crear y registrar</h3>
+              <span>Acciones principales</span>
+            </div>
+            <div class="action-grid">
+              <button type="button" class="action-card" id="action-new-entity">
+                <strong id="action-new-entity-title">Nueva Entidad</strong>
+                <span class="muted" id="action-new-entity-sub">Crear un registro de entidad</span>
+              </button>
+              <button type="button" class="action-card" id="action-new-document">
+                <strong id="action-new-document-title">Nuevo Documento</strong>
+                <span class="muted" id="action-new-document-sub"
+                  >Registrar un registro de documento</span
+                >
+              </button>
+              <button type="button" class="action-card" id="action-open-sales-order">
+                <strong id="action-open-sales-order-title">Pedidos y cotizaciones</strong>
+                <span class="muted" id="action-open-sales-order-sub">Registrar una nueva venta</span>
+              </button>
+              <button type="button" class="action-card" id="action-open-invoices">
+                <strong id="action-open-invoices-title">Facturación y pagos</strong>
+                <span class="muted" id="action-open-invoices-sub"
+                  >Emitir facturas y registrar pagos</span
+                >
+              </button>
+              <button type="button" class="action-card" id="action-open-returns">
+                <strong id="action-open-returns-title">Devoluciones</strong>
+                <span class="muted" id="action-open-returns-sub"
+                  >Gestionar solicitudes de devolución</span
+                >
+              </button>
+            </div>
+          </section>
+
+          <section class="action-group" aria-labelledby="consult-actions-heading">
+            <div class="action-group-heading">
+              <h3 id="consult-actions-heading">Consultar y analizar</h3>
+              <span>Información y seguimiento</span>
+            </div>
+            <div class="action-grid">
+              <button type="button" class="action-card" id="action-open-entities">
+                <strong id="action-open-entities-title">Entidades</strong>
+                <span class="muted" id="action-open-entities-sub"
+                  >Abrir la gestión de entidades</span
+                >
+              </button>
+              <button type="button" class="action-card" id="action-find">
+                <strong id="action-find-title">Buscar registros</strong>
+                <span class="muted" id="action-find-sub">Buscar entidades</span>
+              </button>
+              <button
+                type="button"
+                class="action-card"
+                id="action-open-analytics"
+                data-goto="summary"
               >
-            </button>
-            <button type="button" class="action-card" id="action-open-entities">
-              <strong id="action-open-entities-title">Entidades</strong>
-              <span class="muted" id="action-open-entities-sub">Abrir la gestión de entidades</span>
-            </button>
-            <button type="button" class="action-card" id="action-find">
-              <strong id="action-find-title">Buscar registros</strong>
-              <span class="muted" id="action-find-sub">Buscar entidades</span>
-            </button>
-            <button type="button" class="action-card" id="action-open-analytics" data-goto="summary">
-              <strong id="action-open-analytics-title">Panel de análisis</strong>
-              <span class="muted" id="action-open-analytics-sub"
-                >Gráficos de ventas y productos más vendidos</span
-              >
-            </button>
-            <button type="button" class="action-card" id="action-open-sales-order">
-              <strong id="action-open-sales-order-title">Pedidos y cotizaciones</strong>
-              <span class="muted" id="action-open-sales-order-sub">Registrar una nueva venta</span>
-            </button>
-            <button type="button" class="action-card" id="action-open-invoices">
-              <strong id="action-open-invoices-title">Facturación y pagos</strong>
-              <span class="muted" id="action-open-invoices-sub"
-                >Emitir facturas y registrar pagos</span
-              >
-            </button>
-            <button type="button" class="action-card" id="action-open-returns">
-              <strong id="action-open-returns-title">Devoluciones</strong>
-              <span class="muted" id="action-open-returns-sub"
-                >Gestionar solicitudes de devolución</span
-              >
-            </button>
-          </div>
+                <strong id="action-open-analytics-title">Panel de análisis</strong>
+                <span class="muted" id="action-open-analytics-sub"
+                  >Gráficos de ventas y productos más vendidos</span
+                >
+              </button>
+            </div>
+          </section>
 
           <section class="card demo-card" aria-labelledby="demo-heading">
             <div class="demo-card-heading">
@@ -298,59 +367,68 @@
             <h2 id="entity-form-heading">Agregar / Editar Entidad</h2>
             <form id="entity-form">
               <input type="hidden" id="entity-id" />
-              <div>
-                <label for="name">Nombre *</label>
-                <input id="name" name="name" required />
-                <div class="error" id="error-name" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="code">Código *</label>
-                <input id="code" name="code" required />
-                <div class="error" id="error-code" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="taxId">Identificación fiscal</label>
-                <input id="taxId" name="taxId" />
-              </div>
-              <div>
-                <label for="email">Correo electrónico</label>
-                <input id="email" name="email" type="email" />
-                <div class="error" id="error-email" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="phone">Teléfono</label>
-                <input id="phone" name="phone" />
-              </div>
-              <div>
-                <label for="address">Dirección</label>
-                <input id="address" name="address" />
-              </div>
-              <div>
-                <label for="category">Categoría</label>
-                <input id="category" name="category" />
-              </div>
-              <div>
-                <label for="description">Descripción</label>
-                <textarea id="description" name="description" rows="3"></textarea>
-              </div>
-              <div>
-                <label for="targetDate">Fecha objetivo</label>
-                <input id="targetDate" name="targetDate" type="date" />
-                <div class="error" id="error-targetDate" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="creditLimit">Límite de crédito</label>
-                <input id="creditLimit" name="creditLimit" type="number" min="0" step="0.01" />
-                <div class="error" id="error-creditLimit" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="paymentTerms">Condiciones de pago</label>
-                <input
-                  id="paymentTerms"
-                  name="paymentTerms"
-                  placeholder="p. ej., contado, neto 30"
-                />
-              </div>
+              <fieldset class="form-section">
+                <legend>Datos principales</legend>
+                <div>
+                  <label for="name">Nombre *</label>
+                  <input id="name" name="name" required />
+                  <div class="error" id="error-name" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="code">Código *</label>
+                  <input id="code" name="code" required />
+                  <div class="error" id="error-code" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="taxId">Identificación fiscal</label>
+                  <input id="taxId" name="taxId" />
+                </div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Datos de contacto</legend>
+                <div>
+                  <label for="email">Correo electrónico</label>
+                  <input id="email" name="email" type="email" />
+                  <div class="error" id="error-email" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="phone">Teléfono</label>
+                  <input id="phone" name="phone" />
+                </div>
+                <div>
+                  <label for="address">Dirección</label>
+                  <input id="address" name="address" />
+                </div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Información comercial</legend>
+                <div>
+                  <label for="category">Categoría</label>
+                  <input id="category" name="category" />
+                </div>
+                <div>
+                  <label for="description">Descripción</label>
+                  <textarea id="description" name="description" rows="3"></textarea>
+                </div>
+                <div>
+                  <label for="targetDate">Fecha objetivo</label>
+                  <input id="targetDate" name="targetDate" type="date" />
+                  <div class="error" id="error-targetDate" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="creditLimit">Límite de crédito</label>
+                  <input id="creditLimit" name="creditLimit" type="number" min="0" step="0.01" />
+                  <div class="error" id="error-creditLimit" aria-live="polite"></div>
+                </div>
+                <div>
+                  <label for="paymentTerms">Condiciones de pago</label>
+                  <input
+                    id="paymentTerms"
+                    name="paymentTerms"
+                    placeholder="p. ej., contado, neto 30"
+                  />
+                </div>
+              </fieldset>
               <div id="entity-custom-fields"></div>
               <div class="form-actions">
                 <button type="submit" id="submit-button" class="primary">Guardar</button>
@@ -408,75 +486,93 @@
             <form id="document-form">
               <input type="hidden" id="document-id" />
               <input type="hidden" id="document-entity-id" />
-              <div>
-                <label for="document-entity">Entidad *</label>
-                <select id="document-entity" name="document-entity"></select>
-                <div class="error" id="error-document-entity" aria-live="polite"></div>
-              </div>
-              <div class="field-row">
+              <fieldset class="form-section">
+                <legend>Identificación del documento</legend>
                 <div>
-                  <label for="series">Serie</label>
-                  <input id="series" name="series" placeholder="p. ej., FAC" />
+                  <label for="document-entity">Entidad *</label>
+                  <select id="document-entity" name="document-entity"></select>
+                  <div class="error" id="error-document-entity" aria-live="polite"></div>
+                </div>
+                <div class="field-row">
+                  <div>
+                    <label for="series">Serie</label>
+                    <input id="series" name="series" placeholder="p. ej., FAC" />
+                  </div>
+                  <div>
+                    <label for="folio">Folio *</label>
+                    <input id="folio" name="folio" type="number" min="1" step="1" required />
+                    <div class="error" id="error-folio" aria-live="polite"></div>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Vigencia</legend>
+                <div>
+                  <label for="startDate">Fecha de inicio *</label>
+                  <input id="startDate" name="startDate" type="date" required />
+                  <div class="error" id="error-startDate" aria-live="polite"></div>
                 </div>
                 <div>
-                  <label for="folio">Folio *</label>
-                  <input id="folio" name="folio" type="number" min="1" step="1" required />
-                  <div class="error" id="error-folio" aria-live="polite"></div>
+                  <label for="endDate">Fecha de fin *</label>
+                  <input id="endDate" name="endDate" type="date" required />
+                  <div class="error" id="error-endDate" aria-live="polite"></div>
                 </div>
-              </div>
-              <div>
-                <label for="startDate">Fecha de inicio *</label>
-                <input id="startDate" name="startDate" type="date" required />
-                <div class="error" id="error-startDate" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="endDate">Fecha de fin *</label>
-                <input id="endDate" name="endDate" type="date" required />
-                <div class="error" id="error-endDate" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="quantity">Cantidad</label>
-                <input id="quantity" name="quantity" type="number" min="1" step="1" />
-                <div class="error" id="error-quantity" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="subtotal">Subtotal</label>
-                <input id="subtotal" name="subtotal" type="number" min="0" step="0.01" />
-                <div class="error" id="error-subtotal" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="discount">Descuento</label>
-                <input id="discount" name="discount" type="number" min="0" step="0.01" />
-                <div class="error" id="error-discount" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="taxAmount">Impuesto</label>
-                <input id="taxAmount" name="taxAmount" type="number" min="0" step="0.01" />
-                <div class="error" id="error-taxAmount" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="totalAmount">Importe total</label>
-                <input id="totalAmount" name="totalAmount" type="number" min="0" step="0.01" />
-                <div class="error" id="error-totalAmount" aria-live="polite"></div>
-              </div>
-              <div>
-                <label for="currency">Moneda</label>
-                <input id="currency" name="currency" placeholder="p. ej., MXN" />
-              </div>
-              <div>
-                <label for="docPaymentTerms">Condiciones de pago</label>
-                <input
-                  id="docPaymentTerms"
-                  name="docPaymentTerms"
-                  placeholder="p. ej., contado, neto 30"
-                />
-              </div>
-              <div>
-                <label for="notes">Notas</label>
-                <textarea id="notes" name="notes" rows="2"></textarea>
-              </div>
-              <div id="document-status-control"></div>
-              <div id="document-custom-fields"></div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Importes</legend>
+                <div class="field-row">
+                  <div>
+                    <label for="quantity">Cantidad</label>
+                    <input id="quantity" name="quantity" type="number" min="1" step="1" />
+                    <div class="error" id="error-quantity" aria-live="polite"></div>
+                  </div>
+                  <div>
+                    <label for="subtotal">Subtotal</label>
+                    <input id="subtotal" name="subtotal" type="number" min="0" step="0.01" />
+                    <div class="error" id="error-subtotal" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div>
+                    <label for="discount">Descuento</label>
+                    <input id="discount" name="discount" type="number" min="0" step="0.01" />
+                    <div class="error" id="error-discount" aria-live="polite"></div>
+                  </div>
+                  <div>
+                    <label for="taxAmount">Impuesto</label>
+                    <input id="taxAmount" name="taxAmount" type="number" min="0" step="0.01" />
+                    <div class="error" id="error-taxAmount" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div>
+                    <label for="totalAmount">Importe total</label>
+                    <input id="totalAmount" name="totalAmount" type="number" min="0" step="0.01" />
+                    <div class="error" id="error-totalAmount" aria-live="polite"></div>
+                  </div>
+                  <div>
+                    <label for="currency">Moneda</label>
+                    <input id="currency" name="currency" placeholder="p. ej., MXN" />
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Detalles adicionales</legend>
+                <div>
+                  <label for="docPaymentTerms">Condiciones de pago</label>
+                  <input
+                    id="docPaymentTerms"
+                    name="docPaymentTerms"
+                    placeholder="p. ej., contado, neto 30"
+                  />
+                </div>
+                <div>
+                  <label for="notes">Notas</label>
+                  <textarea id="notes" name="notes" rows="2"></textarea>
+                </div>
+                <div id="document-status-control"></div>
+                <div id="document-custom-fields"></div>
+              </fieldset>
               <div class="form-actions">
                 <button type="submit" id="document-submit-button" class="primary">
                   Guardar Documento
@@ -544,75 +640,81 @@
           <section class="card" aria-labelledby="order-form-heading">
             <h2 id="order-form-heading">Nueva orden de venta</h2>
             <form id="order-form" novalidate>
-              <div class="field-row">
-                <div>
-                  <label for="order-client">Cliente *</label>
-                  <select id="order-client" name="order-client"></select>
-                  <div class="error" id="order-client-error" aria-live="polite"></div>
+              <fieldset class="form-section">
+                <legend>Datos de la orden</legend>
+                <div class="field-row">
+                  <div>
+                    <label for="order-client">Cliente *</label>
+                    <select id="order-client" name="order-client"></select>
+                    <div class="error" id="order-client-error" aria-live="polite"></div>
+                  </div>
+                  <div>
+                    <label for="order-seller">Vendedor *</label>
+                    <input id="order-seller" name="order-seller" />
+                    <div class="error" id="order-seller-error" aria-live="polite"></div>
+                  </div>
                 </div>
-                <div>
-                  <label for="order-seller">Vendedor *</label>
-                  <input id="order-seller" name="order-seller" />
-                  <div class="error" id="order-seller-error" aria-live="polite"></div>
+                <div class="field-row">
+                  <div>
+                    <label for="order-channel">Canal de venta *</label>
+                    <select id="order-channel" name="order-channel">
+                      <option value="Tienda">Tienda</option>
+                      <option value="Web">Web</option>
+                      <option value="Teléfono">Teléfono</option>
+                      <option value="Distribuidor">Distribuidor</option>
+                    </select>
+                    <div class="error" id="order-channel-error" aria-live="polite"></div>
+                  </div>
+                  <div>
+                    <label for="order-payment">Condición de pago *</label>
+                    <select id="order-payment" name="order-payment">
+                      <option value="contado">Contado</option>
+                      <option value="credito">Crédito</option>
+                    </select>
+                    <div class="error" id="order-payment-error" aria-live="polite"></div>
+                  </div>
                 </div>
-              </div>
-              <div class="field-row">
-                <div>
-                  <label for="order-channel">Canal de venta *</label>
-                  <select id="order-channel" name="order-channel">
-                    <option value="Tienda">Tienda</option>
-                    <option value="Web">Web</option>
-                    <option value="Teléfono">Teléfono</option>
-                    <option value="Distribuidor">Distribuidor</option>
-                  </select>
-                  <div class="error" id="order-channel-error" aria-live="polite"></div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Fechas y condiciones</legend>
+                <div class="field-row">
+                  <div>
+                    <label for="order-date">Fecha de emisión</label>
+                    <input id="order-date" name="order-date" type="date" />
+                    <div class="error" id="order-date-error" aria-live="polite"></div>
+                  </div>
+                  <div>
+                    <label for="order-delivery-date">Fecha de entrega</label>
+                    <input id="order-delivery-date" name="order-delivery-date" type="date" />
+                  </div>
+                  <div>
+                    <label for="order-currency">Moneda</label>
+                    <input id="order-currency" name="order-currency" maxlength="3" />
+                  </div>
+                  <div>
+                    <label for="order-discount">Descuento</label>
+                    <input
+                      id="order-discount"
+                      name="order-discount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value="0"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label for="order-payment">Condición de pago *</label>
-                  <select id="order-payment" name="order-payment">
-                    <option value="contado">Contado</option>
-                    <option value="credito">Crédito</option>
-                  </select>
-                  <div class="error" id="order-payment-error" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="field-row">
-                <div>
-                  <label for="order-date">Fecha de emisión</label>
-                  <input id="order-date" name="order-date" type="date" />
-                  <div class="error" id="order-date-error" aria-live="polite"></div>
-                </div>
-                <div>
-                  <label for="order-delivery-date">Fecha de entrega</label>
-                  <input id="order-delivery-date" name="order-delivery-date" type="date" />
-                </div>
-                <div>
-                  <label for="order-currency">Moneda</label>
-                  <input id="order-currency" name="order-currency" maxlength="3" />
-                </div>
-                <div>
-                  <label for="order-discount">Descuento</label>
-                  <input
-                    id="order-discount"
-                    name="order-discount"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value="0"
-                  />
-                </div>
-              </div>
+              </fieldset>
+              <fieldset class="form-section">
+                <legend>Productos de la orden</legend>
+                <label for="order-product-search">Buscar producto por código o nombre</label>
+                <input
+                  id="order-product-search"
+                  name="order-product-search"
+                  placeholder="Ej.: SKU-1 o Producto"
+                />
+                <ul id="order-product-results" class="product-results" aria-live="polite"></ul>
 
-              <h3>Productos</h3>
-              <label for="order-product-search">Buscar producto por código o nombre</label>
-              <input
-                id="order-product-search"
-                name="order-product-search"
-                placeholder="Ej.: SKU-1 o Producto"
-              />
-              <ul id="order-product-results" class="product-results" aria-live="polite"></ul>
-
-              <table class="data-table" aria-label="Líneas de la orden">
+                <table class="data-table" aria-label="Líneas de la orden">
                 <thead>
                   <tr>
                     <th scope="col">Producto</th>
@@ -622,10 +724,11 @@
                     <th scope="col">Acciones</th>
                   </tr>
                 </thead>
-                <tbody id="order-lines-body"></tbody>
-              </table>
-              <p id="order-totals" class="totals" aria-live="polite"></p>
-              <div class="error" id="order-lines-error" aria-live="polite"></div>
+                  <tbody id="order-lines-body"></tbody>
+                </table>
+                <p id="order-totals" class="totals" aria-live="polite"></p>
+                <div class="error" id="order-lines-error" aria-live="polite"></div>
+              </fieldset>
               <p id="order-feedback" class="feedback" role="status" aria-live="polite"></p>
               <div class="form-actions">
                 <button type="submit" id="order-save" class="primary">Guardar orden</button>
@@ -643,8 +746,15 @@
         </section>
 
         <section class="view-panel" id="view-quotes" aria-labelledby="quotes-heading" hidden>
-          <h1 id="quotes-heading">Cotizaciones</h1>
-          <p class="muted">Revisa, envía y cierra cotizaciones registradas para tus clientes.</p>
+          <div class="view-toolbar">
+            <div>
+              <h1 id="quotes-heading">Cotizaciones</h1>
+              <p class="muted">Revisa, envía y cierra cotizaciones registradas para tus clientes.</p>
+            </div>
+            <button type="button" class="primary" data-goto="sales-order">
+              Nueva orden de venta
+            </button>
+          </div>
           <section class="card" aria-labelledby="quotes-list-heading">
             <h2 id="quotes-list-heading">Listado de cotizaciones</h2>
             <p id="quotes-count" class="muted" aria-live="polite"></p>
@@ -677,10 +787,17 @@
         </section>
 
         <section class="view-panel" id="view-products" aria-labelledby="products-heading" hidden>
-          <h1 id="products-heading">Productos</h1>
-          <p class="muted">
-            Consulta el catálogo, precios vigentes, stock y estado de cada producto.
-          </p>
+          <div class="view-toolbar">
+            <div>
+              <h1 id="products-heading">Productos</h1>
+              <p class="muted">
+                Consulta el catálogo, precios vigentes, stock y estado de cada producto.
+              </p>
+            </div>
+            <button type="button" class="secondary" data-goto="sales-order">
+              Registrar una orden
+            </button>
+          </div>
           <section class="card" aria-labelledby="products-list-heading">
             <h2 id="products-list-heading">Catálogo</h2>
             <div class="field-row">

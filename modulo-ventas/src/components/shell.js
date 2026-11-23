@@ -39,6 +39,25 @@ export function applyShellLabels() {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
   });
+
+  const titles = {
+    "nav-dashboard": "Panel",
+    "nav-entities": getConfig().labels.entities,
+    "nav-documents": getConfig().labels.documents,
+    "nav-search": "Búsqueda",
+    "nav-sales-order": "Pedidos y cotizaciones",
+    "nav-quotes": "Cotizaciones",
+    "nav-products": "Productos",
+    "nav-delivery": "Entregas",
+    "nav-summary": "Resumen general",
+    "nav-returns": "Devoluciones",
+    "nav-history": "Historial de clientes",
+    "nav-invoices": "Facturación y pagos",
+  };
+  Object.entries(titles).forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) el.title = text;
+  });
 }
 
 export function setActiveModule(name) {
