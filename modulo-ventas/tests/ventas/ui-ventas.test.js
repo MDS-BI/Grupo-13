@@ -3,6 +3,8 @@ import { setupDom, bootApp, resetVentasStorage, seedVentas } from './fixtures.js
 import { listOrders } from '../../src/ventas/orders.js';
 import { setCurrentRole, ROLES } from '../../src/ventas/roles.js';
 import { createQuote } from '../../src/ventas/quotes.js';
+import { COLLECTIONS, saveCollection } from '../../src/ventas/collections.js';
+import { salesDateRange } from '../../src/ventas/panel-metrics.js';
 
 let seed;
 
@@ -135,18 +137,66 @@ describe('Ventas UI wiring', () => {
     expect(document.getElementById('order-client').value).toBe(seed.client.entity_id);
   });
 
-  it('opens the analytics panel from the dashboard', () => {
-    document.getElementById('action-open-analytics').click();
-    expect(document.getElementById('view-summary').hidden).toBe(false);
+  it('shows seller follow-up and embeds manager metrics in the dashboard', () => {
+    expect(document.getElementById('seller-panel').hidden).toBe(false);
+    expect(document.getElementById('summary-content').hidden).toBe(true);
 
     const role = document.getElementById('role-select');
     role.value = ROLES.GERENTE;
     role.dispatchEvent(new window.Event('change', { bubbles: true }));
 
+    const dashboard = document.getElementById('view-dashboard');
+    expect(dashboard.hidden).toBe(false);
+    expect(dashboard.contains(document.getElementById('view-summary'))).toBe(true);
+    expect(document.getElementById('seller-panel').hidden).toBe(true);
     expect(document.getElementById('summary-content').hidden).toBe(false);
     expect(document.getElementById('analytics-evolution-chart')).not.toBeNull();
     expect(document.getElementById('analytics-products-chart')).not.toBeNull();
     expect(document.getElementById('analytics-empty').hidden).toBe(false);
+
+    clickNav('nav-summary');
+    expect(dashboard.hidden).toBe(false);
+  });
+
+  it('filters sales and lets the manager inspect the matching customer, order and product', () => {
+    const date = salesDateRange('month').to;
+    const product = seed.productos[0];
+    const order = {
+      id: 'order-recent', numero: 'PED-RECIENTE', clienteId: seed.client.entity_id,
+      fechaEmision: date, estado: 'facturado', moneda: 'CLP', total: 2000,
+    };
+    saveCollection(COLLECTIONS.pedidos, [
+      order,
+      { ...order, id: 'order-old', numero: 'PED-ANTIGUO', fechaEmision: '2000-01-01' },
+      { ...order, id: 'order-pending', numero: 'PED-PENDIENTE', estado: 'pedido' },
+    ]);
+    saveCollection(COLLECTIONS.detallesPedido, [
+      { id: 'detail-recent', pedidoId: order.id, productoId: product.id, cantidad: 2, precioUnitario: 1000 },
+    ]);
+    const select = (id, value) => {
+      const element = document.getElementById(id);
+      element.value = value;
+      element.dispatchEvent(new window.Event('change', { bubbles: true }));
+    };
+    const content = (id) => document.getElementById(id).textContent;
+    select('role-select', ROLES.GERENTE);
+    expect(content('panel-repeat-rate')).toBe('100%');
+    select('panel-range', 'month');
+    expect(content('summary-total-ventas')).toBe('1');
+    expect(content('panel-buyers')).toBe('1');
+    expect(content('panel-repeat-rate')).toBe('0%');
+    expect(content('summary-orders-body')).not.toContain('PED-ANTIGUO');
+    select('panel-client-select', seed.client.entity_id);
+    expect(content('panel-client-detail')).toContain('Cliente Demo');
+    expect(content('panel-client-detail')).toContain('1 compra');
+    select('panel-order-select', order.id);
+    expect(content('panel-order-detail')).toContain('PED-RECIENTE');
+    expect(content('panel-order-lines')).toContain('Producto 1 · 2 unidades');
+    select('panel-product-select', product.id);
+    expect(content('panel-product-detail')).toContain('Puesto 1 por unidades');
+    select('role-select', ROLES.VENDEDOR);
+    expect(document.getElementById('summary-content').hidden).toBe(true);
+    expect(content('panel-order-lines')).toBe('');
   });
 
   it('blocks a second conversion of the same quote', () => {

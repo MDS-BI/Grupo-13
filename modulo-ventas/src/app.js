@@ -38,8 +38,8 @@ import {
 import { listOrders, canEditOrder, assertClienteEliminable } from "./ventas/orders.js";
 import { listProductos } from "./ventas/catalog.js";
 import { initDeliveryPanel, renderDeliveryPanel } from "./components/ventas/delivery-panel.js";
-import { renderSummaryView } from "./components/ventas/summary-view.js";
-import { initSalesAnalytics } from "./components/ventas/sales-analytics.js";
+import { initSummaryView, renderSummaryView } from "./components/ventas/summary-view.js";
+import { clearSalesAnalytics, initSalesAnalytics } from "./components/ventas/sales-analytics.js";
 import { initReturnsPanel, renderReturnsPanel } from "./components/ventas/returns-panel.js";
 import { initClientHistory, renderClientHistory } from "./components/ventas/client-history.js";
 import { initInvoicePanel, renderInvoicePanel } from "./components/ventas/invoice-panel.js";
@@ -74,7 +74,6 @@ const MODULES = [
   "quotes",
   "products",
   "delivery",
-  "summary",
   "returns",
   "history",
   "invoices",
@@ -88,7 +87,6 @@ const VIEWS = {
   quotes: "view-quotes",
   products: "view-products",
   delivery: "view-delivery",
-  summary: "view-summary",
   returns: "view-returns",
   history: "view-history",
   invoices: "view-invoices",
@@ -103,7 +101,6 @@ const VIEW_TITLES = {
   quotes: "Cotizaciones",
   products: "Productos",
   delivery: "Despacho",
-  summary: "Resumen",
   returns: "Devoluciones",
   history: "Historial de clientes",
   invoices: "Facturación",
@@ -170,6 +167,8 @@ function animateView(name) {
 }
 
 function showModule(name, opts = {}) {
+  const summaryShortcut = name === "summary";
+  if (summaryShortcut) name = "dashboard";
   if (!MODULES.includes(name)) name = "dashboard";
   currentModule = name;
   MODULES.forEach((m) => {
@@ -179,6 +178,9 @@ function showModule(name, opts = {}) {
   setActiveModule(name);
   if (name === "dashboard") {
     renderDashboard();
+    renderSummaryView({ showRestricted: summaryShortcut });
+  } else {
+    clearSalesAnalytics();
   }
   if (name === "entities") {
     populateDocumentEntitySelect();
@@ -203,7 +205,6 @@ function showModule(name, opts = {}) {
   if (name === "quotes") renderQuotesPanel();
   if (name === "products") renderProductsPanel();
   if (name === "delivery") renderDeliveryPanel();
-  if (name === "summary") renderSummaryView();
   if (name === "returns") renderReturnsPanel();
   if (name === "history") renderClientHistory();
   if (name === "invoices") renderInvoicePanel();
@@ -212,6 +213,7 @@ function showModule(name, opts = {}) {
   updateDemoStatus();
   animateView(name);
   window.scrollTo({ top: 0, behavior: "smooth" });
+  if (summaryShortcut) qs("view-summary")?.scrollIntoView?.();
 }
 
 function populateDocumentEntitySelect() {
@@ -535,6 +537,7 @@ function wireEvents() {
   if (wired) return;
   wired = true;
   initSalesAnalytics();
+  initSummaryView();
   document.querySelectorAll(".nav-module, .nav-ventas").forEach((btn) => {
     btn.addEventListener("click", () => showModule(btn.dataset.module));
   });
@@ -547,17 +550,15 @@ function wireEvents() {
   }
   initOrderForm({
     onCreated: () => {
-      renderSummaryView();
       populateOrderEditSelect();
     },
   });
   qs("order-edit-select").addEventListener("change", onOrderEditChange);
-  initDeliveryPanel({ onDelivered: () => renderSummaryView() });
-  initReturnsPanel({ onReturned: () => renderSummaryView() });
+  initDeliveryPanel();
+  initReturnsPanel();
   initClientHistory();
-  initInvoicePanel({ onInvoiced: () => renderSummaryView() });
+  initInvoicePanel();
   initQuotesPanel({
-    onChanged: () => renderSummaryView(),
     onOrderCreated: (order) => {
       if (!order) return;
       showModule("sales-order");

@@ -18,6 +18,7 @@ let selectedType = "bar";
 let evolutionChart = null;
 let productsChart = null;
 let wired = false;
+let activeRecords;
 
 function qs(id) {
   return document.getElementById(id);
@@ -212,13 +213,18 @@ function showFallback(frame, visible) {
   if (notice) notice.hidden = !visible;
 }
 
-export function renderSalesAnalytics() {
+export function renderSalesAnalytics(records) {
+  activeRecords = records;
   const evolutionCanvas = qs("analytics-evolution-chart");
   const productsCanvas = qs("analytics-products-chart");
   if (!evolutionCanvas || !productsCanvas) return;
 
-  const evolution = buildSalesEvolution({ period: selectedPeriod });
-  const products = buildTopProducts({ metric: selectedMetric, limit: 7 });
+  const evolution = buildSalesEvolution({
+    period: selectedPeriod,
+    orders: records?.orders,
+    quotes: records?.quotes,
+  });
+  const products = buildTopProducts({ orders: records?.sales, metric: selectedMetric, limit: 7 });
   const empty = qs("analytics-empty");
   const evolutionCard = qs("analytics-evolution-card");
   const productsCard = qs("analytics-products-card");
@@ -274,18 +280,19 @@ export function initSalesAnalytics() {
   };
   bind("analytics-period", (event) => {
     selectedPeriod = event.target.value;
-    renderSalesAnalytics();
+    renderSalesAnalytics(activeRecords);
   });
   bind("analytics-metric", (event) => {
     selectedMetric = event.target.value;
-    renderSalesAnalytics();
+    renderSalesAnalytics(activeRecords);
   });
   bind("analytics-type", (event) => {
     selectedType = event.target.value;
-    renderSalesAnalytics();
+    renderSalesAnalytics(activeRecords);
   });
 }
 
 export function clearSalesAnalytics() {
+  activeRecords = undefined;
   destroyCharts();
 }

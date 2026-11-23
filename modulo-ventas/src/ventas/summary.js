@@ -10,11 +10,6 @@ function number(value) {
   return Number.isFinite(n) ? n : 0;
 }
 
-function clientName(clienteId) {
-  const entity = loadEntities().find((e) => e.entity_id === clienteId);
-  return entity ? entity.name : "Cliente desconocido";
-}
-
 export function emptySummary() {
   return {
     totalVentas: 0,
@@ -37,8 +32,10 @@ export function buildSummary(options = {}) {
   if (options.role && !can("ver_resumen", options.role)) {
     throw new Error("El rol actual no tiene permiso para consultar el resumen general de ventas");
   }
-  const orders = listOrders();
-  const quotes = listQuotes();
+  const orders = options.orders ?? listOrders();
+  const quotes = options.quotes ?? listQuotes();
+  const clients = new Map(loadEntities().map((entity) => [entity.entity_id, entity.name]));
+  const clientName = (id) => clients.get(id) ?? "Cliente desconocido";
   const summary = emptySummary();
 
   const statusCounts = Object.fromEntries(ORDER_STATUSES.map((status) => [status, 0]));

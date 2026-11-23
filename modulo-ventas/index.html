@@ -211,6 +211,190 @@
             Gestiona tus entidades y documentos en un solo lugar.
           </p>
 
+          <section class="panel-summary" id="view-summary" aria-labelledby="summary-heading" hidden>
+            <h2 id="summary-heading">Resumen general de ventas</h2>
+            <div id="summary-restricted" class="empty" hidden>
+              El resumen general está restringido al rol gerente.
+            </div>
+            <div id="summary-content" hidden>
+              <div class="panel-range">
+                <label for="panel-range">Rango de fechas</label>
+                <select id="panel-range">
+                  <option value="all">Todo el historial</option>
+                  <option value="month">Últimos 30 días</option>
+                  <option value="semester">Últimos 6 meses</option>
+                </select>
+                <p class="muted" id="panel-range-label" aria-live="polite"></p>
+              </div>
+              <div class="stat-grid">
+                <div class="stat-card">
+                  <span class="stat-value" id="summary-total-ventas">0</span
+                  ><span class="stat-label">Ventas</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="summary-total-cotizaciones">0</span
+                  ><span class="stat-label">Cotizaciones</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="summary-total-pedidos">0</span
+                  ><span class="stat-label">Pedidos</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="summary-monto-total">0</span
+                  ><span class="stat-label">Monto total</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="panel-buyers">0</span>
+                  <span class="stat-label">Clientes compradores</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="panel-repeat-rate">0%</span>
+                  <span class="stat-label">Tasa de recompra</span>
+                  <small class="muted" id="panel-repeat-count"></small>
+                </div>
+              </div>
+              <section class="card" aria-labelledby="summary-amounts-heading">
+                <h3 id="summary-amounts-heading">Montos</h3>
+                <p>
+                  Ventas: <span id="summary-monto-ventas">0</span> · Cotizaciones:
+                  <span id="summary-monto-cotizaciones">0</span> · Pedidos:
+                  <span id="summary-monto-pedidos">0</span>
+                </p>
+              </section>
+
+              <section class="analytics-panel" aria-labelledby="analytics-heading">
+                <div class="analytics-heading">
+                  <div>
+                    <h3 id="analytics-heading">Panel de análisis</h3>
+                    <p class="muted">
+                      Evolución de ventas y productos más vendidos a partir de pedidos y cotizaciones.
+                    </p>
+                  </div>
+                  <div class="analytics-filters">
+                    <label class="analytics-filter" for="analytics-period">
+                      Período
+                      <select id="analytics-period">
+                        <option value="mes">Por mes</option>
+                        <option value="semana">Por semana</option>
+                        <option value="dia">Por día</option>
+                      </select>
+                    </label>
+                    <label class="analytics-filter" for="analytics-metric">
+                      Métrica
+                      <select id="analytics-metric">
+                        <option value="cantidad">Unidades vendidas</option>
+                        <option value="monto">Monto vendido</option>
+                      </select>
+                    </label>
+                    <label class="analytics-filter" for="analytics-type">
+                      Gráfico
+                      <select id="analytics-type">
+                        <option value="bar">Barras</option>
+                        <option value="doughnut">Pastel</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                <div id="analytics-empty" class="empty" hidden>
+                  No hay pedidos ni cotizaciones para mostrar en los gráficos.
+                </div>
+                <div class="analytics-grid">
+                  <article class="card chart-card" id="analytics-evolution-card">
+                    <h4>Evolución de ventas por período</h4>
+                    <p id="analytics-evolution-total" class="chart-caption muted"></p>
+                    <div class="chart-frame" id="analytics-evolution-frame">
+                      <canvas
+                        id="analytics-evolution-chart"
+                        role="img"
+                        aria-label="Gráfico de líneas con la evolución de ventas, pedidos y cotizaciones"
+                      ></canvas>
+                    </div>
+                  </article>
+                  <article class="card chart-card" id="analytics-products-card">
+                    <h4>Productos más vendidos</h4>
+                    <p id="analytics-products-total" class="chart-caption muted"></p>
+                    <div class="chart-frame" id="analytics-products-frame">
+                      <canvas
+                        id="analytics-products-chart"
+                        role="img"
+                        aria-label="Gráfico de productos más vendidos"
+                      ></canvas>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
+              <section class="card" aria-labelledby="panel-detail-heading">
+                <h3 id="panel-detail-heading">Consultar detalle</h3>
+                <div class="panel-detail-grid">
+                  <div>
+                    <label for="panel-client-select">Cliente</label>
+                    <select id="panel-client-select"></select>
+                    <p class="muted" id="panel-client-detail" aria-live="polite"></p>
+                  </div>
+                  <div>
+                    <label for="panel-order-select">Pedido</label>
+                    <select id="panel-order-select"></select>
+                    <p class="muted" id="panel-order-detail" aria-live="polite"></p>
+                    <ul id="panel-order-lines" class="panel-order-lines" aria-label="Productos del pedido"></ul>
+                  </div>
+                  <div>
+                    <label for="panel-product-select">Producto</label>
+                    <select id="panel-product-select"></select>
+                    <p class="muted" id="panel-product-detail" aria-live="polite"></p>
+                  </div>
+                </div>
+              </section>
+
+              <div id="summary-empty" class="empty" hidden>
+                No hay ventas, cotizaciones ni pedidos registrados.
+              </div>
+              <section class="card" aria-labelledby="summary-states-heading">
+                <h3 id="summary-states-heading">Pedidos por estado</h3>
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Cantidad</th>
+                    </tr>
+                  </thead>
+                  <tbody id="summary-states-body"></tbody>
+                </table>
+              </section>
+              <section class="card" aria-labelledby="summary-orders-heading">
+                <h3 id="summary-orders-heading">Detalle de pedidos</h3>
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Número</th>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="summary-orders-body"></tbody>
+                </table>
+              </section>
+            </div>
+          </section>
+
+          <section id="seller-panel" class="panel-summary" aria-labelledby="seller-heading" hidden>
+            <h2 id="seller-heading">Seguimiento comercial</h2>
+            <div class="stat-grid">
+              <div class="stat-card">
+                <span class="stat-value" id="seller-open-quotes">0</span>
+                <span class="stat-label">Cotizaciones abiertas</span>
+                <button type="button" class="secondary" data-goto="quotes">Ver cotizaciones</button>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="seller-pending-orders">0</span>
+                <span class="stat-label">Pedidos por confirmar</span>
+                <button type="button" class="secondary" data-goto="sales-order">Ver pedidos</button>
+              </div>
+            </div>
+          </section>
+
           <div class="stat-grid">
             <div class="stat-card">
               <span class="stat-value" id="stat-entities">0</span>
@@ -762,143 +946,6 @@
               Facturación y pagos →
             </button>
             <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
-          </nav>
-        </section>
-
-        <section class="view-panel" id="view-summary" aria-labelledby="summary-heading" hidden>
-          <h1 id="summary-heading">Resumen general de ventas</h1>
-          <div id="summary-restricted" class="empty" hidden>
-            El resumen general está restringido al rol gerente.
-          </div>
-          <div id="summary-content">
-            <div class="stat-grid">
-              <div class="stat-card">
-                <span class="stat-value" id="summary-total-ventas">0</span
-                ><span class="stat-label">Ventas</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value" id="summary-total-cotizaciones">0</span
-                ><span class="stat-label">Cotizaciones</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value" id="summary-total-pedidos">0</span
-                ><span class="stat-label">Pedidos</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value" id="summary-monto-total">0</span
-                ><span class="stat-label">Monto total</span>
-              </div>
-            </div>
-            <section class="card" aria-labelledby="summary-amounts-heading">
-              <h2 id="summary-amounts-heading">Montos</h2>
-              <p>
-                Ventas: <span id="summary-monto-ventas">0</span> · Cotizaciones:
-                <span id="summary-monto-cotizaciones">0</span> · Pedidos:
-                <span id="summary-monto-pedidos">0</span>
-              </p>
-            </section>
-
-            <section class="analytics-panel" aria-labelledby="analytics-heading">
-              <div class="analytics-heading">
-                <div>
-                  <h2 id="analytics-heading">Panel de análisis</h2>
-                  <p class="muted">
-                    Evolución de ventas y productos más vendidos a partir de pedidos y cotizaciones.
-                  </p>
-                </div>
-                <div class="analytics-filters">
-                  <label class="analytics-filter" for="analytics-period">
-                    Período
-                    <select id="analytics-period">
-                      <option value="mes">Por mes</option>
-                      <option value="semana">Por semana</option>
-                      <option value="dia">Por día</option>
-                    </select>
-                  </label>
-                  <label class="analytics-filter" for="analytics-metric">
-                    Métrica
-                    <select id="analytics-metric">
-                      <option value="cantidad">Unidades vendidas</option>
-                      <option value="monto">Monto vendido</option>
-                    </select>
-                  </label>
-                  <label class="analytics-filter" for="analytics-type">
-                    Gráfico
-                    <select id="analytics-type">
-                      <option value="bar">Barras</option>
-                      <option value="doughnut">Pastel</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-              <div id="analytics-empty" class="empty" hidden>
-                No hay pedidos ni cotizaciones para mostrar en los gráficos.
-              </div>
-              <div class="analytics-grid">
-                <article class="card chart-card" id="analytics-evolution-card">
-                  <h3>Evolución de ventas por período</h3>
-                  <p id="analytics-evolution-total" class="chart-caption muted"></p>
-                  <div class="chart-frame" id="analytics-evolution-frame">
-                    <canvas
-                      id="analytics-evolution-chart"
-                      role="img"
-                      aria-label="Gráfico de líneas con la evolución de ventas, pedidos y cotizaciones"
-                    ></canvas>
-                  </div>
-                </article>
-                <article class="card chart-card" id="analytics-products-card">
-                  <h3>Productos más vendidos</h3>
-                  <p id="analytics-products-total" class="chart-caption muted"></p>
-                  <div class="chart-frame" id="analytics-products-frame">
-                    <canvas
-                      id="analytics-products-chart"
-                      role="img"
-                      aria-label="Gráfico de productos más vendidos"
-                    ></canvas>
-                  </div>
-                </article>
-              </div>
-            </section>
-
-            <div id="summary-empty" class="empty" hidden>
-              No hay ventas, cotizaciones ni pedidos registrados.
-            </div>
-            <section class="card" aria-labelledby="summary-states-heading">
-              <h2 id="summary-states-heading">Pedidos por estado</h2>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Cantidad</th>
-                  </tr>
-                </thead>
-                <tbody id="summary-states-body"></tbody>
-              </table>
-            </section>
-            <section class="card" aria-labelledby="summary-orders-heading">
-              <h2 id="summary-orders-heading">Detalle de pedidos</h2>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Número</th>
-                    <th scope="col">Cliente</th>
-                    <th scope="col">Fecha</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Total</th>
-                  </tr>
-                </thead>
-                <tbody id="summary-orders-body"></tbody>
-              </table>
-            </section>
-          </div>
-          <nav class="related-nav" aria-label="Siguientes pasos">
-            <span>Explorar también</span>
-            <button type="button" class="secondary" data-goto="sales-order">
-              Pedidos y cotizaciones →
-            </button>
-            <button type="button" class="secondary" data-goto="history">
-              Historial de clientes →
-            </button>
           </nav>
         </section>
 

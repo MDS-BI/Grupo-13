@@ -1,6 +1,11 @@
 import { buildSummary } from "../../ventas/summary.js";
-import { can } from "../../ventas/roles.js";
+import { SALES_STATES } from "../../ventas/analytics.js";
+import { listOrders } from "../../ventas/orders.js";
+import { listQuotes } from "../../ventas/quotes.js";
+import { filterPanelRecords, salesDateRange } from "../../ventas/panel-metrics.js";
+import { can, getCurrentRole, ROLES } from "../../ventas/roles.js";
 import { clearSalesAnalytics, renderSalesAnalytics } from "./sales-analytics.js";
+import { clearPanelDetails, initPanelDetails, renderPanelDetails } from "./panel-details.js";
 
 function qs(id) {
   return document.getElementById(id);
@@ -11,17 +16,45 @@ function fill(id, value) {
   if (el) el.textContent = String(value);
 }
 
-export function renderSummaryView() {
+export function initSummaryView() {
+  initPanelDetails();
+  qs("panel-range")?.addEventListener("change", () => renderSummaryView());
+}
+
+export function renderSummaryView({ showRestricted = false } = {}) {
+  const panel = qs("view-summary");
+  if (!panel) return;
+  const allowed = can("ver_resumen");
+  const sellerPanel = qs("seller-panel");
+  const seller = getCurrentRole() === ROLES.VENDEDOR;
+  sellerPanel.hidden = !seller;
+  if (seller) {
+    fill(
+      "seller-open-quotes",
+      listQuotes().filter(({ estado }) => ["borrador", "enviada"].includes(estado)).length,
+    );
+    fill(
+      "seller-pending-orders",
+      listOrders().filter(({ estado }) => estado === "cotización").length,
+    );
+  }
+  panel.hidden = !allowed && !showRestricted;
   const restricted = qs("summary-restricted");
   const content = qs("summary-content");
-  if (restricted) restricted.hidden = can("ver_resumen");
-  if (content) content.hidden = !can("ver_resumen");
-  if (!can("ver_resumen")) {
+  if (restricted) restricted.hidden = allowed;
+  if (content) content.hidden = !allowed;
+  if (!allowed) {
+    clearPanelDetails();
     clearSalesAnalytics();
     return;
   }
 
-  const summary = buildSummary({ role: "gerente" });
+  const range = salesDateRange(qs("panel-range").value);
+  fill("panel-range-label", range.from ? `${range.from} a ${range.to}` : "");
+  const orders = filterPanelRecords(listOrders(), range);
+  const quotes = filterPanelRecords(listQuotes(), range);
+  const sales = orders.filter(({ estado }) => SALES_STATES.includes(estado));
+  const summary = buildSummary({ role: ROLES.GERENTE, orders, quotes });
   fill("summary-total-ventas", summary.totalVentas);
   fill("summary-total-cotizaciones", summary.totalCotizaciones);
   fill("summary-total-pedidos", summary.totalPedidos);
@@ -76,5 +109,6 @@ export function renderSummaryView() {
     }
   }
 
-  renderSalesAnalytics();
+  renderPanelDetails(orders, sales);
+  renderSalesAnalytics({ orders, quotes, sales });
 }
