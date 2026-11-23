@@ -888,6 +888,92 @@ button.danger:hover {
   max-width: 32ch;
 }
 
+/* ==========================================================================
+   Sales analytics dashboard
+   ========================================================================== */
+.analytics-panel {
+  margin: 24px 0 28px;
+}
+
+.analytics-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+}
+
+.analytics-heading h2 {
+  margin-bottom: 4px;
+}
+
+.analytics-heading .muted {
+  margin: 0;
+}
+
+.analytics-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.analytics-filter {
+  margin: 0;
+  min-width: 150px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.analytics-filter select {
+  margin-top: 4px;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+  max-width: none;
+  min-width: 0;
+}
+
+.chart-card h3 {
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.chart-caption {
+  margin: 0 0 14px;
+  font-size: 0.8rem;
+}
+
+.chart-frame {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  min-height: 240px;
+}
+
+.chart-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  background: var(--surface-alt);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
 .view-panel.is-entering {
   animation: view-enter 220ms ease-out both;
 }
@@ -969,5 +1055,14 @@ button.danger:hover {
   }
   .related-nav button {
     text-align: left;
+  }
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+  .analytics-filter {
+    flex: 1 1 150px;
+  }
+  .chart-frame {
+    height: 240px;
   }
 }
