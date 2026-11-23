@@ -1012,22 +1012,31 @@
               <form id="payment-form">
                 <div class="field-row">
                   <div>
-                    <label for="payment-amount">Monto del pago</label>
+                    <label for="payment-date">Fecha del pago *</label>
+                    <input id="payment-date" name="payment-date" type="date" required />
+                  </div>
+                  <div>
+                    <label for="payment-amount">Monto del pago *</label>
                     <input
                       id="payment-amount"
                       name="payment-amount"
                       type="number"
                       min="0"
                       step="0.01"
+                      required
                     />
                   </div>
                   <div>
-                    <label for="payment-method">Método</label>
-                    <select id="payment-method" name="payment-method">
+                    <label for="payment-method">Método *</label>
+                    <select id="payment-method" name="payment-method" required>
                       <option value="efectivo">Efectivo</option>
                       <option value="transferencia">Transferencia</option>
                       <option value="tarjeta">Tarjeta</option>
                     </select>
+                  </div>
+                  <div>
+                    <label for="payment-reference">Referencia/comprobante *</label>
+                    <input id="payment-reference" name="payment-reference" type="text" required />
                   </div>
                 </div>
                 <p id="payment-feedback" class="feedback" role="status" aria-live="polite"></p>

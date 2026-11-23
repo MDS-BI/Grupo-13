@@ -1,12 +1,10 @@
 import { COLLECTIONS, generateId, loadCollection, saveCollection } from "./collections.js";
 import { roundMoney, sumPayments } from "./money.js";
 import { getInvoice, updateInvoice } from "./invoices.js";
+import { isValidDate } from "../storage.js";
 
 function now() {
   return new Date().toISOString();
-}
-function today() {
-  return new Date().toISOString().slice(0, 10);
 }
 function text(value) {
   return String(value ?? "").trim();
@@ -47,6 +45,15 @@ export function validatePayment(payload = {}) {
   ) {
     errors.monto = "La suma de los pagos no puede superar el total facturado";
   }
+  const fecha = text(payload.fecha);
+  if (!fecha) {
+    errors.fecha = "La fecha del pago es obligatoria";
+  } else if (!isValidDate(fecha)) {
+    errors.fecha = "La fecha del pago debe ser una fecha válida (YYYY-MM-DD)";
+  }
+  if (!text(payload.metodo)) errors.metodo = "El método de pago es obligatorio";
+  if (!text(payload.referencia))
+    errors.referencia = "La referencia/comprobante del pago es obligatoria";
   return { valid: Object.keys(errors).length === 0, errors, invoice };
 }
 
@@ -59,10 +66,10 @@ export function addPayment(payload = {}) {
     id: generateId(),
     facturaId: invoice.id,
     factura_id: invoice.id,
-    fecha: text(payload.fecha) || today(),
+    fecha: text(payload.fecha),
     monto: roundMoney(payload.monto, invoice.moneda),
-    metodo: text(payload.metodo) || "efectivo",
-    referencia: text(payload.referencia) || undefined,
+    metodo: text(payload.metodo),
+    referencia: text(payload.referencia),
     createdAt: timestamp,
   };
   const list = loadCollection(COLLECTIONS.pagos);

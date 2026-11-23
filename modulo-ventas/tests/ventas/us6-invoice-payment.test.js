@@ -50,17 +50,17 @@ describe('US6 - facturación y pagos', () => {
     setCurrentRole(ROLES.FACTURACION);
     const invoice = createInvoiceFromOrder(order.id);
 
-    const first = addPayment({ facturaId: invoice.id, monto: 1000, metodo: 'transferencia' });
+    const first = addPayment({ facturaId: invoice.id, monto: 1000, metodo: 'transferencia', fecha: '2026-11-02', referencia: 'US6-PAGO-001' });
     expect(first.monto).toBe(1000);
     expect(listPayments(invoice.id)).toHaveLength(1);
     expect(invoiceBalance(invoice.id)).toBe(invoice.total - 1000);
     expect(getInvoice(invoice.id).estado).toBe('parcial');
 
-    addPayment({ facturaId: invoice.id, monto: invoice.total - 1000 });
+    addPayment({ facturaId: invoice.id, monto: invoice.total - 1000, metodo: 'efectivo', fecha: '2026-11-03', referencia: 'US6-PAGO-002' });
     expect(invoiceBalance(invoice.id)).toBe(0);
     expect(getInvoice(invoice.id).estado).toBe('pagada');
 
-    expect(() => addPayment({ facturaId: invoice.id, monto: 1 })).toThrow(/no puede superar/);
+    expect(() => addPayment({ facturaId: invoice.id, monto: 1, metodo: 'efectivo', fecha: '2026-11-03', referencia: 'US6-PAGO-003' })).toThrow(/no puede superar/);
     expect(validatePayment({ facturaId: invoice.id, monto: -5 }).valid).toBe(false);
 
     deletePayment(first.id);

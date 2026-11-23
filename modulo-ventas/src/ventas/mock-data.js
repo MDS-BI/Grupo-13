@@ -658,6 +658,7 @@ export function loadDemoData(options = {}) {
     fecha: dayOffset(-5),
     monto: Math.round(facturaEntregada.total / 2),
     metodo: "efectivo",
+    referencia: "EFE-DEMO-002",
   });
   addPayment({
     facturaId: facturaEntregada.id,

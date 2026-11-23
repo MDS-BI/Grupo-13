@@ -23,7 +23,7 @@ describe('US6 - generate invoice from a confirmed order', () => {
     expect(getInvoiceByOrder(order.id).id).toBe(invoice.id);
     expect(invoice.estado).toBe('pendiente de pago');
 
-    addPayment({ facturaId: invoice.id, monto: invoice.total });
+    addPayment({ facturaId: invoice.id, monto: invoice.total, metodo: 'transferencia', fecha: '2026-11-03', referencia: 'US6-PAGO-TOTAL' });
     expect(invoiceBalance(invoice.id)).toBe(0);
 
     setCurrentRole(ROLES.OPERACIONES);

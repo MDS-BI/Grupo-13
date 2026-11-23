@@ -93,11 +93,15 @@ function handlePayment(event) {
   try {
     addPayment({
       facturaId: qs("invoice-select").value,
+      fecha: qs("payment-date").value,
       monto: Number(qs("payment-amount").value),
       metodo: qs("payment-method").value,
+      referencia: qs("payment-reference").value,
     });
     if (feedback) feedback.textContent = "Pago registrado correctamente.";
     if (qs("payment-amount")) qs("payment-amount").value = "";
+    if (qs("payment-date")) qs("payment-date").value = "";
+    if (qs("payment-reference")) qs("payment-reference").value = "";
     renderInvoicePanel();
   } catch (error) {
     if (feedback) feedback.textContent = error.message;
