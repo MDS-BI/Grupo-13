@@ -295,7 +295,12 @@ export function createReturn(payload = {}, options = {}) {
   };
 }
 
-export function updateReturnStatus(id, estado) {
+export function updateReturnStatus(id, estado, options = {}) {
+  if (["aprobada", "rechazada"].includes(estado)) {
+    if (!options.skipRoleCheck) assertCan("aprobar_devolucion", options.role);
+  } else if (estado === "completada" && !options.skipRoleCheck) {
+    assertCan("gestionar_devoluciones", options.role);
+  }
   const list = listReturns();
   const idx = list.findIndex((item) => item.id === id);
   if (idx === -1) throw new Error("Devolución no encontrada");

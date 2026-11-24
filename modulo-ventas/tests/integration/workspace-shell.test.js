@@ -74,7 +74,7 @@ describe('User Story 13 - branded ERP workspace shell', () => {
       labels: { entity: 'Cliente', entities: 'Clientes', document: 'Pedido de Venta', documents: 'Pedidos de Venta' }
     });
     expect(qs('nav-entities-label').textContent).toBe('Clientes');
-    expect(qs('nav-documents-label').textContent).toBe('Pedidos de Venta');
+    expect(qs('nav-documents-label').textContent).toBe('Documentos de clientes');
   });
 
   it('keeps every module button labeled for accessible icon-rail collapse', async () => {
@@ -94,6 +94,7 @@ describe('User Story 13 - branded ERP workspace shell', () => {
     qs('nav-entities').click();
     expect(activeModule()).toBe('entities');
     expect(qs('view-entities').hidden).toBe(false);
+    expect(qs('view-operations').hidden).toBe(true);
 
     qs('nav-documents').click();
     expect(activeModule()).toBe('documents');
@@ -102,6 +103,7 @@ describe('User Story 13 - branded ERP workspace shell', () => {
     qs('nav-search').click();
     expect(activeModule()).toBe('search');
     expect(qs('view-search').hidden).toBe(false);
+    expect(qs('view-dashboard').hidden).toBe(true);
 
     qs('nav-dashboard').click();
     expect(activeModule()).toBe('dashboard');

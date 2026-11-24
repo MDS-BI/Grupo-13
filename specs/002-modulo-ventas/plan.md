@@ -1,6 +1,6 @@
 # Plan de Implementación: Módulo de Ventas
 
-**Rama**: `002-modulo-ventas` | **Fecha**: 2026-11-02 | **Especificación**: [spec.md](spec.md) | **Modelo de Datos**: [data-model.md](data-model.md) (v3.0)
+**Rama**: `002-modulo-ventas` | **Fecha**: 2026-11-02 | **Especificación**: [spec.md](spec.md) | **Modelo de Datos**: [data-model.md](data-model.md) (v3.1)
 **Entrada**: Especificación de la funcionalidad desde `/specs/002-modulo-ventas/spec.md`
 **Alcance de este documento**: plan de implementación alineado con el modelo de datos de `specs/002-modulo-ventas/data-model.md`. El detalle de entidades, atributos y relaciones se mantiene exclusivamente en ese documento y no se reproduce aquí.
 
@@ -8,14 +8,14 @@
 
 El Módulo de Ventas se construye sobre el módulo base ERP sin modificar su núcleo. La adaptación actual se concentra en `modulo-ventas/src/module-config.js`, que declara:
 
-- **Terminología**: Entidad → **Cliente**, Documento → **Pedido de Venta** en todas las pantallas.
+- **Terminología**: Entidad → **Cliente**; la interfaz separa «Cotizaciones (`sales_quotes`)» de «Órdenes de Venta (`sales_orders`)».
 - **Campos propios**: `vendedor` y `zona` en el cliente; `canal` y `fechaEntrega` en el pedido.
 - **Ciclo de vida**: `cotización → pedido → facturado → entregado`, con cancelación desde `cotización` o `pedido`.
 - **Marca**: nombre "Ventas" y color de acento `#0f62fe`.
 
-El modelo de datos v3.0 distingue dos niveles: el **modelo lógico completo** del dominio comercial y el **modelo físico implementado** en `localStorage`. El plan asume esa separación: la implementación actual cubre el subconjunto físico descrito en `data-model.md` (§7) y las fases posteriores incorporan gradualmente el resto del modelo lógico. El detalle de entidades, cardinalidades, claves y restricciones se consulta en `data-model.md` y no se duplica en este plan.
+El modelo de datos v3.1 distingue el **modelo lógico completo** del **modelo físico implementado** en `localStorage`. El detalle de entidades, cardinalidades, claves y restricciones se consulta en `data-model.md` y no se duplica en este plan.
 
-La entrega actual cubre el modelo lógico completo: clientes y pedidos sobre las colecciones genéricas `erp_base_module:entities` y `erp_base_module:documents`, con las validaciones R-01 a R-18, más las entidades maestras, catálogo y precios, cotización, facturación, pagos y devoluciones implementadas en `modulo-ventas/src/ventas/` (Fases 1-4).
+La entrega implementa clientes sobre `erp_base_module:entities` y conserva las colecciones de dominio, entre ellas `erp_ventas:cotizaciones`, `erp_ventas:pedidos`, `erp_ventas:listas_precio`, `erp_ventas:precios_producto` y `erp_ventas:devoluciones`. La separación de las entidades y los cambios de UI no migran ni reemplazan datos persistidos.
 
 ## Contexto Técnico
 
@@ -75,7 +75,7 @@ modulo-ventas/
     └── ventas/               ← pruebas del dominio de Ventas
 ```
 
-**Decisión de Estructura**: `storage.js` y los componentes permanecen genéricos; toda la semántica de ventas entra por `userConfig`. Por eso el modelo físico no se implementa como un esquema paralelo, sino como la proyección del perfil de configuración sobre las dos colecciones genéricas. Las entidades planificadas del modelo lógico requerirán nuevas colecciones y vistas en fases posteriores, manteniendo el mismo principio de separación entre núcleo y dominio.
+**Decisión de Estructura**: `storage.js` y los componentes base permanecen genéricos para clientes y documentos configurados. El dominio de Ventas implementa las colecciones específicas de catálogo, listas/precios, cotizaciones, órdenes, facturación, pagos y RMA bajo `erp_ventas:`; no se reemplazan por `erp_base_module:documents`. El detalle de las claves y colecciones vigentes se mantiene en `data-model.md` §7.
 
 ## Estrategia de Implementación por Fases
 
@@ -83,7 +83,7 @@ Las fases se derivan del estado de implementación declarado en `data-model.md` 
 
 ### Fase 0 — Subconjunto base (completada)
 
-- Clientes y Pedidos de Venta sobre las colecciones genéricas.
+- Clientes sobre `erp_base_module:entities`; las órdenes se guardan en la colección específica `erp_ventas:pedidos`.
 - Campos propios de Ventas, búsqueda y ciclo de vida configurado.
 - Validaciones R-01 a R-18 y cascada cliente → pedidos.
 - Sin cambios en el núcleo del módulo base.
@@ -116,15 +116,19 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 
 ## Interfaz de usuario
 
-- Nuevas vistas en `modulo-ventas/index.html` para pedidos, entregas, resumen, devoluciones, historial y facturación.
+- El menú lateral tiene una entrada «Panel» para KPIs, gráficos, reportes y resúmenes; no repite listados operativos ni contadores en otras pestañas.
+- «Agregar» contiene pestañas para Cotización, Orden de Venta, Lista/Precio y Devolución RMA, además de Cliente y Documento. Los formularios de alta/edición quedan centralizados en esta vista.
+- «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» son vistas operativas separadas con tablas propias. Convertir una cotización aprobada crea una única orden vinculada, disponible en el listado de órdenes y editable desde Agregar. Los documentos genéricos del módulo base se muestran como «Documentos de clientes» para no confundirse con las órdenes de venta.
+- Las pestañas operativas restantes se limitan a tablas y acciones de consulta/gestión. Se conservan las claves físicas `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
 - Componentes de dominio en `modulo-ventas/src/components/ventas/` conectados desde `modulo-ventas/src/app.js`.
-- Selector de rol activo en la barra superior y navegación de Ventas con clase propia (`nav-ventas`) para no alterar las pruebas del shell base.
+- Selector de rol activo en la barra superior. Jefe de Ventas ve datos completos, incluidos costos estándar, márgenes y contactos de clientes. Ejecutivo Comercial ve datos comerciales/clientes, con costos y márgenes enmascarados; puede agregar cotizaciones/órdenes, pero no editar precios ni aprobar/rechazar RMA. Postventa ve órdenes despachadas y datos operativos RMA sin montos ni precios unitarios; solo puede agregar y gestionar RMA. Auditor consulta métricas agregadas únicamente en Panel; sus pestañas y controles de Agregar/edición quedan bloqueados con indicador de solo lectura. Operaciones, Gerente y Facturación conservan sus acciones heredadas.
+- Los botones, pestañas y formularios no autorizados se deshabilitan con avisos/candados. RMA aplica guardas de dominio para creación y transición.
 - Estados vacíos, mensajes `aria-live`, tablas accesibles y estilos responsivos en `styles.css`.
 
 ## Cambios Realizados en esta Iteración
 
 1. **Configuración de Ventas** en `modulo-ventas/src/module-config.js`: nombre, etiquetas, cuatro campos propios, ciclo de vida de cinco estados y color de acento.
-2. **Modelo de datos v3.0** en `specs/002-modulo-ventas/data-model.md`: modelo lógico completo, modelo físico implementado, estados de implementación, restricciones y persistencia. Este plan se alinea con ese documento y delega en él todo el detalle entidad-relación.
+2. **Modelo de datos v3.1** en `specs/002-modulo-ventas/data-model.md`: modelo lógico completo, modelo físico implementado, estados de implementación, restricciones, persistencia y matriz de roles. Este plan se alinea con ese documento y delega en él todo el detalle entidad-relación.
 3. **Ajustes menores**:
    - `index.html`: título por defecto → "Ventas".
    - `tests/unit/module-config.test.js`: verifica la configuración de Ventas en lugar del default nulo.
@@ -132,21 +136,23 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 4. **Reencuadre del alcance**: lo que antes se consideraba fuera de alcance (catálogo, líneas, cotización, facturación, pagos y devoluciones) quedó implementado en `modulo-ventas/src/ventas/` y expuesto en la interfaz.
 5. **Dominio de Ventas**: 16 módulos JavaScript (`collections`, `money`, `numbering`, `lifecycle`, `roles`, `audit`, `masters`, `catalog`, `quotes`, `orders`, `delivery`, `summary`, `returns`, `history`, `invoices`, `payments`) y un barrel `index.js`.
 6. **Pruebas**: suite nueva en `modulo-ventas/tests/ventas/` con cobertura de historias US1-US7, roles, concurrencia, rendimiento y consistencia.
-7. **Documentación**: `data-model.md` v3.0 actualizado con las 14 entidades implementadas, colecciones, roles y `businessRules`.
+7. **Documentación**: `data-model.md` v3.1 actualizado con entidades implementadas, colecciones, roles y `businessRules`.
 8. **Pulido según feedback del avance 03**:
    - `module-config.js`: nueva sección `features` (`hideClientDelete`, `documentsStockNotice`) validada en `normalizeConfig` y activada solo para el módulo de Ventas.
    - `index.html` + `app.js`: la vista Documentos muestra un aviso que dirige la creación de Pedidos de Venta a la vista dedicada, que valida stock (FR-012) y asigna el estado inicial «cotización» (FR-014); el botón de eliminación física del cliente queda oculto en Entidades y se reemplaza por una nota de desactivación lógica (supuestos de la especificación).
-   - `quotes-panel.js` (T022): corrección de la correspondencia acción→estado en los botones de cotización (antes quedaban sin efecto), etiqueta «Convertir a pedido», mensaje con el pedido generado y callback `onOrderCreated` que abre el pedido resultante en el formulario de `order-form.js` para su revisión y edición.
-   - Pruebas: nuevas verificaciones de `features`, de los avisos de la interfaz y del recorrido cotización → pedido → formulario (244 pruebas en total).
+   - `quotes-panel.js` (T022): corrección de la correspondencia acción→estado en los botones de cotización, etiqueta «Convertir a pedido», mensaje con el pedido generado y recorrido hacia el formulario de órdenes. Jefe y Ejecutivo pueden editar órdenes en estados modificables.
+9. **Vistas y autorizaciones**: Panel Visual reúne consultas/KPIs; Agregar / Operaciones contiene formularios. Se incorporan los formularios de mantenimiento de precios para Jefe de Ventas y las acciones de aprobación/rechazo RMA separadas de la gestión de Postventa.
+10. **Navegación y visibilidad por rol**: la barra lateral se reduce a Panel y vistas operativas separadas; Agregar concentra los formularios en pestañas. La lista genérica de documentos se etiqueta «Documentos de clientes», evitando duplicar «Órdenes de Venta» en el menú, el Panel y las pestañas de Agregar. Se incorpora el costo estándar opcional del producto, margen derivado del precio vigente y máscaras de información para Ejecutivo, Postventa y Auditor.
 
 ## Verificación
 
-- `npm test`: **244/244 pruebas pasan** (42 archivos; incluye las 111 pruebas base y las nuevas pruebas de Ventas).
-- `npm run test:ventas`: suite específica de Ventas en `modulo-ventas/tests/ventas/`.
-- `npm run build`: compila sin errores (salida en `modulo-ventas/dist/`).
-- Coherencia con el modelo: la terminología, el ciclo de vida, las validaciones y la persistencia coinciden con `data-model.md` §7 y §8.
-- `npm run lint` y `npm run format:check`: sin errores ni advertencias (ESLint 9 + Prettier configurados en la raíz; Quality Standards de la constitución).
-- Backlog cerrado: T090-T093 completadas (edición de pedidos con recálculo de stock y desactivación lógica del cliente, transición «cancelado» y distinción entidad Cotización / estado «cotización» verificada en `data-model.md`).
+- `npm test`: **275/275 pruebas pasan** (45 archivos).
+- `npm run build`: compila sin errores.
+- `npm run lint`: pasa sin errores.
+- Verificación en navegador: «Órdenes de Venta (`sales_orders`)», «Cotizaciones (`sales_quotes`)» y «Documentos de clientes» aparecen como destinos distintos; Postventa solo accede a RMA y órdenes entregadas sin montos; Auditor ve métricas agregadas y pestañas de Agregar bloqueadas.
+- Coherencia con el modelo: la terminología visible, la matriz de roles y la persistencia coinciden con `data-model.md` §7 y §8.
+- `npm run format:check`: falla por advertencias preexistentes en 44 archivos de `src/`; el nuevo `pricing-panel.js` y `quote-form.js` pasan la comprobación individual. No se aplicó un formateo masivo ajeno a esta iteración.
+- Backlog previo: T090-T105 completadas (incluye organización Panel/Operaciones, edición de precios, flujo de aprobación RMA y matriz inicial de roles). Esta iteración registra la navegación/visibilidad detallada en T106-T110.
 - El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.
 
 ## Seguimiento de Complejidad

@@ -57,14 +57,14 @@ describe('US3 - resumen general de ventas', () => {
     expect(summary.ventas[0].estado).toBe('entregado');
   });
 
-  it('restricts the general summary to roles with the ver_resumen permission', () => {
+  it('allows commercial roles to consult the aggregate summary', () => {
     seedConfirmedOrder(seed);
     setCurrentRole(ROLES.VENDEDOR);
-    expect(() => buildSummary({ role: ROLES.VENDEDOR })).toThrow(/permiso/);
+    expect(buildSummary({ role: ROLES.VENDEDOR }).totalPedidos).toBe(1);
     setCurrentRole(ROLES.GERENTE);
     expect(buildSummary({ role: ROLES.GERENTE }).totalPedidos).toBe(1);
     expect(getSummaryForRole(ROLES.GERENTE).totalPedidos).toBe(1);
-    expect(() => getSummaryForRole(ROLES.JEFE_VENTAS)).toThrow(/permiso/);
+    expect(getSummaryForRole(ROLES.JEFE_VENTAS).totalPedidos).toBe(1);
     expect(emptySummary().vacio).toBe(true);
   });
 });

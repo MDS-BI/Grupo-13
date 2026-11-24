@@ -74,7 +74,7 @@ Como gerente, quiero visualizar un resumen general de las ventas, cotizaciones y
 
 ---
 
-### User Story 4 - Encargado de devoluciones (Priority: P4)
+### User Story 4 - Postventa y Jefe de Ventas (Priority: P4)
 
 Como encargado de devoluciones de productos quiero poder editar el estado de un producto o productos vendidos en una venta anterior por solicitud de devolución de un cliente, validando en el proceso el motivo de la solicitud y la fecha desde que se compró.
 
@@ -84,9 +84,10 @@ Como encargado de devoluciones de productos quiero poder editar el estado de un 
 
 **Acceptance Scenarios**:
 
-1. Dado que el cliente solicita una devolución dentro del plazo permitido por la empresa (por ejemplo, 30 días desde la fecha de compra) y proporciona un motivo válido, cuando el encargado de devoluciones selecciona la venta, valida la fecha y el motivo, y registra la devolución en estado "En proceso de devolución" para el producto, entonces el sistema guarda exitosamente el cambio de estado, registra el motivo y emite un número de seguimiento para el cliente.
-2. Cuando el cliente intenta solicitar una devolución superando el plazo límite establecido por la política de la empresa (por ejemplo, más de 30 días desde la compra), cuando el encargado de devoluciones ingresa los datos de la venta y el sistema valida la fecha, entonces el sistema rechaza la solicitud de devolución, muestra un mensaje de error indicando que el período de devolución ha expirado y no permite modificar el estado del producto.
-3. Cuando se intenta procesar una devolución con un motivo incompleto o no válido (por ejemplo, campos obligatorios vacíos o no contemplados en el sistema), cuando el encargado intenta registrar y actualizar el estado del producto, entonces el sistema bloquea la actualización, resalta los campos faltantes o inválidos y solicita una justificación adecuada para cumplir con los controles internos.
+1. Dado que el cliente solicita una devolución dentro del plazo permitido por la empresa (por ejemplo, 30 días desde la fecha de compra) y proporciona un motivo válido, cuando Postventa registra el RMA, entonces el sistema guarda la solicitud en estado `solicitada`, registra el motivo y emite un número de seguimiento.
+2. Cuando Postventa intenta solicitar una devolución superando el plazo límite establecido por la política de la empresa (por ejemplo, más de 30 días desde la compra), el sistema rechaza la solicitud, muestra un error indicando que el período expiró y no modifica el estado del producto.
+3. Cuando Postventa intenta procesar una devolución con un motivo incompleto o no válido, el sistema bloquea el registro, resalta los campos faltantes o inválidos y solicita una justificación adecuada para cumplir con los controles internos.
+4. Dada una solicitud en estado `solicitada`, solo el Jefe de Ventas puede aprobarla o rechazarla; Postventa puede completar una solicitud aprobada, pero no aprobarla.
 
 ---
 
@@ -169,7 +170,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 **Base y terminología**
 
 - **FR-001**: El sistema DEBE persistir clientes, cotizaciones, pedidos de venta, facturas y devoluciones de forma consistente entre sesiones y pantallas.
-- **FR-002**: El sistema DEBE presentar el módulo con el nombre «Ventas» y la terminología Cliente(s) / Pedido(s) de Venta en todas las pantallas.
+- **FR-002**: El sistema DEBE presentar el módulo con el nombre «Ventas» y distinguir claramente las Cotizaciones (`sales_quotes`) de las Órdenes de Venta (`sales_orders`) en la navegación. Los documentos genéricos del módulo base DEBEN etiquetarse como «Documentos de clientes», nunca como «Pedidos de Venta».
 - **FR-003**: El sistema DEBE registrar los campos propios del dominio: vendedor y zona del cliente; canal de venta y fecha de entrega del pedido.
 - **FR-004**: El sistema DEBE permitir buscar clientes y productos por sus datos identificatorios y descriptivos, incluidos los campos propios del dominio.
 - **FR-005**: El sistema DEBE gestionar el ciclo de vida del pedido de venta con los estados «cotización», «pedido», «facturado», «entregado» y «cancelado», aplicando únicamente las transiciones permitidas. El estado «cotización» corresponde al Pedido de Venta registrado directamente y no debe confundirse con la entidad Cotización (ver Key Entities).
@@ -208,7 +209,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-026**: El sistema DEBE permitir al encargado de devoluciones seleccionar una venta anterior y solicitar la devolución de uno o más productos vendidos.
 - **FR-027**: El sistema DEBE definir el plazo de devolución (por defecto 30 días calendario desde la fecha de compra) y usarlo como referencia para validar la solicitud.
 - **FR-028**: El sistema DEBE exigir un motivo de devolución válido y no vacío para registrar la devolución.
-- **FR-029**: El sistema DEBE registrar la devolución en estado «en proceso de devolución» (etapas internas `solicitada` → `aprobada` → `completada`, con soporte del estado `rechazada` cuando la solicitud sea denegada) para los productos devueltos cuando la fecha y el motivo sean válidos.
+- **FR-029**: El sistema DEBE registrar la devolución en estado `solicitada`; Postventa puede gestionar la solicitud, solo el Jefe de Ventas puede aprobarla o rechazarla, y Postventa o el Jefe de Ventas pueden completar una solicitud aprobada.
 - **FR-030**: El sistema DEBE emitir un número de seguimiento único de la devolución para el cliente.
 - **FR-031**: El sistema DEBE rechazar, sin registrar la devolución, las solicitudes fuera de plazo (FR-027), con motivo inválido (FR-028) o con cantidades superiores a las vendidas y no devueltas.
 - **FR-032**: El sistema DEBE registrar en una bitácora de auditoría la venta afectada, los productos devueltos, la cantidad, el motivo, la fecha y el usuario que procesó la devolución.
@@ -238,16 +239,25 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-047**: El sistema DEBE mantener la consistencia de los datos ante operaciones simultáneas o repetidas, evitando duplicados de facturas, devoluciones y líneas de pedido.
 - **FR-048**: El sistema DEBE registrar pagos aplicados a una factura, con fecha, monto, método y referencia, recalculando el saldo pendiente sin permitir sobrepagos.
 - **FR-049**: El sistema DEBE mostrar el resultado de cada operación de forma inmediata e inequívoca mediante estados vacíos, mensajes de validación/error y la actualización directa de listas y totales, sin requerir indicadores de carga: todas las operaciones del dominio son lecturas y escrituras síncronas sobre `localStorage`.
+- **FR-050**: El sistema DEBE presentar la pre-venta como «Cotizaciones (`sales_quotes`)» y la venta como «Órdenes de Venta (`sales_orders`)» en vistas diferenciadas. Aceptar una cotización aprobada DEBE crear como máximo una orden vinculada. Estos nombres son etiquetas de interfaz; se conservan las claves físicas `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
+- **FR-051**: El menú lateral DEBE ofrecer una sola entrada «Panel» para KPIs, gráficos y resúmenes; las vistas operativas de Órdenes de Venta (`sales_orders`) y Cotizaciones (`sales_quotes`) DEBEN ser distintas y mostrar solo sus propios registros y acciones. Las tablas no DEBEN duplicarse dentro del Panel ni entre sí.
+- **FR-052**: El sistema DEBE centralizar en «Agregar» los formularios de cotización, orden de venta, listas/precios y devolución RMA, accesibles mediante pestañas internas. Los formularios de cliente y documento también DEBEN estar en esa sección; las demás vistas operativas se limitan a sus tablas y acciones de gestión.
+- **FR-053**: El selector de rol DEBE aplicar esta matriz de visibilidad y acciones: Jefe de Ventas ve la información completa, incluidos costos estándar, márgenes y contactos completos, y tiene todas las acciones habilitadas; Ejecutivo Comercial ve datos comerciales y clientes, puede agregar/editar cotizaciones y órdenes, pero no ve costos/márgenes y tiene bloqueada la edición de precios y la aprobación/rechazo RMA; Postventa ve solo información operativa de órdenes despachadas y RMA, sin montos totales ni precios unitarios, y solo puede agregar/gestionar RMA; Auditor ve métricas agregadas y reportes en Panel, sin acceso a registros individuales, y las pestañas/botones de Agregar y edición aparecen bloqueados en modo de solo lectura. Los roles heredados de Operaciones, Gerente y Facturación conservan sus acciones específicas.
+- **FR-054**: El sistema DEBE permitir al Jefe de Ventas crear y editar listas de precios y precios por producto, validando claves, moneda, unicidad y fechas de vigencia sin modificar las colecciones ni perder registros existentes.
+- **FR-055**: Los costos estándar y márgenes DEBEN mostrarse solo al Jefe de Ventas; la interfaz DEBE ocultarlos o enmascararlos para los demás roles. Los montos financieros y detalles por registro DEBEN respetar las restricciones de Postventa y Auditor descritas en FR-053.
+- **FR-056**: Las acciones de aprobación/rechazo de RMA DEBEN estar habilitadas solo para el Jefe de Ventas; los controles no autorizados DEBEN aparecer bloqueados y explicar el rol requerido.
 
 ### Key Entities *(include if feature involves data)*
 
 - **Cliente**: Comprador registrado en el maestro de clientes. Se identifica por un código único y conserva datos de contacto, condiciones comerciales, vendedor asignado, zona, estado y límite de crédito. Es el origen de cotizaciones, pedidos, facturas y devoluciones.
 - **Vendedor**: Responsable comercial de atender al cliente y gestionar sus ventas. Puede estar asignado a una zona y se conserva como referencia en clientes, cotizaciones y pedidos.
 - **Zona**: Segmento geográfico o comercial que agrupa clientes y vendedores.
-- **Producto**: Bien o servicio vendible, con código único, categoría, unidad de medida, tasa de impuesto, stock actual, stock mínimo y estado de vigencia.
+- **Producto**: Bien o servicio vendible, con código único, categoría, unidad de medida, tasa de impuesto, costo estándar interno, stock actual, stock mínimo y estado de vigencia. El costo estándar solo es visible al Jefe de Ventas; el margen se deriva del precio vigente.
+- **Lista de precios / Precio de producto**: La lista agrupa precios por moneda y vigencia; cada precio relaciona un producto con una lista y un período válido. El Jefe de Ventas puede crearlos y editarlos.
 - **Detalle de Pedido de Venta**: Línea de un pedido que registra un producto, la cantidad vendida, el precio unitario, el descuento, el impuesto y el subtotal de la línea.
 - **Pedido de Venta**: Transacción comercial que vincula a un cliente con uno o más productos. Conserva vendedor, canal de venta, fecha de emisión, fecha de entrega, condición de pago, moneda, subtotal, descuento, impuesto, total y estado del ciclo de vida.
 - **Cotización**: Documento de pre-venta dirigido a un cliente, con fecha de emisión, vigencia, vendedor, líneas de productos e importes. Tiene estados propios y, al aceptarse, origina un Pedido de Venta en estado «pedido» vinculado por su identificador. No debe confundirse con el estado «cotización» de un pedido registrado directamente.
+- **Persistencia**: La interfaz distingue estas entidades, pero conserva sin migración las claves actuales `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
 - **Factura**: Documento fiscal generado a partir de un pedido confirmado. Registra cliente, líneas, subtotal, impuesto, total, saldo, fecha de emisión, vencimiento y estado de cobro. Un pedido admite como máximo una factura.
 - **Pago**: Abono aplicado a una factura, con fecha, monto, método y referencia. Reduce el saldo pendiente de la factura.
 - **Devolución**: Solicitud de devolución asociada a una factura y a su pedido, con número de seguimiento, fecha, motivo, estado, moneda e importe total devuelto. Se compone de una o más líneas devueltas.
@@ -285,6 +295,8 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - Los importes se manejan en la moneda configurada para el pedido y se redondean según la precisión de esa moneda.
 - La cancelación de un pedido solo se permite desde los estados «cotización» y «pedido», conforme al ciclo de vida definido.
 - La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren un usuario autenticado con el rol correspondiente.
+- La navegación y los datos visibles dependen del rol conforme a FR-051–FR-056: Panel concentra métricas; Agregar concentra altas; Cotizaciones y Órdenes de Venta son listados separados. Jefe de Ventas ve costos, márgenes y contactos completos; Ejecutivo Comercial no ve costos/márgenes; Postventa solo consulta órdenes despachadas y RMA sin importes; Auditor ve métricas agregadas en Panel y no accede a registros individuales. Operaciones, Gerente y Facturación se conservan como roles heredados con permisos específicos.
+- Las etiquetas `sales_quotes` y `sales_orders` no cambian las colecciones ni las claves físicas vigentes.
 - Los clientes se desactivan lógicamente sin eliminar sus pedidos, facturas ni devoluciones (trazabilidad, FR-006); el borrado en cascada de pedidos solo aplica al borrado físico del cliente, que el módulo no expone.
 - Los datos deben conservarse entre sesiones y no deben perderse al navegar entre pantallas o al recargar la aplicación.
 - No existen operaciones asíncronas de red ni de entrada/salida en el dominio de Ventas: la carga de configuración y la siembra de datos son síncronas. Por ello no se requieren estados de carga; la retroalimentación inmediata (FR-049), los estados vacíos (FR-046) y los mensajes accesibles satisfacen el patrón de estados de carga del Principio III de la constitución.

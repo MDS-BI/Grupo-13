@@ -38,29 +38,30 @@ async function bootWith(configOverride){
   await initApp(normalizeConfig(configOverride));
 }
 
-describe('User Story 3 - home dashboard with quick actions and record stats', () => {
-  it('opens on the dashboard with all other views hidden', async () => {
+describe('User Story 3 - Panel metrics and centralized registration', () => {
+  it('opens on Panel with aggregate reports and keeps operational views separate', async () => {
     await bootWith(undefined);
     expect(qs('view-dashboard').hidden).toBe(false);
+    expect(qs('view-operations').hidden).toBe(true);
     expect(qs('view-entities').hidden).toBe(true);
-    expect(qs('view-documents').hidden).toBe(true);
     expect(qs('view-search').hidden).toBe(true);
+    expect(qs('view-quotes').hidden).toBe(true);
+    expect(qs('view-products').hidden).toBe(true);
+    expect(qs('view-summary').hidden).toBe(false);
   });
 
-  it('shows at least four quick-action buttons covering key ERP tasks', async () => {
+  it('links registration to the single Agregar section', async () => {
     await bootWith(undefined);
-    expect(qs('action-new-entity-title').textContent).toBe('Nueva Entidad');
-    expect(qs('action-new-document-title').textContent).toBe('Nuevo Documento');
-    expect(qs('action-open-entities-title').textContent).toBe('Entidades');
+    expect(qs('action-open-add').textContent).toMatch(/Ir a Agregar/);
     expect(qs('action-find-title').textContent).toBe('Buscar registros');
+    expect(qs('operations-heading').textContent).toBe('Agregar');
+    expect(document.querySelectorAll('#operations-forms [role="tab"]').length).toBe(6);
   });
 
-  it('uses configured terminology on quick actions and stat cards', async () => {
+  it('uses configured terminology on stat cards', async () => {
     await bootWith(salesConfig);
-    expect(qs('action-new-entity-title').textContent).toBe('Nuevo Cliente');
-    expect(qs('action-new-document-title').textContent).toBe('Nuevo Pedido de Venta');
     expect(qs('stat-entities-label').textContent).toBe('Clientes');
-    expect(qs('stat-documents-label').textContent).toBe('Pedidos de Venta');
+    expect(qs('stat-documents-label').textContent).toBe('Documentos de clientes');
   });
 
   it('shows live statistics that match stored records', async () => {
@@ -91,29 +92,25 @@ describe('User Story 3 - home dashboard with quick actions and record stats', ()
 
   it('opens the entity management area with a cleared form via the new-entity action', async () => {
     await bootWith(undefined);
-    qs('name').value = 'Stale draft';
-    qs('nav-dashboard').click();
-
-    qs('action-new-entity').click();
-    expect(qs('view-entities').hidden).toBe(false);
-    expect(qs('view-dashboard').hidden).toBe(true);
+    qs('action-open-add').click();
+    qs('add-tab-client').click();
     expect(qs('entity-id').value).toBe('');
     expect(qs('name').value).toBe('');
-    expect(document.activeElement).toBe(qs('name'));
   });
 
-  it('opens the document management area via the new-document action', async () => {
+  it('opens document registration from its tab in Agregar', async () => {
     await bootWith(undefined);
-    qs('action-new-document').click();
-    expect(qs('view-documents').hidden).toBe(false);
+    qs('nav-operations').click();
+    qs('add-tab-document').click();
     expect(qs('document-id').value).toBe('');
-    expect(document.activeElement).toBe(qs('document-entity'));
+    expect(qs('add-panel-document').hidden).toBe(false);
   });
 
   it('opens the search screen with a focused search field via the find action', async () => {
     await bootWith(undefined);
     qs('action-find').click();
     expect(qs('view-search').hidden).toBe(false);
+    expect(qs('view-dashboard').hidden).toBe(true);
     expect(document.activeElement).toBe(qs('search-input'));
   });
 });

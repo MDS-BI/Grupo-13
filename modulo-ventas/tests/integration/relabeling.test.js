@@ -38,7 +38,7 @@ describe('User Story 6 - relabel screens from configuration', () => {
     expect(qs('brand-name').textContent).toBe('Módulo Base ERP');
     expect(qs('nav-entities-label').textContent).toBe('Entidades');
     expect(qs('nav-documents-label').textContent).toBe('Documentos');
-    expect(qs('action-new-entity-title').textContent).toBe('Nueva Entidad');
+    expect(qs('add-tab-client').textContent).toBe('Agregar Entidad');
     qs('nav-entities').click();
     expect(qs('entity-form-heading').textContent).toBe('Agregar / Editar Entidad');
     expect(qs('delete-entity').textContent).toBe('Eliminar la entidad seleccionada');
@@ -53,11 +53,11 @@ describe('User Story 6 - relabel screens from configuration', () => {
     });
     expect(document.title).toBe('Ventas');
     expect(qs('brand-name').textContent).toBe('Ventas');
-    expect(qs('dashboard-heading').textContent).toBe('Ventas');
+    expect(qs('dashboard-heading').textContent).toBe('Panel');
     expect(qs('nav-entities-label').textContent).toBe('Clientes');
-    expect(qs('nav-documents-label').textContent).toBe('Pedidos de Venta');
-    expect(qs('action-new-entity-title').textContent).toBe('Nuevo Cliente');
-    expect(qs('action-new-document-title').textContent).toBe('Nuevo Pedido de Venta');
+    expect(qs('nav-documents-label').textContent).toBe('Documentos de clientes');
+    expect(qs('add-tab-client').textContent).toBe('Agregar Cliente');
+    expect(qs('add-tab-document').textContent).toBe('Agregar Documento de cliente');
 
     qs('nav-entities').click();
     expect(qs('entities-view-heading').textContent).toBe('Clientes');
@@ -66,10 +66,10 @@ describe('User Story 6 - relabel screens from configuration', () => {
     expect(qs('delete-entity').textContent).toBe('Eliminar el cliente seleccionado');
 
     qs('nav-documents').click();
-    expect(qs('documents-view-heading').textContent).toBe('Pedidos de Venta');
-    expect(qs('document-form-heading').textContent).toBe('Agregar / Editar Pedido de Venta');
-    expect(qs('edit-document-heading').textContent).toBe('Editar o eliminar el pedido de venta');
-    expect(qs('delete-document').textContent).toBe('Eliminar el pedido de venta seleccionado');
+    expect(qs('documents-view-heading').textContent).toBe('Documentos de clientes');
+    expect(qs('document-form-heading').textContent).toBe('Agregar / Editar Documento de cliente');
+    expect(qs('edit-document-heading').textContent).toBe('Editar o eliminar el documento de cliente');
+    expect(qs('delete-document').textContent).toBe('Eliminar el documento de cliente seleccionado');
 
     qs('nav-search').click();
     expect(qs('search-view-heading').textContent).toBe('Buscar Clientes');

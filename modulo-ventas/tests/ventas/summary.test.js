@@ -41,8 +41,8 @@ describe('summary aggregation', () => {
     expect(buildSummary().totalOrdenes).toBe(1);
   });
 
-  it('enforces the gerente role for the aggregate', () => {
-    expect(() => buildSummary({ role: ROLES.VENDEDOR })).toThrow(/permiso/);
+  it('rejects aggregate access for an operations-only role', () => {
+    expect(() => buildSummary({ role: ROLES.OPERACIONES })).toThrow(/permiso/);
     expect(buildSummary({ role: ROLES.GERENTE }).totalOrdenes).toBe(0);
   });
 });

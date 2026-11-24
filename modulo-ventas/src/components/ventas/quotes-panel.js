@@ -7,6 +7,7 @@ import {
   rejectQuote,
   updateQuoteStatus,
 } from "../../ventas/quotes.js";
+import { can } from "../../ventas/roles.js";
 
 let wired = false;
 let notify = () => {};
@@ -55,11 +56,18 @@ export function initQuotesPanel(callbacks = {}) {
     const feedback = qs("quotes-feedback");
     const quoteId = button.dataset.quoteId;
     const action = button.dataset.quoteAction;
+    const permission = ["aceptada", "rechazada"].includes(action)
+      ? "aprobar_cotizacion"
+      : "editar_cotizacion";
+    if (!can(permission)) {
+      if (feedback) feedback.textContent = "Tu rol no tiene permiso para esta acción.";
+      return;
+    }
     try {
       if (action === "aceptada") {
         const { quote, order } = acceptQuote(quoteId);
         if (feedback) {
-          feedback.textContent = `Cotización ${quote.numero} aceptada: pedido ${order.numero} generado en estado "${order.estado}". Revisa y confirma el pedido en Pedidos de Venta.`;
+          feedback.textContent = `Cotización ${quote.numero} aceptada: pedido ${order.numero} generado en estado "${order.estado}". El pedido vinculado está disponible para su revisión en Órdenes de Venta.`;
         }
         renderQuotesPanel();
         notify();
@@ -84,9 +92,6 @@ export function renderQuotesPanel() {
   const quotes = listQuotes();
   const empty = qs("quotes-empty");
   if (empty) empty.hidden = quotes.length > 0;
-  const count = qs("quotes-count");
-  if (count) count.textContent = `${quotes.length} cotización(es) registrada(s)`;
-
   const clients = new Map(loadEntities().map((entity) => [entity.entity_id, entity.name]));
   body.innerHTML = "";
   for (const quote of quotes) {
@@ -107,6 +112,18 @@ export function renderQuotesPanel() {
       button.dataset.quoteAction = action;
       button.dataset.quoteId = quote.id;
       button.textContent = ACTION_LABELS[action] || action;
+      const permission = ["aceptada", "rechazada"].includes(action)
+        ? "aprobar_cotizacion"
+        : "editar_cotizacion";
+      button.dataset.permission = permission;
+      button.dataset.permissionLocked = String(!can(permission));
+      button.disabled = !can(permission);
+      if (button.disabled) {
+        button.title =
+          ["aceptada", "rechazada"].includes(action)
+            ? "Solo el Jefe de Ventas puede aprobar una cotización."
+            : "Tu rol no puede modificar cotizaciones.";
+      }
       actions.appendChild(button);
     }
     row.appendChild(actions);

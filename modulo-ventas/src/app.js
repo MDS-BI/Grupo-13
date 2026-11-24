@@ -37,7 +37,6 @@ import {
   resetOrderForm,
 } from "./components/ventas/order-form.js";
 import { listOrders, canEditOrder, assertClienteEliminable } from "./ventas/orders.js";
-import { listProductos } from "./ventas/catalog.js";
 import { initDeliveryPanel, renderDeliveryPanel } from "./components/ventas/delivery-panel.js";
 import { renderSummaryView } from "./components/ventas/summary-view.js";
 import { initSalesAnalytics } from "./components/ventas/sales-analytics.js";
@@ -46,12 +45,22 @@ import { initClientHistory, renderClientHistory } from "./components/ventas/clie
 import { initInvoicePanel, renderInvoicePanel } from "./components/ventas/invoice-panel.js";
 import { initQuotesPanel, renderQuotesPanel } from "./components/ventas/quotes-panel.js";
 import { initProductsPanel, renderProductsPanel } from "./components/ventas/products-panel.js";
-import { ALL_ROLES, ROLE_LABELS, getCurrentRole, setCurrentRole } from "./ventas/roles.js";
+import { initQuoteForm, refreshQuoteForm } from "./components/ventas/quote-form.js";
+import { initPricingPanel, renderPricingPanel } from "./components/ventas/pricing-panel.js";
+import {
+  ALL_ROLES,
+  ROLE_LABELS,
+  ROLES,
+  can,
+  canAny,
+  getCurrentRole,
+  setCurrentRole,
+} from "./ventas/roles.js";
 import { seedMockData } from "./ventas/mock-data.js";
-import { listDeliverableOrders } from "./ventas/delivery.js";
 import { listQuotes } from "./ventas/quotes.js";
 import { listInvoices } from "./ventas/invoices.js";
 import { listReturns } from "./ventas/returns.js";
+import { renderSalesOrders } from "./components/ventas/orders-panel.js";
 
 function qs(id) {
   return document.getElementById(id);
@@ -68,6 +77,7 @@ const seleccionada = (word) => (esFemenina(word) ? "seleccionada" : "seleccionad
 
 const MODULES = [
   "dashboard",
+  "operations",
   "entities",
   "documents",
   "search",
@@ -75,13 +85,13 @@ const MODULES = [
   "quotes",
   "products",
   "delivery",
-  "summary",
   "returns",
   "history",
   "invoices",
 ];
 const VIEWS = {
   dashboard: "view-dashboard",
+  operations: "view-operations",
   entities: "view-entities",
   documents: "view-documents",
   search: "view-search",
@@ -96,15 +106,15 @@ const VIEWS = {
 };
 
 const VIEW_TITLES = {
-  dashboard: "Panel general",
+  dashboard: "Panel",
+  operations: "Agregar",
   entities: "Entidades",
   documents: "Documentos",
   search: "Búsqueda",
-  "sales-order": "Pedido de venta",
-  quotes: "Cotizaciones",
+  "sales-order": "Órdenes de Venta (sales_orders)",
+  quotes: "Cotizaciones (sales_quotes)",
   products: "Productos",
   delivery: "Despacho",
-  summary: "Resumen",
   returns: "Devoluciones",
   history: "Historial de clientes",
   invoices: "Facturación",
@@ -112,13 +122,217 @@ const VIEW_TITLES = {
 
 let wired = false;
 let currentModule = "dashboard";
+const VISUAL_MODULES = ["dashboard"];
+const OPERATION_MODULES = [
+  "operations",
+  "entities",
+  "documents",
+  "search",
+  "sales-order",
+  "quotes",
+  "products",
+  "delivery",
+  "returns",
+  "history",
+  "invoices",
+];
+const OPERATION_MODULE_PERMISSIONS = {
+  entities: ["gestionar_clientes"],
+  documents: ["gestionar_documentos"],
+  "sales-order": ["gestionar_orden"],
+  delivery: ["entregar"],
+  returns: ["gestionar_devoluciones"],
+  invoices: ["facturar", "registrar_pago"],
+  history: ["ver_historial"],
+};
+const OPERATION_ACCESS_PERMISSIONS = [
+  "gestionar_clientes",
+  "gestionar_documentos",
+  "crear_cotizacion",
+  "gestionar_orden",
+  "gestionar_precios",
+  "entregar",
+  "gestionar_devoluciones",
+  "facturar",
+  "registrar_pago",
+];
+
+function organizeWorkspace() {
+  const visual = qs("visual-consultations");
+  const operations = qs("operations-forms");
+  const addPanels = {
+    quote: qs("add-panel-quote"),
+    order: qs("add-panel-order"),
+    pricing: qs("add-panel-pricing"),
+    return: qs("add-panel-return"),
+    client: qs("add-panel-client"),
+    document: qs("add-panel-document"),
+  };
+  const visualNav = document.querySelector(".side-nav:not(.sales-nav)");
+  const operationsNav = document.querySelector(".sales-nav");
+  if (!visual || !operations || !visualNav || !operationsNav) return;
+
+  const summary = qs("view-summary");
+  if (summary) visual.appendChild(summary);
+
+  const addForms = {
+    quote: qs("quote-create-panel"),
+    order: [qs("order-edit-panel"), qs("order-create-panel")],
+    pricing: qs("pricing-management-panel"),
+    return: qs("return-create-panel"),
+    client: qs("entity-create-panel"),
+    document: qs("document-create-panel"),
+  };
+  for (const [tab, panel] of Object.entries(addForms)) {
+    const target = addPanels[tab];
+    if (!target) continue;
+    for (const item of Array.isArray(panel) ? panel : [panel]) {
+      if (item) target.appendChild(item);
+    }
+  }
+
+  const demoCard = document.querySelector(".demo-card");
+  if (demoCard) operations.appendChild(demoCard);
+  for (const id of [
+    "nav-operations",
+    "nav-sales-order",
+    "nav-quotes",
+    "nav-products",
+    "nav-delivery",
+    "nav-returns",
+    "nav-history",
+    "nav-invoices",
+    "nav-entities",
+    "nav-documents",
+    "nav-search",
+  ]) {
+    const button = qs(id);
+    if (button) operationsNav.appendChild(button);
+  }
+
+  const initialTab = getCurrentRole() === ROLES.DEVOLUCIONES ? "return" : "quote";
+  selectAddTab(initialTab);
+}
+
+function selectAddTab(name) {
+  const tabs = [...document.querySelectorAll("[data-add-tab]")];
+  const requested = tabs.find((tab) => tab.dataset.addTab === name);
+  const fallback = tabs.find((tab) => can(tab.dataset.permission));
+  const selected = requested && (can(requested.dataset.permission) || getCurrentRole() === ROLES.AUDITOR)
+    ? requested
+    : fallback || requested;
+  for (const tab of tabs) {
+    const active = tab === selected;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+    const panel = qs(`add-panel-${tab.dataset.addTab}`);
+    if (panel) panel.hidden = !active;
+  }
+}
+
+function applyPermissions() {
+  document.querySelectorAll("[data-permission]").forEach((element) => {
+    const permission = element.dataset.permission;
+    const allowed = can(permission);
+    if (allowed) delete element.dataset.permissionLocked;
+    else element.dataset.permissionLocked = "true";
+    if (allowed) element.removeAttribute("title");
+    else element.title = "🔒 Bloqueado para este rol.";
+    if (element.tagName === "FORM") {
+      element.setAttribute("aria-disabled", String(!allowed));
+      let notice = element.querySelector(".permission-notice");
+      if (!allowed && !notice) {
+        notice = document.createElement("p");
+        notice.className = "permission-notice";
+        notice.setAttribute("role", "status");
+        notice.textContent = "🔒 Acción bloqueada para el rol activo.";
+        element.prepend(notice);
+      }
+      if (notice) notice.hidden = allowed;
+      element.querySelectorAll("input, select, textarea, button").forEach((control) => {
+        control.disabled = !allowed;
+      });
+    } else if ("disabled" in element) {
+      element.disabled = !allowed;
+    }
+  });
+}
+
+function applyReadPermissions() {
+  document.querySelectorAll("[data-read-permission]").forEach((element) => {
+    element.hidden = !can(element.dataset.readPermission);
+  });
+}
+
+function applyDataVisibility() {
+  const financialVisible = can("ver_montos_financieros");
+  document.querySelectorAll("[data-financial-info]").forEach((element) => {
+    element.hidden = !financialVisible;
+  });
+  document.querySelectorAll("[data-sensitive='boss-only']").forEach((element) => {
+    element.hidden = !can("ver_datos_sensibles");
+  });
+  document.querySelectorAll("[data-aggregated-detail]").forEach((element) => {
+    element.hidden = [ROLES.AUDITOR, ROLES.DEVOLUCIONES].includes(getCurrentRole());
+  });
+  document.querySelectorAll("[data-postventa-restricted]").forEach((element) => {
+    element.hidden = getCurrentRole() === ROLES.DEVOLUCIONES;
+  });
+  const postventa = getCurrentRole() === ROLES.DEVOLUCIONES;
+  const auditor = getCurrentRole() === ROLES.AUDITOR;
+  const regularMetrics = qs("summary-standard-metrics");
+  const postventaMetrics = qs("summary-postventa-metrics");
+  if (regularMetrics) regularMetrics.hidden = postventa;
+  if (postventaMetrics) postventaMetrics.hidden = !postventa;
+  const baseMetrics = qs("dashboard-base-stats");
+  if (baseMetrics) baseMetrics.hidden = postventa;
+  const findAction = qs("action-find");
+  if (findAction) findAction.hidden = postventa || auditor;
+  const analytics = document.querySelector(".analytics-panel");
+  if (analytics) analytics.hidden = postventa;
+  const readOnlyNotice = qs("add-readonly-notice");
+  if (readOnlyNotice) readOnlyNotice.hidden = !auditor;
+  document.querySelectorAll("[data-add-tab]").forEach((tab) => {
+    tab.hidden = postventa && !can(tab.dataset.permission);
+  });
+}
+
+function canAccessModule(name) {
+  const role = getCurrentRole();
+  if (role === ROLES.AUDITOR) {
+    return ["dashboard", "operations"].includes(name);
+  }
+  if (role === ROLES.DEVOLUCIONES) {
+    return ["dashboard", "operations", "sales-order", "returns"].includes(name);
+  }
+  if (name === "dashboard") return can("ver_panel");
+  if (name === "operations") return canAny(OPERATION_ACCESS_PERMISSIONS);
+  if (name === "search") return true;
+  if (name === "quotes") return can("ver_cotizaciones");
+  if (name === "products") return can("ver_productos");
+  if (name === "history") return can("ver_datos_sensibles");
+  if (name === "sales-order") return can("ver_pedidos");
+  if (name === "returns") return true;
+  if (["delivery", "invoices"].includes(name)) return true;
+  const permissions = OPERATION_MODULE_PERMISSIONS[name];
+  return permissions ? canAny(permissions) : false;
+}
+
+function applyModuleAccess() {
+  document.querySelectorAll(".nav-module, .nav-ventas").forEach((button) => {
+    const accessible = canAccessModule(button.dataset.module);
+    button.hidden = !accessible;
+  });
+  const demoCard = document.querySelector("#operations-forms .demo-card");
+  if (demoCard) demoCard.hidden = !can("crear_cotizacion");
+}
 
 function updateBreadcrumb(name) {
   const moduleLabel = qs("breadcrumb-module");
   const currentLabel = qs("breadcrumb-current");
   const back = qs("breadcrumb-back");
   if (moduleLabel) moduleLabel.textContent = "Ventas";
-  if (currentLabel) currentLabel.textContent = VIEW_TITLES[name] || "Panel general";
+  if (currentLabel) currentLabel.textContent = VIEW_TITLES[name] || "Panel";
   if (back) {
     const isDashboard = name === "dashboard";
     back.hidden = isDashboard;
@@ -127,20 +341,7 @@ function updateBreadcrumb(name) {
 }
 
 function refreshNavCounts() {
-  const counts = {
-    "nav-sales-order": listOrders().length,
-    "nav-quotes": listQuotes().length,
-    "nav-products": listProductos().length,
-    "nav-delivery": listDeliverableOrders().length,
-    "nav-summary": listInvoices().length,
-    "nav-returns": listReturns().length,
-    "nav-history": loadEntities().length,
-    "nav-invoices": listInvoices().length,
-  };
-  Object.entries(counts).forEach(([id, value]) => {
-    const badge = qs(id)?.querySelector(".nav-count");
-    if (badge) badge.textContent = String(value);
-  });
+  renderSalesOrders();
 }
 
 function updateDemoStatus() {
@@ -171,43 +372,51 @@ function animateView(name) {
 }
 
 function showModule(name, opts = {}) {
+  if (name === "summary") name = "dashboard";
   if (!MODULES.includes(name)) name = "dashboard";
+  if (!canAccessModule(name)) name = "dashboard";
   currentModule = name;
-  MODULES.forEach((m) => {
-    const view = qs(VIEWS[m]);
-    if (view) view.hidden = m !== name;
-  });
+  const visualActive = VISUAL_MODULES.includes(name);
+  for (const [module, id] of Object.entries(VIEWS)) {
+    if (module === "summary") continue;
+    const view = qs(id);
+    if (view) view.hidden = module !== name;
+  }
+  const summaryView = qs("view-summary");
+  if (summaryView) summaryView.hidden = !visualActive || !can("ver_resumen");
+  const visualContainer = qs("visual-consultations");
+  if (visualContainer) visualContainer.hidden = !visualActive;
   setActiveModule(name);
-  if (name === "dashboard") {
+  if (visualActive) {
     renderDashboard();
+    renderSummaryView();
   }
-  if (name === "entities") {
-    populateDocumentEntitySelect();
-    populateEditEntitySelect();
-    if (opts.newRecord) clearEntityForm();
-    if (opts.focusForm) qs("name").focus();
-  }
-  if (name === "documents") {
-    populateDocumentEntitySelect();
-    populateEditDocumentSelect();
-    if (opts.newRecord) clearDocumentForm();
-    if (opts.focusForm) qs("document-entity").focus();
-  }
-  if (name === "search") {
-    refreshSearch();
-    if (opts.focusSearch) qs("search-input").focus();
-  }
-  if (name === "sales-order") {
-    refreshOrderForm();
-    populateOrderEditSelect();
-  }
+  if (name === "search") refreshSearch();
   if (name === "quotes") renderQuotesPanel();
   if (name === "products") renderProductsPanel();
-  if (name === "delivery") renderDeliveryPanel();
-  if (name === "summary") renderSummaryView();
-  if (name === "returns") renderReturnsPanel();
   if (name === "history") renderClientHistory();
-  if (name === "invoices") renderInvoicePanel();
+  if (name === "sales-order") renderSalesOrders();
+  if (OPERATION_MODULES.includes(name)) {
+    populateDocumentEntitySelect();
+    populateEditEntitySelect();
+    populateEditDocumentSelect();
+    refreshOrderForm();
+    populateOrderEditSelect();
+    refreshQuoteForm();
+    renderDeliveryPanel();
+    renderReturnsPanel();
+    renderInvoicePanel();
+    renderPricingPanel();
+    if (name === "entities" && opts.newRecord) clearEntityForm();
+    if (name === "documents" && opts.newRecord) clearDocumentForm();
+    if (opts.focusForm && name === "entities") qs("name")?.focus();
+    if (opts.focusForm && name === "documents") qs("document-entity")?.focus();
+  }
+  if (name === "search" && opts.focusSearch) qs("search-input")?.focus();
+  applyPermissions();
+  applyReadPermissions();
+  applyDataVisibility();
+  applyModuleAccess();
   updateBreadcrumb(name);
   refreshNavCounts();
   updateDemoStatus();
@@ -312,10 +521,18 @@ function onEditEntityChange() {
     return;
   }
   const entity = loadEntities().find((e) => e.id === id);
-  if (entity) startEntityEdit(entity);
+  if (entity) {
+    startEntityEdit(entity);
+    showModule("operations");
+    selectAddTab("client");
+  }
 }
 
 function handleDeleteSelectedEntity() {
+  if (!can("gestionar_clientes")) {
+    qs("error-edit-entity").textContent = "Tu rol no tiene permiso para gestionar clientes.";
+    return;
+  }
   const id = qs("edit-entity").value;
   if (!id) {
     qs("error-edit-entity").textContent =
@@ -350,10 +567,18 @@ function onEditDocumentChange() {
     return;
   }
   const doc = loadDocuments().find((d) => d.id === id);
-  if (doc) startDocumentEdit(doc);
+  if (doc) {
+    startDocumentEdit(doc);
+    showModule("operations");
+    selectAddTab("document");
+  }
 }
 
 function handleDeleteSelectedDocument() {
+  if (!can("gestionar_documentos")) {
+    qs("error-edit-document").textContent = "Tu rol no tiene permiso para gestionar documentos.";
+    return;
+  }
   const id = qs("edit-document").value;
   if (!id) {
     qs("error-edit-document").textContent =
@@ -381,6 +606,10 @@ function afterSaveRefresh() {
 function handleEntitySubmit(ev) {
   ev.preventDefault();
   const id = qs("entity-id").value;
+  if (!can(id ? "editar_cliente" : "crear_cliente")) {
+    qs("error-edit-entity").textContent = "Tu rol no tiene permiso para gestionar clientes.";
+    return;
+  }
   const payload = collectEntityPayload();
   const { valid, errors } = validateEntity(payload);
   showEntityErrors(errors);
@@ -402,6 +631,10 @@ function handleEntitySubmit(ev) {
 function handleDocumentSubmit(ev) {
   ev.preventDefault();
   const id = qs("document-id").value;
+  if (!can(id ? "editar_documento" : "crear_documento")) {
+    qs("error-edit-document").textContent = "Tu rol no tiene permiso para gestionar documentos.";
+    return;
+  }
   const payload = collectDocumentPayload();
   const existing = id ? loadDocuments().find((d) => d.id === id) : undefined;
   const { valid, errors } = validateDocument(payload, existing ? existing.status : undefined);
@@ -425,34 +658,29 @@ function applyLabels(config) {
   const entity = config.labels.entity;
   const entities = config.labels.entities;
   const document_ = config.labels.document;
-  const documents = config.labels.documents;
-  const femEntity = esFemenina(entity);
-  const femDocument = esFemenina(document_);
-
+  const salesDocumentLabels = config.labels.documents.toLowerCase() === "pedidos de venta";
+  const documentLabel = salesDocumentLabels ? "Documento de cliente" : document_;
+  const documentsLabel = salesDocumentLabels ? "Documentos de clientes" : config.labels.documents;
   document.title = config.moduleName;
   qs("brand-name").textContent = config.moduleName;
   applyShellLabels();
 
-  qs("dashboard-heading").textContent = config.moduleName;
+  qs("dashboard-heading").textContent = "Panel";
   qs("dashboard-subtitle").textContent =
-    `Gestiona tus ${entities.toLowerCase()} y ${documents.toLowerCase()} en un solo lugar.`;
-  qs("action-new-entity-title").textContent = `${femEntity ? "Nueva" : "Nuevo"} ${entity}`;
-  qs("action-new-entity-sub").textContent = `Crear un registro de ${entity.toLowerCase()}`;
-  qs("action-new-document-title").textContent = `${femDocument ? "Nueva" : "Nuevo"} ${document_}`;
-  qs("action-new-document-sub").textContent = `Registrar un registro de ${document_.toLowerCase()}`;
-  qs("action-open-entities-title").textContent = entities;
-  qs("action-open-entities-sub").textContent = `Abrir la gestión de ${entities.toLowerCase()}`;
+    "Indicadores, consultas y seguimiento del proceso comercial.";
+  qs("add-tab-client").textContent = `Agregar ${entity}`;
+  qs("add-tab-document").textContent = `Agregar ${documentLabel}`;
   qs("action-find-title").textContent = "Buscar registros";
   qs("action-find-sub").textContent = `Buscar ${entities.toLowerCase()}`;
 
   qs("entities-view-heading").textContent = entities;
-  qs("documents-view-heading").textContent = documents;
+  qs("documents-view-heading").textContent = documentsLabel;
   qs("entity-form-heading").textContent = `Agregar / Editar ${entity}`;
   qs("edit-entity-heading").textContent =
     `Editar o eliminar ${articulo(entity)} ${entity.toLowerCase()}`;
-  qs("document-form-heading").textContent = `Agregar / Editar ${document_}`;
+  qs("document-form-heading").textContent = `Agregar / Editar ${documentLabel}`;
   qs("edit-document-heading").textContent =
-    `Editar o eliminar ${articulo(document_)} ${document_.toLowerCase()}`;
+    `Editar o eliminar ${articulo(documentLabel)} ${documentLabel.toLowerCase()}`;
   qs("search-view-heading").textContent = `Buscar ${entities}`;
   qs("search-heading").textContent = `Buscar ${articulo(entity)} ${entity.toLowerCase()}`;
   qs("search-input").placeholder = "Buscar por nombre, código, categoría...";
@@ -461,7 +689,7 @@ function applyLabels(config) {
   qs("delete-entity").textContent =
     `Eliminar ${articulo(entity)} ${entity.toLowerCase()} ${seleccionada(entity)}`;
   qs("delete-document").textContent =
-    `Eliminar ${articulo(document_)} ${document_.toLowerCase()} ${seleccionada(document_)}`;
+    `Eliminar ${articulo(documentLabel)} ${documentLabel.toLowerCase()} ${seleccionada(documentLabel)}`;
 
   const hideClientDelete = Boolean(config.features?.hideClientDelete);
   const deleteButton = qs("delete-entity");
@@ -473,7 +701,8 @@ function applyLabels(config) {
     documentsNotice.hidden = !config.features?.documentsStockNotice;
     const noticeText = documentsNotice.querySelector("p");
     if (noticeText) {
-      noticeText.innerHTML = `Los ${documents} se registran desde la vista dedicada <strong>${documents}</strong>, que valida el stock de cada producto y asigna el estado inicial «cotización».`;
+      noticeText.innerHTML =
+        "Las órdenes de venta se registran en la vista dedicada <strong>Órdenes de Venta (sales_orders)</strong>, que valida el stock de cada producto y asigna el estado inicial «cotización».";
     }
   }
 }
@@ -544,6 +773,7 @@ function wireEvents() {
     roleSelect.addEventListener("change", () => {
       setCurrentRole(roleSelect.value);
       renderRoleContext();
+      selectAddTab(getCurrentRole() === ROLES.DEVOLUCIONES ? "return" : "quote");
       showModule(currentModule);
     });
   }
@@ -551,6 +781,13 @@ function wireEvents() {
     onCreated: () => {
       renderSummaryView();
       populateOrderEditSelect();
+      renderSalesOrders();
+    },
+  });
+  initQuoteForm({
+    onCreated: () => {
+      renderQuotesPanel();
+      renderSummaryView();
     },
   });
   qs("order-edit-select").addEventListener("change", onOrderEditChange);
@@ -562,11 +799,13 @@ function wireEvents() {
     onChanged: () => renderSummaryView(),
     onOrderCreated: (order) => {
       if (!order) return;
-      showModule("sales-order");
+      showModule("operations");
+      selectAddTab("order");
       loadOrderIntoForm(order.id);
     },
   });
   initProductsPanel();
+  initPricingPanel();
   const demoReset = qs("demo-reset");
   if (demoReset) demoReset.addEventListener("click", handleDemoReset);
   qs("demo-load")?.addEventListener("click", () => {
@@ -579,16 +818,24 @@ function wireEvents() {
   document.querySelectorAll("[data-goto]").forEach((button) => {
     button.addEventListener("click", () => showModule(button.dataset.goto));
   });
-  qs("action-open-sales-order")?.addEventListener("click", () => showModule("sales-order"));
-  qs("action-open-invoices")?.addEventListener("click", () => showModule("invoices"));
-  qs("action-open-returns")?.addEventListener("click", () => showModule("returns"));
-  qs("action-new-entity").addEventListener("click", () =>
-    showModule("entities", { newRecord: true, focusForm: true }),
-  );
-  qs("action-new-document").addEventListener("click", () =>
-    showModule("documents", { newRecord: true, focusForm: true }),
-  );
-  qs("action-open-entities").addEventListener("click", () => showModule("entities"));
+  document.querySelectorAll("[data-add-tab]").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      if (!tab.disabled) selectAddTab(tab.dataset.addTab);
+    });
+  });
+  document.querySelectorAll("[data-add-target]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showModule("operations");
+      selectAddTab(button.dataset.addTarget);
+    });
+  });
+  qs("sales-orders-body")?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-order-edit-id]");
+    if (!button || button.disabled || !can("editar_orden")) return;
+    showModule("operations");
+    selectAddTab("order");
+    loadOrderIntoForm(button.dataset.orderEditId);
+  });
   qs("action-find").addEventListener("click", () => showModule("search", { focusSearch: true }));
   qs("entity-form").addEventListener("submit", handleEntitySubmit);
   qs("cancel-edit").addEventListener("click", clearEntityForm);
@@ -606,6 +853,7 @@ export function initApp(resolved) {
   setActiveConfig(resolved.config);
   applyTheme(resolved.config);
   renderLogo(qs("logo-mark"));
+  organizeWorkspace();
   applyLabels(resolved.config);
   populateRoleSelect();
   renderRoleContext();

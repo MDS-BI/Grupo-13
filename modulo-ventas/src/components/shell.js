@@ -29,10 +29,13 @@ export function renderLogo(container) {
 }
 
 export function applyShellLabels() {
+  const salesDocumentLabels = getConfig().labels.documents.toLowerCase() === "pedidos de venta";
   const labels = {
     "nav-dashboard-label": "Panel",
     "nav-entities-label": getConfig().labels.entities,
-    "nav-documents-label": getConfig().labels.documents,
+    "nav-documents-label": salesDocumentLabels
+      ? "Documentos de clientes"
+      : getConfig().labels.documents,
     "nav-search-label": "Búsqueda",
   };
   Object.entries(labels).forEach(([id, text]) => {
@@ -43,16 +46,18 @@ export function applyShellLabels() {
   const titles = {
     "nav-dashboard": "Panel",
     "nav-entities": getConfig().labels.entities,
-    "nav-documents": getConfig().labels.documents,
+    "nav-documents": salesDocumentLabels
+      ? "Documentos de clientes"
+      : getConfig().labels.documents,
     "nav-search": "Búsqueda",
-    "nav-sales-order": "Pedidos y cotizaciones",
+    "nav-sales-order": "Órdenes de Venta (sales_orders)",
     "nav-quotes": "Cotizaciones",
     "nav-products": "Productos",
     "nav-delivery": "Entregas",
-    "nav-summary": "Resumen general",
     "nav-returns": "Devoluciones",
     "nav-history": "Historial de clientes",
     "nav-invoices": "Facturación y pagos",
+    "nav-operations": "Agregar",
   };
   Object.entries(titles).forEach(([id, text]) => {
     const el = document.getElementById(id);

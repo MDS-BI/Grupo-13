@@ -20,5 +20,10 @@ export function renderDashboard() {
   const entitiesLabel = document.getElementById("stat-entities-label");
   if (entitiesLabel) entitiesLabel.textContent = labels.entities;
   const documentsLabel = document.getElementById("stat-documents-label");
-  if (documentsLabel) documentsLabel.textContent = labels.documents;
+  if (documentsLabel) {
+    documentsLabel.textContent =
+      labels.documents.toLowerCase() === "pedidos de venta"
+        ? "Documentos de clientes"
+        : labels.documents;
+  }
 }

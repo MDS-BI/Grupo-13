@@ -23,7 +23,7 @@ import { createInvoiceFromOrder, listInvoices } from "./invoices.js";
 import { addPayment, listPayments } from "./payments.js";
 import { RETURN_STATUSES, createReturn, listReturns, updateReturnStatus } from "./returns.js";
 import { deliverOrder } from "./delivery.js";
-import { getCurrentRole, setCurrentRole } from "./roles.js";
+import { getCurrentRole, setCurrentRole, ROLES } from "./roles.js";
 
 const DEMO_MARKER = "erp_ventas:demo_data_loaded";
 
@@ -389,6 +389,7 @@ function seedCatalog() {
       impuestoPorcentaje: producto.impuestoPorcentaje,
       stockActual: producto.stockActual,
       stockMinimo: producto.stockMinimo,
+      costoEstandar: Math.round(producto.precio * 0.7),
     });
     createPrecioProducto({
       listaId: listaGeneral.id,
@@ -543,7 +544,7 @@ export function loadDemoData(options = {}) {
     lineas: [lineFor(productos, 4, 2), lineFor(productos, 5, 3)],
   });
   updateQuoteStatus(aceptada.id, "enviada");
-  updateQuoteStatus(aceptada.id, "aceptada");
+  updateQuoteStatus(aceptada.id, "aceptada", { role: ROLES.JEFE_VENTAS });
   const rechazada = createQuote({
     clienteId: clientes[3].entity_id,
     vendedorId: seller("VEN-03").id,
@@ -579,7 +580,7 @@ export function loadDemoData(options = {}) {
     lineas: [lineFor(productos, 8, 1), lineFor(productos, 9, 10)],
   });
 
-  acceptQuote(aceptada.id);
+  acceptQuote(aceptada.id, { role: ROLES.JEFE_VENTAS });
 
   const cotizacion = createOrder(
     orderPayload(clientes[0], seller("VEN-01"), productos, {
@@ -687,8 +688,8 @@ export function loadDemoData(options = {}) {
     },
     { skipRoleCheck: true, role: "devoluciones" },
   );
-  updateReturnStatus(devolucionCompletada.devolucion.id, "aprobada");
-  updateReturnStatus(devolucionCompletada.devolucion.id, "completada");
+  updateReturnStatus(devolucionCompletada.devolucion.id, "aprobada", { skipRoleCheck: true });
+  updateReturnStatus(devolucionCompletada.devolucion.id, "completada", { skipRoleCheck: true });
 
   const devolucionRechazada = createReturn(
     {
@@ -700,7 +701,7 @@ export function loadDemoData(options = {}) {
     },
     { skipRoleCheck: true, role: "devoluciones" },
   );
-  updateReturnStatus(devolucionRechazada.devolucion.id, "rechazada");
+  updateReturnStatus(devolucionRechazada.devolucion.id, "rechazada", { skipRoleCheck: true });
 
   createReturn(
     {
@@ -723,7 +724,7 @@ export function loadDemoData(options = {}) {
     },
     { skipRoleCheck: true, role: "devoluciones" },
   );
-  updateReturnStatus(devolucionAprobada.devolucion.id, "aprobada");
+  updateReturnStatus(devolucionAprobada.devolucion.id, "aprobada", { skipRoleCheck: true });
 
   globalThis.localStorage?.setItem(DEMO_MARKER, "1");
 

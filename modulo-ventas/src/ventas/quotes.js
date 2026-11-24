@@ -5,6 +5,7 @@ import { reserveNumber } from "./numbering.js";
 import { getProducto, getPrecioVigente } from "./catalog.js";
 import { findVendedor } from "./masters.js";
 import { findCliente, createOrder, listOrders } from "./orders.js";
+import { assertCan } from "./roles.js";
 
 export const QUOTE_STATUSES = Object.freeze([
   "borrador",
@@ -140,6 +141,7 @@ export function validateQuote(payload = {}, options = {}) {
 }
 
 export function createQuote(payload = {}) {
+  assertCan("crear_cotizacion");
   const check = validateQuote(payload);
   if (!check.valid) throw new Error(Object.values(check.errors)[0]);
   const timestamp = now();
@@ -189,7 +191,12 @@ export function getQuote(id) {
   return loadCollection(COLLECTIONS.cotizaciones).find((quote) => quote.id === id);
 }
 
-export function updateQuote(id, updates = {}) {
+export function updateQuote(id, updates = {}, options = {}) {
+  const nextStatus = read(updates, "estado", "status");
+  assertCan(
+    ["aceptada", "rechazada"].includes(nextStatus) ? "aprobar_cotizacion" : "editar_cotizacion",
+    options.role,
+  );
   const list = loadCollection(COLLECTIONS.cotizaciones);
   const idx = list.findIndex((quote) => quote.id === id);
   if (idx === -1) throw new Error("Cotización no encontrada");
@@ -233,7 +240,11 @@ export function updateQuote(id, updates = {}) {
   return list[idx];
 }
 
-export function updateQuoteStatus(id, estado) {
+export function updateQuoteStatus(id, estado, options = {}) {
+  assertCan(
+    ["aceptada", "rechazada"].includes(estado) ? "aprobar_cotizacion" : "editar_cotizacion",
+    options.role,
+  );
   const quote = getQuote(id);
   if (!quote) throw new Error("Cotización no encontrada");
   if (quote.estado === estado) return quote;
@@ -241,15 +252,17 @@ export function updateQuoteStatus(id, estado) {
   if (!allowed.includes(estado)) {
     throw new Error(`Transición de cotización inválida de "${quote.estado}" a "${estado}"`);
   }
-  return updateQuote(id, { estado });
+  return updateQuote(id, { estado }, options);
 }
 
-export function acceptQuote(id) {
+export function acceptQuote(id, options = {}) {
+  assertCan("aprobar_cotizacion", options.role);
   const quote = getQuote(id);
   if (!quote) throw new Error("Cotización no encontrada");
   const existingOrder = listOrders().find((order) => order.cotizacionId === quote.id);
   if (existingOrder) throw new Error("Esta cotización ya originó un pedido de venta");
-  const accepted = quote.estado === "aceptada" ? quote : updateQuoteStatus(id, "aceptada");
+  const accepted =
+    quote.estado === "aceptada" ? quote : updateQuoteStatus(id, "aceptada", options);
   const order = createOrder({
     clienteId: accepted.clienteId,
     vendedorId: accepted.vendedorId,

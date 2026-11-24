@@ -7,7 +7,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Entrada**: Documentos de diseño en `/specs/002-modulo-ventas/`
 
-**Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio para historias), data-model.md (modelo entidad-relación v3.0). No existen `research.md`, `contracts/` ni `quickstart.md` para esta funcionalidad.
+**Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio para historias), data-model.md (modelo entidad-relación v3.1). No existen `research.md`, `contracts/` ni `quickstart.md` para esta funcionalidad.
 
 **Pruebas**: Las tareas de prueba se incluyen porque la constitución del proyecto (Principio II, Test-First & Verification) exige cobertura automatizada de comportamiento visible y lógica de negocio.
 
@@ -50,7 +50,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T006 [P] Implementar las utilidades monetarias en `modulo-ventas/src/ventas/money.js` (redondeo por moneda, subtotal de línea, subtotal/impuesto/total de pedido y factura).
 - [x] T007 [P] Implementar la numeración de series y folios en `modulo-ventas/src/ventas/numbering.js` (secuencias persistidas, formato `serie-folio`, unicidad por colección).
 - [x] T008 [P] Implementar el guardián del ciclo de vida en `modulo-ventas/src/ventas/lifecycle.js` (transiciones permitidas, estados terminales, mensajes de error descriptivos).
-- [x] T009 [P] Implementar la autorización por rol en `modulo-ventas/src/ventas/roles.js` (roles vendedor, operaciones, gerente, devoluciones, jefe de ventas, facturación; `getCurrentRole`, `setCurrentRole`, `can`).
+- [x] T009 [P] Implementar la autorización por rol en `modulo-ventas/src/ventas/roles.js` (roles vendedor, operaciones, gerente, devoluciones, jefe de ventas, facturación y auditor; `getCurrentRole`, `setCurrentRole`, `can`).
 - [x] T010 [P] Implementar la bitácora de auditoría en `modulo-ventas/src/ventas/audit.js` (venta afectada, productos, cantidad, motivo, fecha y usuario).
 - [x] T011 [P] Implementar el maestro de datos en `modulo-ventas/src/ventas/masters.js` para `ZONA` y `VENDEDOR`, con validación de referencias y ayudantes de siembra desde las opciones de configuración.
 - [x] T012 Extender el esquema de configuración en `modulo-ventas/src/module-config.js` con `businessRules` (`returnWindowDays` por defecto 30, `defaultCurrency`, lista de roles) manteniendo compatibilidad con la configuración actual.
@@ -199,7 +199,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Propósito**: Cerrar requisitos transversales de permisos, accesibilidad, rendimiento, consistencia y documentación.
 
-- [x] T076 [P] Cubrir la autorización por rol de todas las acciones en `modulo-ventas/tests/ventas/roles-guard.test.js` (crear, facturar, entregar, devolver, resumen e historial).
+- [x] T076 [P] Cubrir la autorización por rol de acciones y consultas en `modulo-ventas/tests/ventas/roles-guard.test.js` (crear, precios, aprobar cotizaciones/RMA, facturar, entregar, gestionar devoluciones, resumen, datos sensibles e historial).
 - [x] T077 [P] Completar los estados vacíos de productos, pedidos, facturas, devoluciones, historial y resumen en sus componentes de `modulo-ventas/src/components/ventas/`.
 - [x] T078 [P] Agregar etiquetas, `aria-live` y encabezados de tabla accesibles a las nuevas vistas en `modulo-ventas/index.html`.
 - [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen, verificando un umbral de percepción ~0,5 s por operación, en `modulo-ventas/tests/ventas/performance.test.js`.
@@ -219,6 +219,22 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
 - [x] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
 - [x] T095 Verificar y documentar la desviación del Principio III (estados de carga): confirmar que el dominio de Ventas no tiene operaciones asíncronas de red/E/S y que FR-049, FR-046 y los mensajes `aria-live` cubren la retroalimentación inmediata; reflejar la justificación en `plan.md`.
+- [x] T096 [US1] Reorganizar la interfaz para concentrar consultas en «Panel Visual» y agrupar formularios/acciones en «Agregar / Operaciones», conservando accesos y datos existentes.
+- [x] T097 [US1] Separar el formulario de alta de Cotización de la Orden de Venta, usar precios vigentes a la fecha de emisión y proteger aprobación/rechazo en `quotes.js` y `quotes-panel.js`.
+- [x] T098 [US1] Aplicar la matriz de Jefe de Ventas, Ejecutivo Comercial, Postventa y Auditor, conservando roles heredados; añadir pruebas de autorización y revisión de órdenes generadas.
+- [x] T099 Sincronizar `spec.md`, `data-model.md`, `plan.md` y `tasks.md` con la separación de entidades, la organización de pantallas, las claves físicas y la matriz de permisos.
+- [x] T100 Ejecutar `npm test`, `npm run lint`, `npm run build` y `npm run format:check`; corregir regresiones y registrar las advertencias de formato existentes.
+- [x] T101 [US1] Agregar formularios de creación/edición de listas de precios y precios por producto bajo «Agregar / Operaciones», preservar los identificadores y colecciones, y probar validaciones de moneda/vigencia en `catalog.js`, `pricing-panel.js` y `catalog.test.js`.
+- [x] T102 [US4] Agregar acciones RMA de aprobar/rechazar (Jefe de Ventas) y completar (Postventa/Jefe de Ventas), con guardas de dominio y pruebas en `returns.js`, `returns-panel.js` y `us4-returns.test.js`.
+- [x] T103 Aplicar navegación por rol: Jefe con acceso total, Ejecutivo sin edición de precios/aprobación RMA, Postventa solo Panel/RMA y Auditor solo Panel Visual de lectura; mostrar controles bloqueados con aviso/candado y conservar roles heredados.
+- [x] T104 Sincronizar las etiquetas «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» con el flujo de conversión y documentar que las claves físicas existentes permanecen intactas.
+- [x] T105 Validar cambios con pruebas de catálogo, RMA, matriz de roles y UI, además de la suite completa, lint y build; actualizar el registro de verificación de `plan.md`.
+- [x] T106 [US1] Separar el listado operativo de Órdenes de Venta del listado de Cotizaciones, quitar contadores redundantes de la navegación y conservar la conversión aprobada solo desde Cotizaciones.
+- [x] T107 [US1] Centralizar formularios de cotización, orden, listas/precios, RMA, clientes y documentos en pestañas de «Agregar»; dejar las demás vistas operativas con tablas y acciones.
+- [x] T108 [US1] Concentrar KPIs, gráficos y resúmenes en Panel, sin exponer montos en el Panel de Postventa ni detalles por registro al Auditor.
+- [x] T109 [US1] Aplicar la matriz de visibilidad: costo/margen solo Jefe de Ventas, datos comerciales para Ejecutivo, órdenes despachadas y RMA sin montos para Postventa, y solo reportes agregados para Auditor.
+- [x] T110 [P] Añadir pruebas focalizadas de separación de vistas, centralización de formularios, máscara de costos y visibilidad Postventa/Auditor; actualizar la especificación, el plan y el modelo de datos.
+- [x] T111 Ejecutar pruebas completas, lint y build; registrar los resultados finales en `plan.md`.
 
 ---
 

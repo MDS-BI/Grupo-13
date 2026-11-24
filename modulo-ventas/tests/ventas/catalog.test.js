@@ -5,6 +5,8 @@ import {
   createListaPrecio,
   createProducto,
   createPrecioProducto,
+  updateListaPrecio,
+  updatePrecioProducto,
   listProductos,
   getProducto,
   getStock,
@@ -35,13 +37,16 @@ describe('catalog', () => {
       categoriaId: categoria.id,
       unidadMedida: 'UN',
       impuestoPorcentaje: 19,
-      stockActual: 10
+      stockActual: 10,
+      costoEstandar: 500
     });
+    expect(producto.costoEstandar).toBe(500);
     expect(getProducto('BEB-01').id).toBe(producto.id);
     expect(getProducto(producto.id).id).toBe(producto.id);
     expect(() => createProducto({ sku: 'BEB-01', nombre: 'Otra', stockActual: 1 })).toThrow(/SKU/);
     expect(() => createProducto({ sku: 'BEB-02', nombre: 'Mala', impuestoPorcentaje: 150, stockActual: 1 })).toThrow(/impuesto/);
     expect(() => createProducto({ sku: 'BEB-03', nombre: 'Negativa', stockActual: -1 })).toThrow(/stock/);
+    expect(() => createProducto({ sku: 'BEB-04', nombre: 'Costo inválido', costoEstandar: -1 })).toThrow(/costo estándar/);
   });
 
   it('answers stock availability and rejects zero or insufficient stock lines', () => {
@@ -68,6 +73,30 @@ describe('catalog', () => {
     expect(getPrecio(producto.id, lista.id, '2026-09-01')).toBe(1800);
     expect(getPrecioVigente(producto.id, '2026-09-01').precio).toBe(1800);
     expect(() => createPrecioProducto({ listaId: lista.id, productoId: producto.id, precio: 1, moneda: 'USD', vigenteDesde: '2026-10-01' })).toThrow(/moneda/);
+  });
+
+  it('updates existing price lists and product prices without changing their identifiers', () => {
+    const producto = createProducto({
+      sku: 'P-EDIT',
+      nombre: 'Precio editable',
+      stockActual: 2,
+      impuestoPorcentaje: 19,
+    });
+    const price = createPrecioProducto({
+      listaId: lista.id,
+      productoId: producto.id,
+      precio: 1250,
+      moneda: 'CLP',
+      vigenteDesde: '2026-02-01',
+    });
+
+    const updatedList = updateListaPrecio(lista.id, { nombre: 'General actualizada' });
+    const updatedPrice = updatePrecioProducto(price.id, { precio: 1500 });
+
+    expect(updatedList).toMatchObject({ id: lista.id, nombre: 'General actualizada' });
+    expect(updatedPrice).toMatchObject({ id: price.id, precio: 1500 });
+    expect(getPrecio(producto.id, lista.id, '2026-03-01')).toBe(1500);
+    expect(() => updateListaPrecio(lista.id, { moneda: 'USD' })).toThrow(/moneda/);
   });
 
   it('searches products by SKU and name', () => {

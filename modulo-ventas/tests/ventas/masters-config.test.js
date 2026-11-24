@@ -57,6 +57,7 @@ describe('business rules configuration', () => {
     expect(config.businessRules.returnWindowDays).toBe(30);
     expect(config.businessRules.defaultCurrency).toBe('CLP');
     expect(config.businessRules.roles).toContain('gerente');
+    expect(config.businessRules.roles).toContain('auditor');
   });
 
   it('merges custom business rules without breaking the rest of the config', () => {

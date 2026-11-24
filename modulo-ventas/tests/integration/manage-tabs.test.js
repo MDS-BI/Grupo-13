@@ -40,6 +40,7 @@ describe('User Story 4 - manage entities and documents via the workspace sidebar
     qs('nav-entities').click();
     expect(qs('view-entities').hidden).toBe(false);
     expect(qs('view-documents').hidden).toBe(true);
+    expect(qs('view-operations').hidden).toBe(true);
 
     qs('nav-documents').click();
     expect(qs('view-entities').hidden).toBe(true);

@@ -7,6 +7,7 @@ import {
   canEditOrder,
   getOrder,
 } from "../../ventas/orders.js";
+import { can } from "../../ventas/roles.js";
 import { renderProductPicker } from "./product-picker.js";
 import {
   addLine,
@@ -27,12 +28,17 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function setEditingState(id) {
+function setEditingState(id, readOnly = false) {
   editingOrderId = id;
   const heading = qs("order-form-heading");
-  if (heading) heading.textContent = id ? "Editar orden de venta" : "Nueva orden de venta";
+  if (heading)
+    heading.textContent = id
+      ? readOnly
+        ? "Revisar orden de venta"
+        : "Editar orden de venta"
+      : "Nueva orden de venta";
   const save = qs("order-save");
-  if (save) save.textContent = id ? "Guardar cambios" : "Guardar orden";
+  if (save) save.textContent = readOnly ? "Solo lectura" : id ? "Guardar cambios" : "Guardar orden";
 }
 
 export function resetOrderForm() {
@@ -131,6 +137,11 @@ function handleSubmit(event) {
   event.preventDefault();
   const payload = collectPayload();
   const wasEditing = Boolean(editingOrderId);
+  if (!can(wasEditing ? "editar_orden" : "crear_orden")) {
+    const feedback = qs("order-feedback");
+    if (feedback) feedback.textContent = "Tu rol no tiene permiso para esta acción.";
+    return;
+  }
   const check = wasEditing
     ? validateOrder(payload, { existing: getOrder(editingOrderId) })
     : validateOrder(payload);
@@ -204,13 +215,19 @@ export function refreshOrderForm() {
 export function loadOrderIntoForm(id) {
   const order = getOrder(id);
   if (!order) return false;
-  if (!canEditOrder(order)) {
+  const readOnly = !can("editar_orden");
+  if (readOnly && !(can("aprobar_cotizacion") && order.cotizacionId)) {
+    const feedback = qs("order-feedback");
+    if (feedback) feedback.textContent = "Tu rol no tiene permiso para editar órdenes de venta.";
+    return false;
+  }
+  if (!readOnly && !canEditOrder(order)) {
     const feedback = qs("order-feedback");
     if (feedback)
       feedback.textContent = "El pedido está en un estado terminal y no puede modificarse.";
     return false;
   }
-  setEditingState(id);
+  setEditingState(id, readOnly);
   populateClients();
   const edit = qs("order-edit-select");
   if (edit) edit.value = id;

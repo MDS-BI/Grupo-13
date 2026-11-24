@@ -1,5 +1,6 @@
 import { listInvoices, getInvoice } from "../../ventas/invoices.js";
-import { createReturn, listReturns } from "../../ventas/returns.js";
+import { createReturn, listReturns, updateReturnStatus } from "../../ventas/returns.js";
+import { can, getCurrentRole } from "../../ventas/roles.js";
 
 let wired = false;
 let onReturned = () => {};
@@ -23,7 +24,9 @@ function populateInvoices() {
   for (const invoice of listInvoices().filter((item) => item.estado !== "anulada")) {
     const opt = document.createElement("option");
     opt.value = invoice.id;
-    opt.textContent = `${invoice.numero} · ${invoice.clienteId} · ${invoice.total.toLocaleString("es-CL")} ${invoice.moneda}`;
+    opt.textContent = can("ver_montos_financieros")
+      ? `${invoice.numero} · ${invoice.clienteId} · ${invoice.total.toLocaleString("es-CL")} ${invoice.moneda}`
+      : `${invoice.numero} · ${invoice.clienteId}`;
     select.appendChild(opt);
   }
   if (previous && [...select.options].some((item) => item.value === previous))
@@ -43,7 +46,9 @@ function renderInvoiceLines() {
     const row = document.createElement("div");
     row.className = "return-line";
     const label = document.createElement("label");
-    label.textContent = `${line.nombre || line.productoId} · ${line.precioUnitario.toLocaleString("es-CL")} ${invoice.moneda}`;
+    label.textContent = can("ver_montos_financieros")
+      ? `${line.nombre || line.productoId} · ${line.precioUnitario.toLocaleString("es-CL")} ${invoice.moneda}`
+      : line.nombre || line.productoId;
     const input = document.createElement("input");
     input.type = "number";
     input.min = "0";
@@ -76,11 +81,42 @@ function handleSubmit(event) {
       fecha: qs("return-date")?.value || today(),
       lineas,
     });
-    if (feedback)
-      feedback.textContent = `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}" por ${result.total.toLocaleString("es-CL")} ${result.devolucion.moneda}.`;
+    if (feedback) {
+      feedback.textContent = can("ver_montos_financieros")
+        ? `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}" por ${result.total.toLocaleString("es-CL")} ${result.devolucion.moneda}.`
+        : `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}".`;
+    }
     renderReturnsPanel();
     if (qs("return-reason")) qs("return-reason").value = "";
     onReturned(result);
+  } catch (error) {
+    if (feedback) feedback.textContent = error.message;
+  }
+}
+
+function addReturnAction(entry, item, label, status, permission) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "row-action";
+  button.textContent = label;
+  button.dataset.returnId = item.id;
+  button.dataset.returnStatus = status;
+  button.dataset.permission = permission;
+  button.disabled = !can(permission);
+  if (button.disabled) button.title = "🔒 Bloqueado para este rol.";
+  entry.appendChild(button);
+}
+
+function handleReturnAction(event) {
+  const button = event.target.closest("button[data-return-id]");
+  if (!button) return;
+  const feedback = qs("return-feedback");
+  const { returnId, returnStatus: status } = button.dataset;
+  try {
+    const updated = updateReturnStatus(returnId, status, { role: getCurrentRole() });
+    if (feedback) feedback.textContent = `Devolución ${updated.numero}: estado "${status}".`;
+    renderReturnsPanel();
+    onReturned({ devolucion: updated });
   } catch (error) {
     if (feedback) feedback.textContent = error.message;
   }
@@ -94,6 +130,7 @@ export function initReturnsPanel(options = {}) {
   if (select) select.addEventListener("change", renderInvoiceLines);
   const form = qs("return-form");
   if (form) form.addEventListener("submit", handleSubmit);
+  qs("returns-list")?.addEventListener("click", handleReturnAction);
 }
 
 export function renderReturnsPanel() {
@@ -113,7 +150,15 @@ export function renderReturnsPanel() {
     }
     for (const item of returns) {
       const entry = document.createElement("li");
-      entry.textContent = `${item.numero} · ${item.fecha} · ${item.motivo} · ${item.estado}`;
+      const description = document.createElement("span");
+      description.textContent = `${item.numero} · ${item.fecha} · ${item.motivo} · ${item.estado}`;
+      entry.appendChild(description);
+      if (item.estado === "solicitada") {
+        addReturnAction(entry, item, "Aprobar", "aprobada", "aprobar_devolucion");
+        addReturnAction(entry, item, "Rechazar", "rechazada", "aprobar_devolucion");
+      } else if (item.estado === "aprobada") {
+        addReturnAction(entry, item, "Completar", "completada", "gestionar_devoluciones");
+      }
       list.appendChild(entry);
     }
   }

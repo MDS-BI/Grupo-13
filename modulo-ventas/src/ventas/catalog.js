@@ -132,6 +132,35 @@ export function createListaPrecio(payload = {}) {
   return lista;
 }
 
+export function updateListaPrecio(id, updates = {}) {
+  const list = listListasPrecio();
+  const index = list.findIndex((item) => item.id === id);
+  if (index === -1) throw new Error("Lista de precios no encontrada");
+  const previous = list[index];
+  const merged = { ...previous, ...updates };
+  const check = validateListaPrecio(merged, { excludeId: id });
+  if (!check.valid) throw new Error(Object.values(check.errors)[0]);
+  const currency = text(field(merged, "moneda", "moneda", "CLP")).toUpperCase();
+  if (
+    currency !== text(previous.moneda).toUpperCase() &&
+    listPreciosProducto().some((price) => price.listaId === id)
+  ) {
+    throw new Error("No se puede cambiar la moneda de una lista con precios registrados");
+  }
+  list[index] = {
+    ...previous,
+    codigo: text(field(merged, "codigo", "codigo", "")),
+    nombre: text(field(merged, "nombre", "nombre", "")),
+    moneda: currency,
+    vigenteDesde: text(field(merged, "vigenteDesde", "vigente_desde", "")),
+    vigenteHasta: text(field(merged, "vigenteHasta", "vigente_hasta", "")) || undefined,
+    activa: Boolean(merged.activa),
+    updatedAt: now(),
+  };
+  saveCollection(COLLECTIONS.listasPrecio, list);
+  return list[index];
+}
+
 export function listProductos() {
   return loadCollection(COLLECTIONS.productos);
 }
@@ -152,6 +181,7 @@ export function validateProducto(payload = {}, options = {}) {
   const impuesto = num(field(payload, "impuestoPorcentaje", "impuesto_porcentaje", 0));
   const stockActual = num(field(payload, "stockActual", "stock_actual", 0));
   const stockMinimo = field(payload, "stockMinimo", "stock_minimo", undefined);
+  const costoEstandar = field(payload, "costoEstandar", "costo_estandar", undefined);
   if (!sku) errors.sku = "El SKU del producto es obligatorio";
   if (!nombre) errors.nombre = "El nombre del producto es obligatorio";
   if (!unidadMedida) errors.unidadMedida = "La unidad de medida es obligatoria";
@@ -161,6 +191,8 @@ export function validateProducto(payload = {}, options = {}) {
     errors.stockActual = "El stock actual debe ser un número no negativo";
   if (!isEmpty(stockMinimo) && (Number.isNaN(num(stockMinimo)) || num(stockMinimo) < 0))
     errors.stockMinimo = "El stock mínimo debe ser un número no negativo";
+  if (!isEmpty(costoEstandar) && (Number.isNaN(num(costoEstandar)) || num(costoEstandar) < 0))
+    errors.costoEstandar = "El costo estándar debe ser un número no negativo";
   const productos = listProductos();
   if (
     sku &&
@@ -194,6 +226,9 @@ export function createProducto(payload = {}) {
     stockMinimo: isEmpty(field(payload, "stockMinimo", "stock_minimo", undefined))
       ? undefined
       : num(field(payload, "stockMinimo", "stock_minimo", 0)),
+    costoEstandar: isEmpty(field(payload, "costoEstandar", "costo_estandar", undefined))
+      ? undefined
+      : num(field(payload, "costoEstandar", "costo_estandar", 0)),
     activo: payload.activo === undefined ? true : Boolean(payload.activo),
     estado: text(payload.estado) || "disponible",
     createdAt: timestamp,
@@ -217,6 +252,9 @@ export function updateProducto(id, updates = {}) {
     ...merged,
     impuestoPorcentaje: num(field(merged, "impuestoPorcentaje", "impuesto_porcentaje", 0)),
     stockActual: num(field(merged, "stockActual", "stock_actual", 0)),
+    costoEstandar: isEmpty(field(merged, "costoEstandar", "costo_estandar", undefined))
+      ? undefined
+      : num(field(merged, "costoEstandar", "costo_estandar", 0)),
     updatedAt: now(),
   };
   saveCollection(COLLECTIONS.productos, list);
@@ -355,6 +393,29 @@ export function createPrecioProducto(payload = {}) {
   list.push(precio);
   saveCollection(COLLECTIONS.preciosProducto, list);
   return precio;
+}
+
+export function updatePrecioProducto(id, updates = {}) {
+  const list = listPreciosProducto();
+  const index = list.findIndex((item) => item.id === id);
+  if (index === -1) throw new Error("Precio de producto no encontrado");
+  const previous = list[index];
+  const merged = { ...previous, ...updates };
+  const check = validatePrecioProducto(merged, { excludeId: id });
+  if (!check.valid) throw new Error(Object.values(check.errors)[0]);
+  const priceList = listListasPrecio().find((item) => item.id === merged.listaId);
+  list[index] = {
+    ...previous,
+    listaId: merged.listaId,
+    productoId: merged.productoId,
+    precio: roundMoney(merged.precio, priceList?.moneda || merged.moneda),
+    moneda: text(merged.moneda || priceList?.moneda).toUpperCase(),
+    vigenteDesde: text(merged.vigenteDesde),
+    vigenteHasta: text(merged.vigenteHasta) || undefined,
+    updatedAt: now(),
+  };
+  saveCollection(COLLECTIONS.preciosProducto, list);
+  return list[index];
 }
 
 export function getPrecioVigente(reference, fecha = today(), listaId) {

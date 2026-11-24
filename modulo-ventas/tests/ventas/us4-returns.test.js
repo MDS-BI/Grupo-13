@@ -71,14 +71,19 @@ describe('US4 - devoluciones', () => {
 
   it('moves through the return lifecycle and allows re-return after rejection', () => {
     const first = createReturn(basePayload());
+    setCurrentRole(ROLES.JEFE_VENTAS);
     const approved = updateReturnStatus(first.devolucion.id, 'aprobada');
     expect(approved.estado).toBe('aprobada');
+    setCurrentRole(ROLES.DEVOLUCIONES);
     const completed = updateReturnStatus(first.devolucion.id, 'completada');
     expect(completed.estado).toBe('completada');
+    setCurrentRole(ROLES.JEFE_VENTAS);
     expect(() => updateReturnStatus(first.devolucion.id, 'aprobada')).toThrow(/inválida/);
 
     const rejected = createReturn(basePayload({ lineas: [{ productoId: seed.productos[1].id, cantidad: 1 }] }));
+    setCurrentRole(ROLES.JEFE_VENTAS);
     updateReturnStatus(rejected.devolucion.id, 'rechazada');
+    setCurrentRole(ROLES.DEVOLUCIONES);
     expect(previousReturnedQuantity(rejected.detalles[0].detallePedidoId)).toBe(0);
     expect(() => createReturn(basePayload({ lineas: [{ productoId: seed.productos[1].id, cantidad: 2 }] }))).not.toThrow();
     expect(getReturn(rejected.devolucion.id).estado).toBe('rechazada');
@@ -88,5 +93,12 @@ describe('US4 - devoluciones', () => {
     setCurrentRole(ROLES.VENDEDOR);
     expect(() => createReturn(basePayload())).toThrow(/permiso/);
     expect(listReturns()).toHaveLength(0);
+  });
+
+  it('allows only Jefe de Ventas to approve or reject an RMA', () => {
+    const request = createReturn(basePayload());
+    expect(() => updateReturnStatus(request.devolucion.id, 'aprobada')).toThrow(/permiso/);
+    setCurrentRole(ROLES.JEFE_VENTAS);
+    expect(updateReturnStatus(request.devolucion.id, 'aprobada').estado).toBe('aprobada');
   });
 });

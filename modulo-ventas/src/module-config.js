@@ -58,7 +58,15 @@ export const userConfig = {
   businessRules: {
     returnWindowDays: 30,
     defaultCurrency: "CLP",
-    roles: ["vendedor", "operaciones", "gerente", "devoluciones", "jefe_ventas", "facturacion"],
+    roles: [
+      "vendedor",
+      "operaciones",
+      "gerente",
+      "devoluciones",
+      "jefe_ventas",
+      "facturacion",
+      "auditor",
+    ],
   },
   features: {
     hideClientDelete: true,
@@ -91,6 +99,7 @@ export const DEFAULT_CONFIG = Object.freeze({
       "devoluciones",
       "jefe_ventas",
       "facturacion",
+      "auditor",
     ]),
   }),
   features: Object.freeze({

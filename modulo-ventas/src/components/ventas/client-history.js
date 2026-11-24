@@ -31,14 +31,12 @@ function renderHistory() {
   const reference = select ? select.value : "";
   const empty = qs("history-empty");
   const body = qs("history-body");
-  const total = qs("history-total");
   if (!reference) {
     if (empty) {
       empty.hidden = false;
       empty.textContent = "Selecciona un cliente para consultar su historial comercial.";
     }
     if (body) body.innerHTML = "";
-    if (total) total.textContent = "";
     return;
   }
   const history = getClientHistory(reference);
@@ -48,8 +46,6 @@ function renderHistory() {
       ? "Este cliente no tiene cotizaciones ni pedidos registrados."
       : "";
   }
-  if (total)
-    total.textContent = `Total histórico: ${history.importeTotal.toLocaleString("es-CL")} · ${history.cantidad} transacción(es)`;
   if (!body) return;
   body.innerHTML = "";
   for (const item of history.items) {

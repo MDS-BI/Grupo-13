@@ -3,15 +3,15 @@
 **Módulo**: Ventas (`002-modulo-ventas`)  
 **Base reutilizable**: Módulo Base ERP (`001-erp-base-module`)  
 **Implementación de referencia**: `modulo-ventas/src/module-config.js` (configuración), `modulo-ventas/src/storage.js` (persistencia base) y `modulo-ventas/src/ventas/` (dominio)
-**Versión del modelo**: 3.0 — modelo entidad-relación completo implementado
-**Última actualización**: 2026-11-03
+**Versión del modelo**: 3.2 — costo estándar y visibilidad por rol sincronizados con la interfaz
+**Última actualización**: 2026-11-24
 
 ## 1. Alcance, niveles del modelo y convenciones
 
 Este documento especifica el **modelo entidad-relación completo** del Módulo de Ventas en dos niveles complementarios:
 
 1. **Modelo lógico completo**: todas las entidades, atributos, claves y relaciones necesarias para cubrir el proceso comercial de punta a punta (maestros, catálogo y precios, cotizaciones, pedidos, facturación, pagos y devoluciones).
-2. **Modelo físico implementado**: el subconjunto que hoy persiste el prototipo en `localStorage`, con sus dos colecciones y sus validaciones reales.
+2. **Modelo físico implementado**: las colecciones que hoy persiste el prototipo en `localStorage`, junto con sus validaciones reales.
 
 La separación permite especificar el dominio completo sin confundirlo con el avance actual del prototipo. Cada entidad declara su estado de implementación:
 
@@ -155,6 +155,7 @@ erDiagram
         string categoria_id FK "Categoria del producto"
         string unidad_medida NN "UN, KG, LT, etc."
         number impuesto_porcentaje NN "Tasa de impuesto"
+        number costo_estandar "Costo unitario interno (visible solo para Jefe de Ventas)"
         number stock_actual NN "Existencias disponibles"
         number stock_minimo "Umbral de reposicion"
         boolean activo NN "Vigencia"
@@ -383,6 +384,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | `categoria_id` | FK → `CATEGORIA_PRODUCTO.id` | string | Nulo | Debe existir en la categoría | — |
 | `unidad_medida` | | string | NN | `UN`, `KG`, `LT`, `MT`, etc. | — |
 | `impuesto_porcentaje` | | number | NN | Entre 0 y 100 | — |
+| `costo_estandar` | | number | Nulo | No negativo; dato interno visible solo al Jefe de Ventas | `costoEstandar` |
 | `stock_actual` | | number | NN | Número no negativo | — |
 | `stock_minimo` | | number | Nulo | Número no negativo | — |
 | `activo` | | boolean | NN | `true` por defecto | — |
@@ -634,7 +636,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | R-17 | `fechaEntrega` es fecha válida si se informa | Pedido | Se bloquea el guardado indicando el formato esperado |
 | R-18 | Claves de campos propios no colisionan con campos base ni se repiten | Configuración | La configuración se rechaza con el error de validación y se usan los valores predeterminados |
 
-### 5.2 Restricciones adicionales del modelo completo (R-19 a R-53)
+### 5.2 Restricciones adicionales del modelo completo (R-19 a R-54)
 
 | # | Restricción | Entidad | Comportamiento esperado | Estado |
 |---|---|---|---|---|
@@ -673,6 +675,7 @@ Cada tabla es la especificación de la entidad. La columna **Implementación** i
 | R-51 | `DEVOLUCION.total` ≤ `FACTURA.total` − devoluciones previas | Devolución | Rechaza devoluciones excesivas | Planificada |
 | R-52 | `DETALLE_DEVOLUCION.cantidad` ≤ cantidad vendida − devuelta | Devolución | Rechaza devoluciones excesivas por línea | Planificada |
 | R-53 | Se respetan las reglas de borrado de RL-01 a RL-23 | Global | Aplica `CASCADE`, `RESTRICT` o `SET NULL` según la relación | Parcial (solo RL-13) |
+| R-54 | `PRODUCTO.costo_estandar` es nulo o no negativo | Producto | Rechaza valores negativos/no numéricos | Implementada |
 
 ### 5.3 Fórmulas e importes derivados
 
@@ -874,7 +877,7 @@ El modelo implementado se inyecta en el módulo base mediante un único archivo 
   "businessRules": {
     "returnWindowDays": 30,
     "defaultCurrency": "CLP",
-    "roles": ["vendedor", "operaciones", "gerente", "devoluciones", "jefe_ventas", "facturacion"]
+    "roles": ["vendedor", "operaciones", "gerente", "devoluciones", "jefe_ventas", "facturacion", "auditor"]
   },
   "theme": { "accentColor": "#0f62fe" }
 }
@@ -884,16 +887,23 @@ Tipos admitidos para campos personalizados: `text`, `number`, `date`, `select`.
 
 ### 8.1 Roles y permisos
 
-| Rol | Permisos |
-|---|---|
-| `vendedor` | `crear_orden`, `editar_orden`, `ver_pedidos` |
-| `operaciones` | `entregar`, `ver_pedidos` |
-| `gerente` | `ver_resumen`, `ver_pedidos` |
-| `devoluciones` | `devolver`, `ver_pedidos` |
-| `jefe_ventas` | `ver_historial`, `ver_pedidos` |
-| `facturacion` | `facturar`, `registrar_pago`, `ver_pedidos` |
+El selector de rol reside en la barra superior. El «Panel» concentra KPIs, gráficos y resúmenes; «Agregar» centraliza formularios de alta/edición en pestañas. Las vistas de «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» tienen listados distintos. Son etiquetas de interfaz: las colecciones persistidas siguen siendo `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
 
-El rol activo se persiste en `erp_ventas:current_role` y por defecto es `vendedor`. Los módulos de dominio rechazan la operación con un mensaje de permiso cuando el rol no corresponde.
+| Rol | Acceso a vistas | Permisos de escritura |
+|---|---|---|
+| `jefe_ventas` (Jefe de Ventas) | Panel, todas las vistas operativas y datos sensibles | Todas las acciones; ve costos estándar, márgenes y contactos completos de clientes |
+| `vendedor` (Ejecutivo Comercial) | Panel y vistas comerciales/clientes; costos y márgenes enmascarados | Crear/editar clientes, documentos, cotizaciones y órdenes; no editar listas/precios ni aprobar RMA o cotizaciones |
+| `devoluciones` (Postventa) | Panel agregado, órdenes despachadas y RMA; sin importes ni precios unitarios | Agregar y gestionar RMA, incluida su finalización; no crear precios, cotizaciones u órdenes ni aprobar/rechazar RMA |
+| `auditor` (Auditor, solo lectura) | Panel con métricas agregadas y reportes; sin registros individuales | Ninguna; pestañas de Agregar y controles de edición bloqueados con indicador de solo lectura |
+| `operaciones` | Panel y operación de entregas | Confirmar entregas |
+| `gerente` | Panel y resumen | Sin escritura |
+| `facturacion` | Panel y facturación/pagos | Emitir facturas y registrar pagos |
+
+Las capacidades de lectura de pedidos, cotizaciones, productos y Panel se filtran adicionalmente por la navegación de cada rol. `ver_resumen` se asigna a Ejecutivo Comercial, Gerente, Postventa, Jefe de Ventas y Auditor; Postventa solo consulta órdenes despachadas y RMA, y Auditor solo consulta agregados del Panel. El historial y los costos/márgenes se limitan al Jefe de Ventas.
+
+El rol activo se persiste en `erp_ventas:current_role` y por defecto es `vendedor`. La interfaz deshabilita controles no autorizados y muestra un aviso/candado. Las funciones de creación y transición de RMA también aplican permisos de dominio; la administración de precios se expone mediante formularios protegidos por el selector de rol.
+
+La edición de una lista conserva sus identificadores y precios asociados. Si existen precios registrados, la moneda de la lista no se puede cambiar, para evitar dejar precios con moneda incompatible.
 
 ### 8.2 Reglas de negocio configurables
 
@@ -901,7 +911,7 @@ El rol activo se persiste en `erp_ventas:current_role` y por defecto es `vendedo
 |---|---|---|
 | `returnWindowDays` | `30` | Plazo máximo de devolución desde la emisión de la factura o pedido |
 | `defaultCurrency` | `CLP` | Moneda usada cuando la orden no especifica otra |
-| `roles` | Los seis roles del módulo | Catálogo de roles disponibles para autorización |
+| `roles` | Los siete roles del módulo | Catálogo de roles disponibles para autorización |
 | `vendedores` | Opcional | Siembra inicial del maestro de vendedores |
 
 ### 8.3 Colecciones y series
@@ -933,6 +943,6 @@ Cada colección se guarda como JSON en `localStorage` bajo el prefijo `erp_venta
 
 - **14 entidades** organizadas en tres grupos: maestros (`ZONA`, `VENDEDOR`, `CLIENTE`), catálogo y precios (`CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO`, `PRECIO_PRODUCTO`) y transacciones (`COTIZACION`, `PEDIDO_VENTA`, `DETALLE_PEDIDO`, `FACTURA`, `PAGO`, `DEVOLUCION`, `DETALLE_DEVOLUCION`).
 - **23 relaciones** especificadas con cardinalidad, participación, clave foránea y política de borrado.
-- **18 restricciones implementadas** (R-01 a R-18) y **35 restricciones adicionales** del modelo completo (R-19 a R-53).
+- **19 restricciones implementadas** (R-01 a R-18 y R-54) y **35 restricciones adicionales** del modelo completo (R-19 a R-53).
 - **14 entidades implementadas**: maestros (`ZONA`, `VENDEDOR`, `CLIENTE`), catálogo y precios (`CATEGORIA_PRODUCTO`, `LISTA_PRECIO`, `PRODUCTO`, `PRECIO_PRODUCTO`) y transacciones (`COTIZACION`, `PEDIDO_VENTA`, `DETALLE_PEDIDO`, `FACTURA`, `PAGO`, `DEVOLUCION`, `DETALLE_DEVOLUCION`). No quedan entidades parciales ni planificadas.
 - **Persistencia**: 16 colecciones en `localStorage` (una base y quince de Ventas, incluida auditoría y secuencias) y numeración persistida por serie.

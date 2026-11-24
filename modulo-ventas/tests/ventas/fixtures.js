@@ -46,7 +46,8 @@ export function seedVentas({ clientName = 'Cliente Demo', clientCode = 'CLI-001'
       categoriaId: categoria.id,
       unidadMedida: 'UN',
       impuestoPorcentaje: 19,
-      stockActual: 100
+      stockActual: 100,
+      costoEstandar: 500 * i
     });
     createPrecioProducto({
       listaId: lista.id,

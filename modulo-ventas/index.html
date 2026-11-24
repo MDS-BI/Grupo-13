@@ -31,7 +31,7 @@
 
       <aside class="sidebar">
         <nav class="side-nav" aria-label="Módulos">
-          <p class="side-nav-heading">General</p>
+          <p class="side-nav-heading" id="nav-visual-heading">Panel</p>
           <button
             type="button"
             class="nav-module active"
@@ -114,26 +114,33 @@
         </nav>
 
         <nav class="side-nav sales-nav" aria-label="Ventas">
-          <p class="side-nav-heading">Ventas</p>
+          <p class="side-nav-heading" id="nav-operations-heading">Operaciones</p>
+          <button
+            type="button"
+            class="nav-ventas"
+            data-module="operations"
+            id="nav-operations"
+            aria-label="Agregar"
+          >
+            <span class="nav-label">Agregar</span>
+          </button>
           <button
             type="button"
             class="nav-ventas"
             data-module="sales-order"
             id="nav-sales-order"
-            aria-label="Pedidos y cotizaciones"
+            aria-label="Órdenes de Venta (sales_orders)"
           >
-            <span class="nav-label">Pedidos de Venta</span>
-            <span class="nav-count" id="nav-count-sales-order" aria-hidden="true"></span>
+            <span class="nav-label">Órdenes de Venta (sales_orders)</span>
           </button>
           <button
             type="button"
             class="nav-ventas"
             data-module="quotes"
             id="nav-quotes"
-            aria-label="Cotizaciones"
+            aria-label="Cotizaciones (sales_quotes)"
           >
-            <span class="nav-label">Cotizaciones</span>
-            <span class="nav-count" id="nav-count-quotes" aria-hidden="true"></span>
+            <span class="nav-label">Cotizaciones (sales_quotes)</span>
           </button>
           <button
             type="button"
@@ -143,7 +150,6 @@
             aria-label="Catálogo de productos"
           >
             <span class="nav-label">Productos</span>
-            <span class="nav-count" id="nav-count-products" aria-hidden="true"></span>
           </button>
           <button
             type="button"
@@ -153,16 +159,6 @@
             aria-label="Entregas"
           >
             <span class="nav-label">Entregas</span>
-            <span class="nav-count" id="nav-count-delivery" aria-hidden="true"></span>
-          </button>
-          <button
-            type="button"
-            class="nav-ventas"
-            data-module="summary"
-            id="nav-summary"
-            aria-label="Resumen general"
-          >
-            <span class="nav-label">Resumen general</span>
           </button>
           <button
             type="button"
@@ -172,17 +168,16 @@
             aria-label="Devoluciones"
           >
             <span class="nav-label">Devoluciones</span>
-            <span class="nav-count" id="nav-count-returns" aria-hidden="true"></span>
           </button>
           <button
             type="button"
             class="nav-ventas"
             data-module="history"
             id="nav-history"
+            data-read-permission="ver_historial"
             aria-label="Historial de clientes"
           >
             <span class="nav-label">Historial de clientes</span>
-            <span class="nav-count" id="nav-count-history" aria-hidden="true"></span>
           </button>
           <button
             type="button"
@@ -192,7 +187,6 @@
             aria-label="Facturación y pagos"
           >
             <span class="nav-label">Facturación y pagos</span>
-            <span class="nav-count" id="nav-count-invoices" aria-hidden="true"></span>
           </button>
         </nav>
 
@@ -211,10 +205,19 @@
               <button type="button" data-goto="sales-order">Consultar pedidos</button>
             </li>
             <li id="role-task-create-order" class="role-task">
-              <button type="button" data-goto="sales-order">Crear pedidos y cotizaciones</button>
+              <button type="button" data-add-target="order">Crear Órdenes de Venta</button>
             </li>
             <li id="role-task-edit-order" class="role-task">
-              <button type="button" data-goto="sales-order">Editar pedidos</button>
+              <button type="button" data-add-target="order">Editar pedidos</button>
+            </li>
+            <li id="role-task-create-quote" class="role-task">
+              <button type="button" data-add-target="quote">Crear cotizaciones</button>
+            </li>
+            <li id="role-task-prices" class="role-task">
+              <button type="button" data-add-target="pricing">Crear / editar listas y precios</button>
+            </li>
+            <li id="role-task-approve-quote" class="role-task">
+              <button type="button" data-goto="quotes">Aprobar cotizaciones</button>
             </li>
             <li id="role-task-invoices" class="role-task">
               <button type="button" data-goto="invoices">Generar facturas</button>
@@ -227,6 +230,9 @@
             </li>
             <li id="role-task-returns" class="role-task">
               <button type="button" data-goto="returns">Gestionar devoluciones</button>
+            </li>
+            <li id="role-task-approve-returns" class="role-task">
+              <button type="button" data-goto="returns">Aprobar devoluciones RMA</button>
             </li>
             <li id="role-task-summary" class="role-task">
               <button type="button" data-goto="summary">Consultar resumen general</button>
@@ -251,12 +257,12 @@
         </nav>
 
         <section class="view-panel" id="view-dashboard" aria-labelledby="dashboard-heading">
-          <h1 id="dashboard-heading">Módulo Base ERP</h1>
+          <h1 id="dashboard-heading">Panel</h1>
           <p id="dashboard-subtitle" class="muted">
-            Gestiona tus entidades y documentos en un solo lugar.
+            Indicadores, consultas y seguimiento del proceso comercial.
           </p>
 
-          <div class="stat-grid">
+          <div class="stat-grid" id="dashboard-base-stats">
             <div class="stat-card">
               <span class="stat-value" id="stat-entities">0</span>
               <span class="stat-label" id="stat-entities-label">Entidades</span>
@@ -270,37 +276,15 @@
           <h2 id="quick-actions-heading">Acciones rápidas</h2>
           <p class="muted">Elige una acción para empezar o continuar con tu trabajo.</p>
 
-          <section class="action-group" aria-labelledby="create-actions-heading">
+          <section class="action-group" aria-labelledby="add-action-heading">
             <div class="action-group-heading">
-              <h3 id="create-actions-heading">Crear y registrar</h3>
-              <span>Acciones principales</span>
+              <h3 id="add-action-heading">Altas y registros</h3>
+              <span>Formularios centralizados</span>
             </div>
             <div class="action-grid">
-              <button type="button" class="action-card" id="action-new-entity">
-                <strong id="action-new-entity-title">Nueva Entidad</strong>
-                <span class="muted" id="action-new-entity-sub">Crear un registro de entidad</span>
-              </button>
-              <button type="button" class="action-card" id="action-new-document">
-                <strong id="action-new-document-title">Nuevo Documento</strong>
-                <span class="muted" id="action-new-document-sub"
-                  >Registrar un registro de documento</span
-                >
-              </button>
-              <button type="button" class="action-card" id="action-open-sales-order">
-                <strong id="action-open-sales-order-title">Pedidos y cotizaciones</strong>
-                <span class="muted" id="action-open-sales-order-sub">Registrar una nueva venta</span>
-              </button>
-              <button type="button" class="action-card" id="action-open-invoices">
-                <strong id="action-open-invoices-title">Facturación y pagos</strong>
-                <span class="muted" id="action-open-invoices-sub"
-                  >Emitir facturas y registrar pagos</span
-                >
-              </button>
-              <button type="button" class="action-card" id="action-open-returns">
-                <strong id="action-open-returns-title">Devoluciones</strong>
-                <span class="muted" id="action-open-returns-sub"
-                  >Gestionar solicitudes de devolución</span
-                >
+              <button type="button" class="action-card" id="action-open-add" data-goto="operations">
+                <strong>Ir a Agregar</strong>
+                <span class="muted">Cotizaciones, órdenes, precios y devoluciones RMA</span>
               </button>
             </div>
           </section>
@@ -311,12 +295,6 @@
               <span>Información y seguimiento</span>
             </div>
             <div class="action-grid">
-              <button type="button" class="action-card" id="action-open-entities">
-                <strong id="action-open-entities-title">Entidades</strong>
-                <span class="muted" id="action-open-entities-sub"
-                  >Abrir la gestión de entidades</span
-                >
-              </button>
               <button type="button" class="action-card" id="action-find">
                 <strong id="action-find-title">Buscar registros</strong>
                 <span class="muted" id="action-find-sub">Buscar entidades</span>
@@ -327,15 +305,46 @@
                 id="action-open-analytics"
                 data-goto="summary"
               >
-                <strong id="action-open-analytics-title">Panel de análisis</strong>
-                <span class="muted" id="action-open-analytics-sub"
-                  >Gráficos de ventas y productos más vendidos</span
-                >
+                <strong id="action-open-analytics-title">Actualizar análisis</strong>
+                <span class="muted" id="action-open-analytics-sub">Ver métricas y gráficos en este panel</span>
               </button>
             </div>
           </section>
 
-          <section class="card demo-card" aria-labelledby="demo-heading">
+          <div id="visual-consultations" class="visual-consultations"></div>
+        </section>
+
+        <section
+          class="view-panel operations-panel"
+          id="view-operations"
+          aria-labelledby="operations-heading"
+          hidden
+        >
+          <h1 id="operations-heading">Agregar</h1>
+          <p class="muted">
+            Formularios de registro organizados por tipo. Las acciones disponibles dependen del rol
+            activo.
+          </p>
+          <div id="operations-forms" class="operations-forms">
+            <nav class="add-tabs" role="tablist" aria-label="Formularios de registro">
+              <button type="button" id="add-tab-quote" class="add-tab active" role="tab" aria-selected="true" data-add-tab="quote" data-permission="crear_cotizacion">Agregar Cotización</button>
+              <button type="button" id="add-tab-order" class="add-tab" role="tab" aria-selected="false" data-add-tab="order" data-permission="crear_orden">Agregar Orden de Venta</button>
+              <button type="button" id="add-tab-pricing" class="add-tab" role="tab" aria-selected="false" data-add-tab="pricing" data-permission="gestionar_precios">Agregar Lista/Precio</button>
+              <button type="button" id="add-tab-return" class="add-tab" role="tab" aria-selected="false" data-add-tab="return" data-permission="devolver">Agregar Devolución RMA</button>
+              <button type="button" id="add-tab-client" class="add-tab" role="tab" aria-selected="false" data-add-tab="client" data-permission="gestionar_clientes">Agregar Cliente</button>
+              <button type="button" id="add-tab-document" class="add-tab" role="tab" aria-selected="false" data-add-tab="document" data-permission="gestionar_documentos">Agregar Documento</button>
+            </nav>
+            <p id="add-readonly-notice" class="permission-notice" hidden>🔒 Solo lectura: no puedes crear ni editar registros con este rol.</p>
+            <div id="add-panel-quote" class="add-tab-panel" role="tabpanel" aria-labelledby="add-tab-quote"></div>
+            <div id="add-panel-order" class="add-tab-panel" role="tabpanel" aria-labelledby="add-tab-order" hidden></div>
+            <div id="add-panel-pricing" class="add-tab-panel" role="tabpanel" aria-labelledby="add-tab-pricing" hidden></div>
+            <div id="add-panel-return" class="add-tab-panel" role="tabpanel" aria-labelledby="add-tab-return" hidden></div>
+            <div id="add-panel-client" class="add-tab-panel" role="tabpanel" aria-labelledby="add-tab-client" hidden></div>
+            <div id="add-panel-document" class="add-tab-panel" role="tabpanel" aria-labelledby="add-tab-document" hidden></div>
+          </div>
+        </section>
+
+        <section class="card demo-card" aria-labelledby="demo-heading">
             <div class="demo-card-heading">
               <span class="demo-icon" aria-hidden="true">✦</span>
               <div>
@@ -347,13 +356,12 @@
               </div>
             </div>
             <div class="form-actions">
-              <button type="button" id="demo-load" class="primary">Cargar datos de ejemplo</button>
-              <button type="button" id="demo-reset" class="secondary">
+              <button type="button" id="demo-load" class="primary" data-permission="crear_cotizacion">Cargar datos de ejemplo</button>
+              <button type="button" id="demo-reset" class="secondary" data-permission="crear_cotizacion">
                 Recargar datos de ejemplo
               </button>
             </div>
           </section>
-        </section>
 
         <section
           class="view-panel"
@@ -363,9 +371,9 @@
         >
           <h1 id="entities-view-heading">Entidades</h1>
 
-          <section class="card" aria-labelledby="entity-form-heading">
+          <section class="card" id="entity-create-panel" aria-labelledby="entity-form-heading">
             <h2 id="entity-form-heading">Agregar / Editar Entidad</h2>
-            <form id="entity-form">
+            <form id="entity-form" data-permission="gestionar_clientes">
               <input type="hidden" id="entity-id" />
               <fieldset class="form-section">
                 <legend>Datos principales</legend>
@@ -447,7 +455,7 @@
               <div class="error" id="error-edit-entity" aria-live="polite"></div>
             </div>
             <div class="form-actions">
-              <button type="button" id="delete-entity" class="danger" hidden>
+              <button type="button" id="delete-entity" class="danger" data-permission="gestionar_clientes" hidden>
                 Eliminar la entidad seleccionada
               </button>
             </div>
@@ -481,9 +489,9 @@
             </button>
           </div>
 
-          <section class="card" aria-labelledby="document-form-heading">
+          <section class="card" id="document-create-panel" aria-labelledby="document-form-heading">
             <h2 id="document-form-heading">Agregar / Editar Documento</h2>
-            <form id="document-form">
+            <form id="document-form" data-permission="gestionar_documentos">
               <input type="hidden" id="document-id" />
               <input type="hidden" id="document-entity-id" />
               <fieldset class="form-section">
@@ -592,7 +600,7 @@
               <div class="error" id="error-edit-document" aria-live="polite"></div>
             </div>
             <div class="form-actions">
-              <button type="button" id="delete-document" class="danger">
+              <button type="button" id="delete-document" class="danger" data-permission="gestionar_documentos">
                 Eliminar el documento seleccionado
               </button>
             </div>
@@ -624,22 +632,42 @@
           aria-labelledby="sales-order-heading"
           hidden
         >
-          <h1 id="sales-order-heading">Pedidos de Venta</h1>
+          <h1 id="sales-order-heading">Órdenes de Venta (sales_orders)</h1>
           <p class="muted">
-            Registra una orden con cliente existente, productos con stock, canal y condición de
-            pago. Se guarda como cotización.
+            Órdenes comerciales con sus estados, separadas de Cotizaciones (sales_quotes). Convertir
+            una cotización aprobada crea una orden vinculada.
           </p>
 
-          <section class="card" aria-labelledby="order-edit-heading">
+          <section class="card" aria-labelledby="orders-list-heading">
+            <h2 id="orders-list-heading">Listado de órdenes de venta</h2>
+            <div class="table-scroll">
+              <table class="data-table" aria-label="Órdenes de venta registradas">
+                <thead>
+                  <tr>
+                    <th scope="col">Número</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" data-financial-info>Total</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-orders-body"></tbody>
+              </table>
+            </div>
+            <p id="sales-orders-empty" class="empty-state" hidden>No hay órdenes para mostrar.</p>
+          </section>
+
+          <section class="card" id="order-edit-panel" aria-labelledby="order-edit-heading">
             <h2 id="order-edit-heading">Editar un pedido existente</h2>
             <label for="order-edit-select">Selecciona un pedido editable</label>
-            <select id="order-edit-select"></select>
+            <select id="order-edit-select" data-permission="gestionar_orden"></select>
             <div class="error" id="order-edit-error" aria-live="polite"></div>
           </section>
 
-          <section class="card" aria-labelledby="order-form-heading">
+          <section class="card" id="order-create-panel" aria-labelledby="order-form-heading">
             <h2 id="order-form-heading">Nueva orden de venta</h2>
-            <form id="order-form" novalidate>
+            <form id="order-form" data-permission="gestionar_orden" novalidate>
               <fieldset class="form-section">
                 <legend>Datos de la orden</legend>
                 <div class="field-row">
@@ -736,28 +764,23 @@
               </div>
             </form>
           </section>
-          <nav class="related-nav" aria-label="Siguientes pasos">
-            <span>Continuar con</span>
-            <button type="button" class="secondary" data-goto="invoices">
-              Facturación y pagos →
-            </button>
-            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
-          </nav>
         </section>
 
         <section class="view-panel" id="view-quotes" aria-labelledby="quotes-heading" hidden>
           <div class="view-toolbar">
             <div>
-              <h1 id="quotes-heading">Cotizaciones</h1>
-              <p class="muted">Revisa, envía y cierra cotizaciones registradas para tus clientes.</p>
+              <h1 id="quotes-heading">Cotizaciones (sales_quotes)</h1>
+              <p class="muted">
+                Registros de pre-venta independientes de las Órdenes de Venta (PEDIDO_VENTA).
+                Al aprobar una cotización se crea una orden vinculada.
+              </p>
             </div>
-            <button type="button" class="primary" data-goto="sales-order">
-              Nueva orden de venta
+            <button type="button" class="primary" data-goto="operations" data-permission="crear_cotizacion">
+              Nueva cotización
             </button>
           </div>
           <section class="card" aria-labelledby="quotes-list-heading">
             <h2 id="quotes-list-heading">Listado de cotizaciones</h2>
-            <p id="quotes-count" class="muted" aria-live="polite"></p>
             <div class="table-scroll">
               <table class="data-table" aria-label="Cotizaciones registradas">
                 <thead>
@@ -767,7 +790,7 @@
                     <th scope="col">Emisión</th>
                     <th scope="col">Validez</th>
                     <th scope="col">Estado</th>
-                    <th scope="col">Total</th>
+                    <th scope="col" data-financial-info>Total</th>
                     <th scope="col">Acciones</th>
                   </tr>
                 </thead>
@@ -779,11 +802,154 @@
             </p>
             <p id="quotes-feedback" class="feedback" role="status" aria-live="polite"></p>
           </section>
-          <nav class="related-nav" aria-label="Siguientes pasos">
-            <span>Continuar con</span>
-            <button type="button" class="secondary" data-goto="sales-order">Nueva orden →</button>
-            <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
-          </nav>
+        </section>
+
+        <section
+          class="card"
+          id="quote-create-panel"
+          aria-labelledby="quote-form-heading"
+          data-module-permission="crear_cotizacion"
+        >
+          <h2 id="quote-form-heading">Crear Cotización (sales_quotes)</h2>
+          <p class="muted">
+            Una cotización tiene su propio número y estados; al aprobarla se convierte en una
+            Orden de Venta vinculada.
+          </p>
+          <form id="quote-form" data-permission="crear_cotizacion" novalidate>
+            <div class="field-row">
+              <div>
+                <label for="quote-client">Cliente *</label>
+                <select id="quote-client" name="quote-client" required></select>
+              </div>
+              <div>
+                <label for="quote-seller">Vendedor</label>
+                <input id="quote-seller" name="quote-seller" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div>
+                <label for="quote-date">Fecha de emisión</label>
+                <input id="quote-date" name="quote-date" type="date" />
+              </div>
+              <div>
+                <label for="quote-valid-until">Válida hasta</label>
+                <input id="quote-valid-until" name="quote-valid-until" type="date" />
+              </div>
+              <div>
+                <label for="quote-currency">Moneda</label>
+                <input id="quote-currency" name="quote-currency" maxlength="3" />
+              </div>
+              <div>
+                <label for="quote-discount">Descuento</label>
+                <input id="quote-discount" name="quote-discount" type="number" min="0" step="0.01" value="0" />
+              </div>
+            </div>
+            <label for="quote-product-search">Buscar producto por código o nombre</label>
+            <input id="quote-product-search" name="quote-product-search" placeholder="Ej.: SKU-1 o Producto" />
+            <ul id="quote-product-results" class="product-results" aria-live="polite"></ul>
+            <table class="data-table" aria-label="Productos de la cotización">
+              <thead>
+                <tr>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Cantidad</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="quote-lines-body"></tbody>
+            </table>
+            <p id="quote-totals" class="totals" aria-live="polite"></p>
+            <label for="quote-notes">Notas</label>
+            <textarea id="quote-notes" name="quote-notes" rows="2"></textarea>
+            <p id="quote-feedback" class="feedback" role="status" aria-live="polite"></p>
+            <div class="form-actions">
+              <button type="submit" id="quote-save" class="primary">Guardar cotización</button>
+              <button type="button" id="quote-reset" class="secondary">Limpiar</button>
+            </div>
+          </form>
+        </section>
+
+        <section
+          class="card pricing-management"
+          id="pricing-management-panel"
+          aria-labelledby="pricing-management-heading"
+          data-module-permission="gestionar_precios"
+        >
+          <h2 id="pricing-management-heading">Listas y precios</h2>
+          <p class="muted">
+            Crear o editar listas de precios y precios por producto. Solo el Jefe de Ventas puede
+            realizar estos cambios.
+          </p>
+          <div class="pricing-management-grid">
+            <section class="pricing-form-section" aria-labelledby="price-list-heading">
+              <h3 id="price-list-heading">Lista de precios</h3>
+              <label for="price-list-edit-select">Editar una lista existente</label>
+              <select id="price-list-edit-select"></select>
+              <form id="price-list-form" data-permission="gestionar_precios">
+                <input type="hidden" id="price-list-id" />
+                <label for="price-list-code">Código *</label>
+                <input id="price-list-code" required />
+                <label for="price-list-name">Nombre *</label>
+                <input id="price-list-name" required />
+                <label for="price-list-currency">Moneda *</label>
+                <input id="price-list-currency" maxlength="3" required />
+                <label for="price-list-start">Vigente desde *</label>
+                <input id="price-list-start" type="date" required />
+                <label for="price-list-end">Vigente hasta</label>
+                <input id="price-list-end" type="date" />
+                <label class="checkbox-label" for="price-list-active">
+                  <input id="price-list-active" type="checkbox" checked />
+                  Lista activa
+                </label>
+                <div class="form-actions">
+                  <button type="submit" id="price-list-save" class="primary">Crear lista</button>
+                  <button type="button" id="price-list-reset" class="secondary">Limpiar</button>
+                </div>
+                <p id="price-list-feedback" class="form-feedback" aria-live="polite"></p>
+              </form>
+            </section>
+            <section class="pricing-form-section" aria-labelledby="price-item-heading">
+              <h3 id="price-item-heading">Precio por producto</h3>
+              <label for="price-record-edit-select">Editar un precio existente</label>
+              <select id="price-record-edit-select"></select>
+              <form id="price-item-form" data-permission="gestionar_precios">
+                <input type="hidden" id="price-item-id" />
+                <label for="price-item-list">Lista de precios *</label>
+                <select id="price-item-list" required></select>
+                <label for="price-item-product">Producto *</label>
+                <select id="price-item-product" required></select>
+                <label for="price-item-amount">Precio *</label>
+                <input id="price-item-amount" type="number" min="0" step="0.01" required />
+                <label for="price-item-currency">Moneda</label>
+                <input id="price-item-currency" readonly />
+                <label for="price-item-start">Vigente desde *</label>
+                <input id="price-item-start" type="date" required />
+                <label for="price-item-end">Vigente hasta</label>
+                <input id="price-item-end" type="date" />
+                <div class="form-actions">
+                  <button type="submit" id="price-item-save" class="primary">Agregar precio</button>
+                  <button type="button" id="price-item-reset" class="secondary">Limpiar</button>
+                </div>
+                <p id="price-item-feedback" class="form-feedback" aria-live="polite"></p>
+              </form>
+            </section>
+          </div>
+          <h3>Precios registrados</h3>
+          <p id="price-management-empty" class="empty" hidden>No hay precios registrados.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Lista</th>
+                  <th>Producto</th>
+                  <th>Precio</th>
+                  <th>Vigencia</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="price-management-body"></tbody>
+            </table>
+          </div>
         </section>
 
         <section class="view-panel" id="view-products" aria-labelledby="products-heading" hidden>
@@ -819,7 +985,6 @@
                 </select>
               </div>
             </div>
-            <p id="products-count" class="muted" aria-live="polite"></p>
             <div class="table-scroll">
               <table class="data-table" aria-label="Productos del catálogo">
                 <thead>
@@ -831,6 +996,8 @@
                     <th scope="col">Impuesto</th>
                     <th scope="col">Stock</th>
                     <th scope="col">Precio vigente</th>
+                    <th scope="col" data-sensitive="boss-only">Costo estándar</th>
+                    <th scope="col" data-sensitive="boss-only">Margen</th>
                     <th scope="col">Estado</th>
                   </tr>
                 </thead>
@@ -882,13 +1049,13 @@
           </nav>
         </section>
 
-        <section class="view-panel" id="view-summary" aria-labelledby="summary-heading" hidden>
+        <section class="view-panel" id="view-summary" aria-labelledby="summary-heading" data-read-permission="ver_resumen" hidden>
           <h1 id="summary-heading">Resumen general de ventas</h1>
           <div id="summary-restricted" class="empty" hidden>
-            El resumen general está restringido al rol gerente.
+            El resumen general está restringido a los roles autorizados.
           </div>
           <div id="summary-content">
-            <div class="stat-grid">
+            <div class="stat-grid" id="summary-standard-metrics">
               <div class="stat-card">
                 <span class="stat-value" id="summary-total-ventas">0</span
                 ><span class="stat-label">Ventas</span>
@@ -901,12 +1068,22 @@
                 <span class="stat-value" id="summary-total-pedidos">0</span
                 ><span class="stat-label">Pedidos</span>
               </div>
-              <div class="stat-card">
+              <div class="stat-card" data-financial-info>
                 <span class="stat-value" id="summary-monto-total">0</span
                 ><span class="stat-label">Monto total</span>
               </div>
             </div>
-            <section class="card" aria-labelledby="summary-amounts-heading">
+            <div class="stat-grid" id="summary-postventa-metrics" hidden>
+              <div class="stat-card">
+                <span class="stat-value" id="summary-delivered-count">0</span>
+                <span class="stat-label">Órdenes despachadas</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="summary-returns-count">0</span>
+                <span class="stat-label">Devoluciones RMA</span>
+              </div>
+            </div>
+            <section class="card" aria-labelledby="summary-amounts-heading" data-financial-info>
               <h2 id="summary-amounts-heading">Montos</h2>
               <p>
                 Ventas: <span id="summary-monto-ventas">0</span> · Cotizaciones:
@@ -980,7 +1157,7 @@
             <div id="summary-empty" class="empty" hidden>
               No hay ventas, cotizaciones ni pedidos registrados.
             </div>
-            <section class="card" aria-labelledby="summary-states-heading">
+            <section class="card" aria-labelledby="summary-states-heading" data-postventa-restricted>
               <h2 id="summary-states-heading">Pedidos por estado</h2>
               <table class="data-table">
                 <thead>
@@ -992,7 +1169,7 @@
                 <tbody id="summary-states-body"></tbody>
               </table>
             </section>
-            <section class="card" aria-labelledby="summary-orders-heading">
+            <section class="card" aria-labelledby="summary-orders-heading" data-aggregated-detail>
               <h2 id="summary-orders-heading">Detalle de pedidos</h2>
               <table class="data-table">
                 <thead>
@@ -1001,7 +1178,7 @@
                     <th scope="col">Cliente</th>
                     <th scope="col">Fecha</th>
                     <th scope="col">Estado</th>
-                    <th scope="col">Total</th>
+                    <th scope="col" data-financial-info>Total</th>
                   </tr>
                 </thead>
                 <tbody id="summary-orders-body"></tbody>
@@ -1011,7 +1188,7 @@
           <nav class="related-nav" aria-label="Siguientes pasos">
             <span>Explorar también</span>
             <button type="button" class="secondary" data-goto="sales-order">
-              Pedidos y cotizaciones →
+              Órdenes de Venta (sales_orders) →
             </button>
             <button type="button" class="secondary" data-goto="history">
               Historial de clientes →
@@ -1020,14 +1197,14 @@
         </section>
 
         <section class="view-panel" id="view-returns" aria-labelledby="returns-heading" hidden>
-          <h1 id="returns-heading">Devoluciones</h1>
+          <h1 id="returns-heading">Devoluciones RMA</h1>
           <p class="muted">
             Registra devoluciones dentro del plazo configurado, con motivo válido y cantidades no
             devueltas previamente.
           </p>
-          <section class="card" aria-labelledby="return-form-heading">
+          <section class="card" id="return-create-panel" aria-labelledby="return-form-heading">
             <h2 id="return-form-heading">Nueva devolución</h2>
-            <form id="return-form" novalidate>
+            <form id="return-form" data-permission="devolver" novalidate>
               <div class="field-row">
                 <div>
                   <label for="return-invoice">Factura *</label>
@@ -1066,7 +1243,7 @@
           </nav>
         </section>
 
-        <section class="view-panel" id="view-history" aria-labelledby="history-heading" hidden>
+        <section class="view-panel" id="view-history" aria-labelledby="history-heading" data-read-permission="ver_historial" hidden>
           <h1 id="history-heading">Historial comercial del cliente</h1>
           <section class="card" aria-labelledby="history-panel-heading">
             <h2 id="history-panel-heading">Perfil comercial</h2>
@@ -1074,7 +1251,6 @@
               <label for="history-client">Cliente</label>
               <select id="history-client"></select>
             </div>
-            <p id="history-total" class="totals" aria-live="polite"></p>
             <div id="history-empty" class="empty" hidden>
               Este cliente no tiene cotizaciones ni pedidos registrados.
             </div>
@@ -1094,7 +1270,7 @@
           <nav class="related-nav" aria-label="Siguientes pasos">
             <span>Explorar también</span>
             <button type="button" class="secondary" data-goto="sales-order">
-              Pedidos y cotizaciones →
+              Órdenes de Venta (sales_orders) →
             </button>
             <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
           </nav>

@@ -1368,6 +1368,124 @@ button.danger:hover {
   animation: view-enter 240ms ease-out both;
 }
 
+.visual-consultations,
+.operations-forms {
+  margin-top: 24px;
+}
+
+.visual-consultations > .view-panel,
+.operations-forms > .view-panel {
+  margin-bottom: 24px;
+}
+
+.add-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.add-tab {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: transparent;
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+
+.add-tab.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+
+.add-tab-panel > .card {
+  margin-bottom: 20px;
+}
+
+.operations-panel > .action-group {
+  margin: 0 0 24px;
+}
+
+[data-permission-locked="true"]::after {
+  content: " 🔒";
+  font-size: 0.8em;
+}
+
+.permission-notice {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  color: var(--muted);
+  background: var(--surface-alt);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.pricing-management-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.pricing-form-section {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+}
+
+.pricing-form-section h3 {
+  margin-top: 0;
+}
+
+.pricing-form-section form {
+  display: grid;
+  gap: 8px;
+}
+
+.pricing-form-section input,
+.pricing-form-section select {
+  width: 100%;
+}
+
+.pricing-form-section .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pricing-form-section .checkbox-label input {
+  width: auto;
+}
+
+.form-feedback {
+  min-height: 1.25em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+#returns-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+#returns-list > li > span:first-child {
+  flex: 1 1 260px;
+}
+
+[data-permission][disabled],
+.action-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 @keyframes view-enter {
   from {
     opacity: 0;

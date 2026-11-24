@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { installLocalStorage, resetVentasStorage, seedVentas } from './fixtures.js';
 import { createQuote, acceptQuote, updateQuoteStatus, listQuotes, getQuote, QUOTE_STATUSES } from '../../src/ventas/quotes.js';
 import { getOrder } from '../../src/ventas/orders.js';
+import { ROLES, setCurrentRole } from '../../src/ventas/roles.js';
 
 let seed;
 
@@ -48,10 +49,18 @@ describe('quotes', () => {
 
   it('accepting a quote creates exactly one pedido', () => {
     const quote = createQuote(payload());
+    setCurrentRole(ROLES.JEFE_VENTAS);
     const { order } = acceptQuote(quote.id);
     expect(order.estado).toBe('pedido');
     expect(getOrder(order.id).cotizacionId).toBe(quote.id);
     expect(getQuote(quote.id).estado).toBe('aceptada');
     expect(() => acceptQuote(quote.id)).toThrow(/ya originó/);
+  });
+
+  it('only the sales manager can approve and convert a quote', () => {
+    const quote = createQuote(payload());
+    expect(() => acceptQuote(quote.id)).toThrow(/permiso/);
+    setCurrentRole(ROLES.JEFE_VENTAS);
+    expect(acceptQuote(quote.id).order.estado).toBe('pedido');
   });
 });

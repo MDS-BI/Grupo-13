@@ -1,9 +1,9 @@
 import {
   getPrecioVigente,
   listCategorias,
-  listProductos,
   searchProductos,
 } from "../../ventas/catalog.js";
+import { can } from "../../ventas/roles.js";
 
 let wired = false;
 
@@ -46,10 +46,8 @@ export function renderProductsPanel() {
 
   const empty = qs("products-empty");
   if (empty) empty.hidden = products.length > 0;
-  const count = qs("products-count");
-  if (count) count.textContent = `${products.length} de ${listProductos().length} productos`;
-
   const categories = new Map(listCategorias().map((category) => [category.id, category.nombre]));
+  const sensitiveVisible = can("ver_datos_sensibles");
   body.innerHTML = "";
   for (const product of products) {
     const price = getPrecioVigente(product.id);
@@ -64,6 +62,22 @@ export function renderProductsPanel() {
     name.append(strong, description);
 
     const row = document.createElement("tr");
+    const cost = Number(product.costoEstandar);
+    const margin =
+      price && Number.isFinite(cost) && Number(price.precio) > 0
+        ? `${(((Number(price.precio) - cost) / Number(price.precio)) * 100).toFixed(1)}%`
+        : "Sin costo registrado";
+    const costCell = cell(
+      sensitiveVisible && Number.isFinite(cost)
+        ? `${cost.toLocaleString("es-CL")} ${price?.moneda || ""}`.trim()
+        : sensitiveVisible
+          ? "Sin costo registrado"
+          : "Reservado",
+      "amount",
+    );
+    const marginCell = cell(sensitiveVisible ? margin : "Reservado", "amount");
+    costCell.hidden = !sensitiveVisible;
+    marginCell.hidden = !sensitiveVisible;
     row.append(
       cell(product.sku),
       cell(name),
@@ -77,6 +91,8 @@ export function renderProductsPanel() {
           : "Sin precio vigente",
         "amount",
       ),
+      costCell,
+      marginCell,
       cell(badge(product.estado || "disponible")),
     );
     body.appendChild(row);
