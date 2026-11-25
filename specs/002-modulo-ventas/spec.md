@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-02
 
-**Status**: Draft
+**Status**: Implementado
 
 **Input**: User description: "Módulo ERP de Ventas para registrar cotizaciones y pedidos de venta con cliente, productos, cantidades, precios, impuestos y control de stock; gestionar el ciclo cotización → pedido → facturado → entregado; emitir facturas, procesar devoluciones, consultar el historial comercial de cada cliente y obtener un resumen general de ventas por rol."
 
@@ -29,7 +29,7 @@ Descripción: Como vendedor, necesito poder crear un Pedido de Venta. Quiero bus
 
 ¿Por qué esta prioridad?: Porque es el inicio de todo el proceso (Prioridad 1). Si yo como vendedor no registro la venta con todos los detalles (quién compra, qué compra y quién lo vende), los demás roles no tienen datos para revisar, cobrar o analizar.
 
-Prueba independiente: Un vendedor se mete al sistema, crea un pedido nuevo, elige a un cliente que ya existe, le agrega dos productos diferentes fijándose que haya stock, y pone que pagará al contado (condición de pago). El sistema le suma todo, le saca el IVA y le guarda el documento como "Cotización".
+Prueba independiente: Un vendedor se mete al sistema, crea un pedido nuevo, elige a un cliente que ya existe, le agrega dos productos diferentes fijándose que haya stock, y selecciona `contado` como `condicion_pago`. El sistema le suma todo, le saca el IVA y le guarda el documento como "Cotización".
 
 Escenarios de aceptación:
 1. Dado que estoy armando una venta nueva, cuando elijo al cliente, entonces el sistema tiene que guardar sí o sí el ID del cliente para que le quede guardado en su historial.
@@ -45,7 +45,7 @@ Escenarios de aceptación:
 
 ### User Story 2 - Encargado de operaciones y logística (Priority: P2)
 
-Descripción: Como encargado de operaciones y logística, quiero actualizar el estado de una venta a «entregado» una vez confirmado el despacho físico de los productos, para dar por completado el ciclo comercial del pedido y asegurar que no queden ventas pendientes de entrega en el sistema.
+Descripción: Como encargado de operaciones y logística, quiero actualizar el estado de una venta a «entregado» una vez confirmado el despacho físico de los productos, para dar por completado el ciclo comercial del pedido y asegurar que no queden ventas pendientes de entrega en el sistema. El stock NO se descuenta al crear ni al facturar el pedido: se descuenta al despachar, como parte de la transición «facturado» → «entregado».
 
 ¿Por qué esta prioridad?: Tiene prioridad P2 porque es la etapa que cierra formalmente la operación logística y comercial; permite que tanto ventas como contabilidad reconozcan que el cliente ya recibió su pedido satisfactoriamente.
 
@@ -55,6 +55,8 @@ Escenarios de aceptación:
 1. Dado que un pedido de venta se encuentra en estado «facturado» y cuenta con confirmación de despacho físico en bodega, Cuando el encargado de logística selecciona el pedido y cambia su estado a «entregado», Entonces el sistema actualiza y persiste el estado del pedido a «entregado», cerrando exitosamente el ciclo comercial.
    
 2. Dado que un pedido de venta ya se encuentra en estado «entregado», Cuando el usuario intenta modificar o revertir el estado del pedido, Entonces el sistema bloquea la acción y emite un mensaje indicando que es un estado terminal que no admite modificaciones posteriores.
+
+3. Dado que un pedido en estado «facturado» aún conserva el stock sin descontar, Cuando el encargado confirma el despacho y el sistema lo pasa a «entregado», Entonces se descuentan de forma atómica las cantidades despachadas de cada producto; si al despachar no hay stock suficiente, la transición se bloquea y el stock queda sin cambios.
 
 
 ---
@@ -81,7 +83,7 @@ Como encargado de devoluciones de productos quiero poder editar el estado de un 
 
 **Why this priority**: Tiene prioridad P4 porque aceptar las devoluciones de acuerdo con los parámetros empresariales ayuda a mejorar la satisfacción del cliente y saber qué aspectos mejorar para la próxima venta, como transporte, material del producto, etc, lo que es vital para mantener la empresa a largo plazo. Si bien es importante manejar la devolución de productos, no es tan prioritario para el proceso de ventas como los otros.
 
-**Independent Test**: Se puede probar simulando la selección de una venta pasada dentro del período permitido, ingresando un motivo válido de devolución y verificando que la devolución se registre correctamente en el sistema y se documente la auditoría correspondiente.
+**Independent Test**: Se puede probar simulando la selección de una factura emitida dentro del período permitido, ingresando un motivo válido de devolución y verificando que la devolución se registre correctamente en el sistema con su FK a la factura, el pedido derivado de ella y la auditoría correspondiente.
 
 **Acceptance Scenarios**:
 
@@ -152,9 +154,8 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - ¿Qué ocurre si el cliente, el producto o el vendedor se eliminan después de registrar una venta? El sistema debe preservar la integridad histórica de la venta y aplicar la política de borrado definida para cada relación.
 - ¿Qué ocurre si se intenta modificar o revertir un pedido que ya está en estado «entregado»? El sistema debe bloquear la acción por tratarse de un estado terminal.
 - ¿Qué ocurre si se intenta pasar a «entregado» un pedido que no está «facturado»? El sistema debe rechazar la transición e indicar el estado previo requerido.
-- ¿Qué ocurre si se intenta generar una factura desde una cotización o desde un pedido no confirmado? El sistema debe bloquear la emisión y explicar que el pedido requiere confirmación previa.
-- ¿Qué ocurre si se intenta generar una segunda factura para el mismo pedido? El sistema debe impedir la duplicación y notificar que ya existe un documento fiscal asociado.
-- ¿Qué ocurre si dos usuarios intentan facturar el mismo pedido al mismo tiempo? Solo se debe persistir una factura; la segunda operación debe rechazarse por duplicidad.
+- Emisión de factura desde cotización o pedido no confirmado: ver FR-040 (y US6/AC3).
+- Segunda factura para el mismo pedido o emisión concurrente: ver FR-041, FR-047 y US6/AC4.
 - ¿Qué ocurre si se solicita una devolución después del plazo permitido? El sistema debe rechazarla y mostrar que el período de devolución expiró, sin modificar el estado del producto.
 - ¿Qué ocurre si se intenta devolver una cantidad mayor a la vendida o ya devuelta? El sistema debe bloquear la devolución y señalar el máximo devolvible por producto.
 - ¿Qué ocurre si el motivo de devolución está vacío o no es válido? El sistema debe impedir el registro, resaltar los campos faltantes y solicitar una justificación válida.
@@ -188,7 +189,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-013**: El sistema DEBE exigir de forma obligatoria el canal de venta, la condición de pago y el vendedor responsable al guardar el pedido.
 - **FR-014**: El sistema DEBE crear todo Pedido de Venta nuevo en estado inicial «cotización».
 - **FR-015**: El sistema DEBE permitir editar un Pedido de Venta solo en los estados «cotización» y «pedido», recalculando sus importes y revalidando el stock; en «facturado», «entregado» y «cancelado» la edición DEBE bloquearse.
-- **FR-016**: El sistema DEBE registrar la condición de pago del pedido, seleccionada de las condiciones comerciales configuradas (p. ej., «contado», «crédito 30 días»), junto con el pedido.
+- **FR-016**: El sistema DEBE registrar `condicion_pago` como enum cerrado `{contado, credito}`, declarado en la clave de configuración `businessRules.paymentConditions` y persistido en el pedido como `paymentTerms`. CUALQUIER otro valor o texto libre DEBE rechazarse.
 - **FR-017**: El sistema DEBE conservar el detalle de productos, cantidades, precios, impuestos e importes de cada Pedido de Venta para su consulta posterior.
 
 **Ciclo de entrega (Operaciones y logística)**
@@ -207,7 +208,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 
 **Devoluciones (Encargado de devoluciones)**
 
-- **FR-026**: El sistema DEBE permitir al encargado de devoluciones seleccionar una venta anterior y solicitar la devolución de uno o más productos vendidos.
+- **FR-026**: El sistema DEBE permitir al encargado de devoluciones seleccionar una factura existente y solicitar la devolución de uno o más productos vendidos en ella. La devolución DEBE anclarse a la factura mediante `facturaId` (FK → `FACTURA.id`); el pedido DEBE derivarse de `factura.pedidoId` y la devolución NO DEBE almacenar una FK propia de pedido.
 - **FR-027**: El sistema DEBE definir el plazo de devolución (por defecto 30 días calendario desde la fecha de compra) y usarlo como referencia para validar la solicitud.
 - **FR-028**: El sistema DEBE exigir un motivo de devolución válido y no vacío para registrar la devolución.
 - **FR-029**: El sistema DEBE registrar la devolución en estado `solicitada`; Postventa puede gestionar la solicitud, solo el Jefe de Ventas puede aprobarla o rechazarla, y Postventa o el Jefe de Ventas pueden completar una solicitud aprobada.
@@ -268,7 +269,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 **Panel de análisis (gráficos)**
 
 - **FR-059**: El Panel DEBE incluir, junto al «Resumen general de ventas», la sección «Panel de análisis», visible para los roles con permiso de resumen (`ver_resumen`: Ejecutivo Comercial, Gerente, Postventa, Jefe de Ventas y Auditor), con dos gráficos dibujados con la biblioteca Chart.js: «Evolución de ventas por período» y «Productos más vendidos». La visibilidad de importes en ambos bloques se rige por la matriz de FR-053: Gerente, Jefe de Ventas y Ejecutivo Comercial ven importes completos; Postventa y Auditor ven solo conteos y unidades, con importes enmascarados.
-- **FR-060**: «Evolución de ventas por período» DEBE ser un gráfico de líneas con tres series, sumando el total de cada documento por su fecha de emisión: **Ventas** (pedidos «facturado» y «entregado»), **Pedidos** (pedidos en estado «pedido») y **Cotizaciones** (pedidos en «cotización» más todas las cotizaciones). El filtro «Período» agrupa por mes (por defecto, etiquetas «nov 26»), semana (que comienza el lunes, «sem 23 nov») o día («23 nov»), y completa con cero los períodos intermedios sin datos. Sobre el gráfico se muestra el total de cada serie en CLP, salvo para Postventa y Auditor: para esos roles el total monetario se enmascara y solo se muestran los conteos de documentos por período (FR-053).
+- **FR-060**: «Evolución de ventas por período» DEBE ser un gráfico de líneas con tres series, sumando el total de cada documento por su fecha de emisión: **Ventas** (pedidos «facturado» y «entregado»), **Pedidos** (pedidos en estado «pedido») y **Cotizaciones** (pedidos en «cotización» más todas las cotizaciones). El filtro «Período» agrupa por mes (por defecto, etiquetas «nov 26»), semana (que comienza el lunes, «sem 23 nov») o día («23 nov»), y completa con cero los períodos intermedios sin datos. Estas etiquetas son ilustrativas: se generan a partir de la fecha actual, como las fechas relativas a hoy de FR-066. Sobre el gráfico se muestra el total de cada serie en CLP, salvo para Postventa y Auditor: para esos roles el total monetario se enmascara y solo se muestran los conteos de documentos por período (FR-053).
 - **FR-061**: «Productos más vendidos» DEBE mostrar los 7 productos con más ventas en pedidos confirmados («pedido», «facturado» y «entregado»). El filtro «Métrica» elige entre Unidades vendidas (por defecto) y Monto vendido; el filtro «Gráfico» elige entre Barras horizontales (por defecto) y Pastel (dona con leyenda). Los empates se ordenan por nombre. Sobre el gráfico se muestra el total de unidades y monto de esos productos; para Postventa y Auditor, la métrica «Monto vendido» y el total de monto se enmascaran y solo se muestran unidades y conteos (FR-053).
 - **FR-062**: Cada gráfico se oculta si no tiene datos; si ninguno tiene datos, se muestra el aviso «No hay pedidos ni cotizaciones para mostrar en los gráficos». Si el navegador no puede dibujar el gráfico, se muestra «Vista disponible en navegadores con soporte de canvas». Los gráficos tienen `role="img"` con una descripción y se redibujan al cambiar cualquier filtro o los datos.
 
@@ -290,12 +291,12 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **Producto**: Bien o servicio vendible, con código único, categoría, unidad de medida, tasa de impuesto, costo estándar interno, stock actual, stock mínimo y estado de vigencia. El costo estándar solo es visible al Jefe de Ventas; el margen se deriva del precio vigente.
 - **Lista de precios / Precio de producto**: La lista agrupa precios por moneda y vigencia; cada precio relaciona un producto con una lista y un período válido. El Jefe de Ventas puede crearlos y editarlos.
 - **Detalle de Pedido de Venta**: Línea de un pedido que registra un producto, la cantidad vendida, el precio unitario, el descuento, el impuesto y el subtotal de la línea.
-- **Pedido de Venta**: Transacción comercial que vincula a un cliente con uno o más productos. Conserva vendedor, canal de venta, fecha de emisión, fecha de entrega, condición de pago, moneda, subtotal, descuento, impuesto, total y estado del ciclo de vida.
+- **Pedido de Venta**: Transacción comercial que vincula a un cliente con uno o más productos. Conserva vendedor, canal de venta, fecha de emisión, fecha de entrega, `condicion_pago` (`{contado, credito}`, FR-016), moneda, subtotal, descuento, impuesto, total y estado del ciclo de vida.
 - **Cotización**: Documento de pre-venta dirigido a un cliente, con fecha de emisión, vigencia, vendedor, líneas de productos e importes. Tiene estados propios y, al aceptarse, origina un Pedido de Venta en estado «pedido» vinculado por su identificador. No debe confundirse con el estado «cotización» de un pedido registrado directamente.
 - **Persistencia**: La interfaz distingue estas entidades, pero conserva sin migración las claves actuales `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
 - **Factura**: Documento fiscal generado a partir de un pedido confirmado. Registra cliente, líneas, subtotal, impuesto, total, saldo, fecha de emisión, vencimiento y estado de cobro. Un pedido admite como máximo una factura.
 - **Pago**: Abono aplicado a una factura, con fecha, monto, método y referencia. Reduce el saldo pendiente de la factura.
-- **Devolución**: Solicitud de devolución asociada a una factura y a su pedido, con número de seguimiento, fecha, motivo, estado, moneda e importe total devuelto. Se compone de una o más líneas devueltas.
+- **Devolución**: Solicitud de devolución anclada a una factura mediante `facturaId`; el pedido se deriva de `factura.pedidoId` (FR-026). Consta de número de seguimiento, fecha, motivo, estado, moneda e importe total devuelto, y se compone de una o más líneas devueltas.
 - **Detalle de Devolución**: Línea que indica qué producto vendido se devuelve, la cantidad y el monto devuelto.
 
 ## Success Criteria *(mandatory)*
@@ -321,17 +322,17 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - «Orden de venta» y «Pedido de Venta» designan la misma entidad; el término canónico es **Pedido de Venta**.
 - Los clientes, productos, vendedores, zonas y listas de precios ya existen o se gestionan en los maestros correspondientes antes de registrar una venta.
 - Los precios de los productos se expresan sin impuesto y el IVA se suma para obtener el total; la tasa aplicable proviene de la configuración tributaria vigente de cada producto.
-- La condición de pago «contado» y las condiciones a crédito se registran como texto o selección acordada con el cliente; el módulo no procesa cobros en línea.
+- `condicion_pago` es un enum cerrado `{contado, credito}`; se declara en `businessRules.paymentConditions` y se persiste en el pedido como `paymentTerms`. No se admite texto libre ni condiciones personalizadas; el módulo no procesa cobros en línea.
 - El estado «pedido» es el único que habilita la facturación; «cotización» no se considera confirmado.
 - El plazo de devolución es de 30 días calendario desde la fecha de compra, salvo que la política de la empresa configure otro plazo.
 - Las devoluciones pueden ser totales o parciales por producto, siempre que no superen la cantidad vendida y no devuelta previamente.
 - El estado visible «en proceso de devolución» puede corresponder internamente a las etapas solicitada, aprobada o completada del flujo de devolución.
-- El stock se descuenta al confirmar o despachar el pedido según la política operativa; la validación de disponibilidad se realiza al agregar cada producto y al guardar o confirmar el pedido.
+- El stock se descuenta al despachar el pedido (transición «facturado» → «entregado»), no al crearlo ni al facturarlo; la disponibilidad se valida al agregar cada producto, al guardar/confirmar el pedido y de nuevo antes del despacho, con reversión si la transición falla.
 - Los importes se manejan en la moneda configurada para el pedido y se redondean según la precisión de esa moneda.
 - La cancelación de un pedido solo se permite desde los estados «cotización» y «pedido», conforme al ciclo de vida definido.
 - La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren el rol activo correspondiente según la matriz de FR-053 y los roles de FR-057; el módulo no tiene inicio de sesión.
 - La navegación y los datos visibles dependen del rol conforme a FR-051–FR-056: Panel concentra métricas; Agregar concentra altas; Cotizaciones y Órdenes de Venta son listados separados. Jefe de Ventas ve costos, márgenes y contactos completos; Ejecutivo Comercial no ve costos/márgenes; Postventa solo consulta órdenes despachadas y RMA sin importes; Auditor ve métricas agregadas en Panel y no accede a registros individuales. Operaciones, Gerente y Facturación se conservan como roles heredados con permisos específicos. El Resumen general y el Panel de análisis siguen la matriz de FR-053: Postventa y Auditor ven solo conteos y unidades con importes enmascarados, y el Auditor no accede a registros individuales.
-- Las etiquetas `sales_quotes` y `sales_orders` no cambian las colecciones ni las claves físicas vigentes.
+- Las etiquetas `sales_quotes` y `sales_orders` son solo de interfaz y no cambian las colecciones ni las claves físicas vigentes (FR-002, FR-050).
 - Los clientes se desactivan lógicamente sin eliminar sus pedidos, facturas ni devoluciones (trazabilidad, FR-006); el borrado en cascada de pedidos solo aplica al borrado físico del cliente, que el módulo no expone.
 - Los datos deben conservarse entre sesiones y no deben perderse al navegar entre pantallas o al recargar la aplicación.
 - No existen operaciones asíncronas de red ni de entrada/salida en el dominio de Ventas: la carga de configuración y la siembra de datos son síncronas. Por ello no se requieren estados de carga; la retroalimentación inmediata (FR-049), los estados vacíos (FR-046) y los mensajes accesibles satisfacen el patrón de estados de carga del Principio III de la constitución.

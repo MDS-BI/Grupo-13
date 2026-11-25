@@ -98,11 +98,11 @@ description: "Task list for Módulo de Ventas implementation"
 
 ## Fase 4: US2 - Marcar pedido como entregado (Prioridad P2)
 
-**Meta**: El encargado de operaciones y logística cambia un pedido «facturado» a «entregado», y el sistema bloquea cualquier modificación o reversión posterior.
+**Meta**: El encargado de operaciones y logística cambia un pedido «facturado» a «entregado», descuenta el stock al despachar y bloquea cualquier modificación o reversión posterior.
 
 **Dependencia**: requiere un Pedido de Venta en estado «facturado»; completar Fase 8 (US6) antes de validar el recorrido extremo a extremo o sembrar un pedido facturado en la prueba.
 
-**Prueba independiente**: Seleccionar un pedido «facturado», cambiarlo a «entregado», verificar la persistencia y el reflejo en listas; intentar modificarlo y comprobar el bloqueo por estado terminal.
+**Prueba independiente**: Seleccionar un pedido «facturado», cambiarlo a «entregado», verificar la persistencia, el reflejo en listas y el descuento atómico de stock; intentar modificarlo y comprobar el bloqueo por estado terminal.
 
 - [x] T034 [P] [US2] Escribir pruebas unitarias de reglas de entrega y estado terminal en `modulo-ventas/tests/ventas/delivery.test.js`.
 - [x] T035 [P] [US2] Escribir la prueba de integración del recorrido «marcar pedido entregado» en `modulo-ventas/tests/ventas/us2-delivery.test.js`.
@@ -111,6 +111,8 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T038 [US2] Agregar la vista/sección de entrega en `modulo-ventas/index.html`.
 - [x] T039 [US2] Conectar el panel de entrega, el guardián de rol de operaciones y la actualización de listas/resumen en `modulo-ventas/src/app.js`.
 - [x] T040 [US2] Bloquear la edición de pedidos «entregado» en `modulo-ventas/src/components/ventas/order-form.js` y en el despacho de `modulo-ventas/src/app.js`.
+- [ ] T120 [P] [US2] Escribir la prueba de descuento de stock al despachar en `modulo-ventas/tests/ventas/us2-delivery.test.js`: stock sin descontar en «facturado», descuento atómico por línea al pasar a «entregado» y bloqueo/reversión si falta stock.
+- [ ] T121 [US2] Implementar el descuento de stock por línea al confirmar el despacho en `modulo-ventas/src/ventas/delivery.js` y `modulo-ventas/src/ventas/catalog.js`, revalidando disponibilidad y revirtiendo la transición si falla.
 
 **Punto de control**: US1 y US2 funcionan de forma independiente.
 
@@ -141,11 +143,11 @@ description: "Task list for Módulo de Ventas implementation"
 **Prueba independiente**: Seleccionar una venta dentro del plazo, registrar un motivo válido y verificar el cambio a «en proceso de devolución», el número de seguimiento y la auditoría; comprobar el rechazo fuera de plazo, con motivo inválido y con cantidad excesiva.
 
 - [x] T048 [P] [US4] Escribir pruebas unitarias de plazo, motivo y límites de devolución en `modulo-ventas/tests/ventas/returns.test.js`.
-- [x] T049 [P] [US4] Escribir la prueba de integración del recorrido «registrar devolución» en `modulo-ventas/tests/ventas/us4-returns.test.js`.
-- [x] T050 [US4] Implementar el almacén de devoluciones en `modulo-ventas/src/ventas/returns.js` (`DEVOLUCION` + `DETALLE_DEVOLUCION` y número de seguimiento), con manejo y soporte explícitos de los estados internos `solicitada`/`aprobada`/`rechazada`/`completada`, incluida la transición a `rechazada`.
+- [x] T049 [P] [US4] Escribir la prueba de integración del recorrido «registrar devolución» en `modulo-ventas/tests/ventas/us4-returns.test.js`, asertando que `facturaId` referencia la factura seleccionada y que el pedido se deriva de `factura.pedidoId` (sin FK directa en la devolución, FR-026).
+- [x] T050 [US4] Implementar el almacén de devoluciones en `modulo-ventas/src/ventas/returns.js` (`DEVOLUCION` + `DETALLE_DEVOLUCION` y número de seguimiento), exigiendo `facturaId` válida (FK → `FACTURA.id`) y derivando el pedido de `factura.pedidoId` (FR-026), con manejo y soporte explícitos de los estados internos `solicitada`/`aprobada`/`rechazada`/`completada`, incluida la transición a `rechazada`.
 - [x] T051 [US4] Agregar las validaciones de plazo de 30 días, motivo no vacío y cantidad máxima devolvible en `modulo-ventas/src/ventas/returns.js`.
 - [x] T052 [US4] Actualizar el estado del producto a «en proceso de devolución» y registrar la auditoría en `modulo-ventas/src/ventas/returns.js` usando `audit.js`.
-- [x] T053 [P] [US4] Crear el panel de devoluciones en `modulo-ventas/src/components/ventas/returns-panel.js` (selección de venta, productos, cantidad, motivo y errores).
+- [x] T053 [P] [US4] Crear el panel de devoluciones en `modulo-ventas/src/components/ventas/returns-panel.js` (selección de factura, productos, cantidad, motivo y errores).
 - [x] T054 [US4] Agregar la vista y el formulario de devoluciones en `modulo-ventas/index.html`.
 - [x] T055 [US4] Conectar el panel de devoluciones, el guardián de rol y la actualización de estados en `modulo-ventas/src/app.js`.
 - [x] T056 [US4] Agregar estilos de devoluciones y resaltado de campos inválidos en `modulo-ventas/src/styles.css`.
@@ -182,14 +184,14 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T065 [P] [US6][US7] Escribir pruebas unitarias de registro de pagos y recálculo de saldo en `modulo-ventas/tests/ventas/payments.test.js`.
 - [x] T066 [P] [US6] Escribir la prueba de integración del recorrido «generar factura» en `modulo-ventas/tests/ventas/us6-invoice.test.js`.
 - [x] T067 [US6] Implementar el almacén de facturas en `modulo-ventas/src/ventas/invoices.js` (`FACTURA` desde pedido confirmado, copia de cliente/líneas/precios/impuestos, estado «pendiente de pago» y saldo).
-- [x] T068 [US6] Agregar elegibilidad y protección de duplicados en `modulo-ventas/src/ventas/invoices.js` (solo estado «pedido», una factura por pedido y guardia ante solicitudes concurrentes).
+- [x] T068 [US6] Agregar elegibilidad y protección de duplicados en `modulo-ventas/src/ventas/invoices.js` conforme a FR-040, FR-041 y FR-047.
 - [x] T069 [P] [US6][US7] Implementar el registro de pagos y recálculo de saldo en `modulo-ventas/src/ventas/payments.js` (`PAGO`, monto positivo y suma de pagos ≤ total facturado; cubre FR-048 / US7).
 - [x] T070 [P] [US6] Crear el panel de facturación en `modulo-ventas/src/components/ventas/invoice-panel.js` (pedido elegible, detalle de factura, saldo y mensajes de bloqueo).
 - [x] T071 [US6] Agregar la vista de facturación y el detalle de factura/pagos en `modulo-ventas/index.html`.
 - [x] T072 [US6] Conectar la generación de facturas, los mensajes de bloqueo y el guardián del rol facturación en `modulo-ventas/src/app.js`.
 - [x] T073 [US6] Propagar el estado «facturado» a pedido, entrega y resumen en `modulo-ventas/src/ventas/orders.js`, `modulo-ventas/src/ventas/delivery.js` y `modulo-ventas/src/ventas/summary.js`.
 - [x] T074 [US6] Agregar estilos de facturación, saldos y estados de pago en `modulo-ventas/src/styles.css`.
-- [x] T075 [US6] Agregar la prueba de concurrencia/idempotencia que garantiza una sola factura persistida por pedido en `modulo-ventas/tests/ventas/us6-invoice-concurrency.test.js`.
+- [x] T075 [US6] Agregar la prueba de concurrencia/idempotencia que garantiza una sola factura persistida por pedido en `modulo-ventas/tests/ventas/us6-invoice-concurrency.test.js` (FR-041, FR-047).
 
 **Punto de control**: Las siete historias de usuario funcionan de forma independiente.
 
@@ -227,7 +229,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T101 [US1] Agregar formularios de creación/edición de listas de precios y precios por producto bajo «Agregar / Operaciones», preservar los identificadores y colecciones, y probar validaciones de moneda/vigencia en `catalog.js`, `pricing-panel.js` y `catalog.test.js`.
 - [x] T102 [US4] Agregar acciones RMA de aprobar/rechazar (Jefe de Ventas) y completar (Postventa/Jefe de Ventas), con guardas de dominio y pruebas en `returns.js`, `returns-panel.js` y `us4-returns.test.js`.
 - [x] T103 Aplicar navegación por rol: Jefe con acceso total, Ejecutivo sin edición de precios/aprobación RMA, Postventa solo Panel/RMA y Auditor solo Panel Visual de lectura; mostrar controles bloqueados con aviso/candado y conservar roles heredados.
-- [x] T104 Sincronizar las etiquetas «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» con el flujo de conversión y documentar que las claves físicas existentes permanecen intactas.
+- [x] T104 Alinear las etiquetas «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» con el flujo de conversión y documentar las claves físicas vigentes conforme a FR-002 y FR-050.
 - [x] T105 Validar cambios con pruebas de catálogo, RMA, matriz de roles y UI, además de la suite completa, lint y build; actualizar el registro de verificación de `plan.md`.
 - [x] T106 [US1] Separar el listado operativo de Órdenes de Venta del listado de Cotizaciones, quitar contadores redundantes de la navegación y conservar la conversión aprobada solo desde Cotizaciones.
 - [x] T107 [US1] Centralizar formularios de cotización, orden, listas/precios, RMA, clientes y documentos en pestañas de «Agregar»; dejar las demás vistas operativas con tablas y acciones.
@@ -260,7 +262,7 @@ description: "Task list for Módulo de Ventas implementation"
 - **Setup (Fase 1)**: sin dependencias; puede comenzar de inmediato.
 - **Foundational (Fase 2)**: depende de Setup; bloquea todas las historias.
 - **US1 (Fase 3)**: depende de Foundational; no depende de otras historias.
-- **US2 (Fase 4)**: depende de Foundational y de un pedido en estado «facturado» creado por US1/US6 para su prueba de extremo a extremo.
+- **US2 (Fase 4)**: depende de Foundational y de un pedido en estado «facturado» creado por US1/US6 para su prueba de extremo a extremo; T120/T121 cubren el descuento de stock al despachar.
 - **US3 (Fase 5)**: depende de Foundational y de pedidos/cotizaciones generados por US1.
 - **US4 (Fase 6)**: depende de Foundational y de una venta/factura generada por US1/US6.
 - **US5 (Fase 7)**: depende de Foundational y de cotizaciones/pedidos generados por US1.
@@ -339,7 +341,7 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 1. Setup + Foundational → base de dominio lista.
 2. US1 → validar y demostrar el MVP.
 3. US6 → habilitar facturación y el estado «facturado».
-4. US2 → habilitar la entrega y el cierre del ciclo.
+4. US2 → habilitar la entrega, el descuento de stock al despachar y el cierre del ciclo.
 5. US3 y US5 → habilitar supervisión e historial.
 6. US4 → habilitar devoluciones.
 7. Polish → accesibilidad, rendimiento, consistencia y documentación.

@@ -8,10 +8,10 @@
 
 El Módulo de Ventas se construye sobre el módulo base ERP sin modificar su núcleo. La adaptación actual se concentra en `modulo-ventas/src/module-config.js`, que declara:
 
-- **Terminología**: Entidad → **Cliente**; la interfaz separa «Cotizaciones (`sales_quotes`)» de «Órdenes de Venta (`sales_orders`)».
+- **Terminología y vistas**: Entidad → **Cliente**; la separación entre Cotizaciones (`sales_quotes`) y Órdenes de Venta (`sales_orders`) se define en FR-002 y FR-050.
 - **Campos propios**: `vendedor` y `zona` en el cliente; `canal` y `fechaEntrega` en el pedido.
 - **Ciclo de vida**: `cotización → pedido → facturado → entregado`, con cancelación desde `cotización` o `pedido`.
-- **Marca**: nombre "Ventas" y color de acento `#0f62fe`.
+- **Marca**: nombre "Ventas" y color de acento `#2563eb` (oscuro `#1d4ed8`, FR-064).
 
 El modelo de datos v3.1 distingue el **modelo lógico completo** del **modelo físico implementado** en `localStorage`. El detalle de entidades, cardinalidades, claves y restricciones se consulta en `data-model.md` y no se duplica en este plan.
 
@@ -20,7 +20,7 @@ La entrega implementa clientes sobre `erp_base_module:entities` y conserva las c
 ## Contexto Técnico
 
 **Lenguaje/Versión**: JavaScript (ES2022), HTML, CSS  
-**Dependencias Principales**: Vite, Vitest + jsdom (sin framework de interfaz)  
+**Dependencias Principales**: Vite, Vitest + jsdom (sin framework de interfaz) y Chart.js para los gráficos del Panel de análisis (FR-059, T115)  
 **Almacenamiento**: localStorage del navegador — clientes en `erp_base_module:entities` y colecciones de dominio con prefijo `erp_ventas:` (zonas, vendedores, catálogo, cotizaciones, pedidos, facturas, pagos, devoluciones, auditoría y secuencias)
 **Modelo de Datos**: modelo de dos niveles (lógico completo y físico implementado) documentado en [data-model.md](data-model.md); este plan no replica el modelo entidad-relación  
 **Estructura**: la carpeta `modulo-ventas/` es autocontenida (index.html, src/, tests/) y se ejecuta con `vite modulo-ventas` desde la raíz del repositorio  
@@ -118,8 +118,8 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 
 - El menú lateral tiene una entrada «Panel» para KPIs, gráficos, reportes y resúmenes; no repite listados operativos ni contadores en otras pestañas.
 - «Agregar» contiene pestañas para Cotización, Orden de Venta, Lista/Precio y Devolución RMA, además de Cliente y Documento. Los formularios de alta/edición quedan centralizados en esta vista.
-- «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» son vistas operativas separadas con tablas propias. Convertir una cotización aprobada crea una única orden vinculada, disponible en el listado de órdenes y editable desde Agregar. Los documentos genéricos del módulo base se muestran como «Documentos de clientes» para no confundirse con las órdenes de venta.
-- Las pestañas operativas restantes se limitan a tablas y acciones de consulta/gestión. Se conservan las claves físicas `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
+- Las vistas operativas, sus etiquetas y la conversión de una cotización aprobada siguen FR-002, FR-050 y FR-051; los documentos genéricos se muestran como «Documentos de clientes» (FR-002).
+- Las pestañas operativas restantes se limitan a tablas y acciones de consulta/gestión; las claves físicas `erp_ventas:cotizaciones` y `erp_ventas:pedidos` se conservan (FR-050).
 - Componentes de dominio en `modulo-ventas/src/components/ventas/` conectados desde `modulo-ventas/src/app.js`.
 - Selector de rol activo en la barra superior, gobernado por la matriz rol × vista × acción de FR-053. Jefe de Ventas ve datos completos, incluidos costos estándar, márgenes y contactos de clientes. Ejecutivo Comercial ve datos comerciales/clientes, con costos y márgenes enmascarados; puede agregar cotizaciones/órdenes, pero no editar precios ni aprobar/rechazar RMA. Postventa ve órdenes despachadas y datos operativos RMA sin montos ni precios unitarios; solo puede agregar y gestionar RMA. Auditor consulta métricas agregadas únicamente en Panel; sus pestañas y controles de Agregar/edición quedan bloqueados con indicador de solo lectura. Operaciones, Gerente y Facturación conservan sus acciones heredadas. El Resumen general y el Panel de análisis están disponibles para Ejecutivo Comercial, Gerente, Postventa, Jefe de Ventas y Auditor (`ver_resumen`): Gerente ve todo con importes completos; Jefe de Ventas y Ejecutivo Comercial ven importes completos según su matriz; Postventa y Auditor ven solo conteos y unidades, con importes y precios unitarios enmascarados y sin registros individuales para Auditor. Operaciones y Facturación no acceden al Resumen ni al Panel de análisis.
 - Los botones, pestañas y formularios no autorizados se deshabilitan con avisos/candados. RMA aplica guardas de dominio para creación y transición.
@@ -142,14 +142,14 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
    - `index.html` + `app.js`: la vista Documentos muestra un aviso que dirige la creación de Pedidos de Venta a la vista dedicada, que valida stock (FR-012) y asigna el estado inicial «cotización» (FR-014); el botón de eliminación física del cliente queda oculto en Entidades y se reemplaza por una nota de desactivación lógica (supuestos de la especificación).
    - `quotes-panel.js` (T022): corrección de la correspondencia acción→estado en los botones de cotización, etiqueta «Convertir a pedido», mensaje con el pedido generado y recorrido hacia el formulario de órdenes. Jefe y Ejecutivo pueden editar órdenes en estados modificables.
 9. **Vistas y autorizaciones**: Panel Visual reúne consultas/KPIs; Agregar / Operaciones contiene formularios. Se incorporan los formularios de mantenimiento de precios para Jefe de Ventas y las acciones de aprobación/rechazo RMA separadas de la gestión de Postventa.
-10. **Navegación y visibilidad por rol**: la barra lateral se reduce a Panel y vistas operativas separadas; Agregar concentra los formularios en pestañas. La lista genérica de documentos se etiqueta «Documentos de clientes», evitando duplicar «Órdenes de Venta» en el menú, el Panel y las pestañas de Agregar. Se incorpora el costo estándar opcional del producto, margen derivado del precio vigente y máscaras de información para Ejecutivo, Postventa y Auditor.
+10. **Navegación y visibilidad por rol**: la barra lateral se reduce a Panel y vistas operativas separadas (FR-051) y Agregar concentra los formularios en pestañas (FR-052). La etiqueta «Documentos de clientes» y la separación de vistas siguen FR-002 y FR-050. Se incorpora el costo estándar opcional del producto, margen derivado del precio vigente y máscaras de información para Ejecutivo, Postventa y Auditor (FR-053 a FR-055).
 
 ## Verificación
 
 - `npm test`: **275/275 pruebas pasan** (45 archivos).
 - `npm run build`: compila sin errores.
 - `npm run lint`: pasa sin errores.
-- Verificación en navegador: «Órdenes de Venta (`sales_orders`)», «Cotizaciones (`sales_quotes`)» y «Documentos de clientes» aparecen como destinos distintos; Postventa solo accede a RMA y órdenes entregadas sin montos; Auditor ve métricas agregadas y pestañas de Agregar bloqueadas. En el Resumen general y el Panel de análisis, Gerente ve importes completos, mientras Postventa y Auditor reciben solo conteos con importes enmascarados; Operaciones y Facturación no acceden a estas vistas.
+- Verificación en navegador: las vistas y etiquetas de FR-002, FR-050 y FR-051 aparecen como destinos distintos; la matriz de FR-053 se cumple (Postventa sin montos, Auditor solo métricas agregadas), así como la visibilidad del Resumen y el Panel de análisis de FR-059 a FR-061.
 - Coherencia con el modelo: la terminología visible, la matriz de roles y la persistencia coinciden con `data-model.md` §7 y §8.
 - `npm run format:check`: falla por advertencias preexistentes en 44 archivos de `src/`; el nuevo `pricing-panel.js` y `quote-form.js` pasan la comprobación individual. No se aplicó un formateo masivo ajeno a esta iteración.
 - Backlog previo: T090-T105 completadas (incluye organización Panel/Operaciones, edición de precios, flujo de aprobación RMA y matriz inicial de roles). Esta iteración registra la navegación/visibilidad detallada en T106-T110.
