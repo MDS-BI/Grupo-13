@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-02
 
-**Status**: Implementado
+**Status**: En progreso
 
 **Input**: User description: "Módulo ERP de Ventas para registrar cotizaciones y pedidos de venta con cliente, productos, cantidades, precios, impuestos y control de stock; gestionar el ciclo cotización → pedido → facturado → entregado; emitir facturas, procesar devoluciones, consultar el historial comercial de cada cliente y obtener un resumen general de ventas por rol."
 
@@ -243,7 +243,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-046**: El sistema DEBE mostrar estados vacíos claros cuando no existan clientes, productos, ventas, cotizaciones, pedidos o devoluciones que mostrar.
 - **FR-047**: El sistema DEBE mantener la consistencia de los datos ante operaciones simultáneas o repetidas, evitando duplicados de facturas, devoluciones y líneas de pedido.
 - **FR-048**: El sistema DEBE registrar pagos aplicados a una factura, con fecha, monto, método y referencia, recalculando el saldo pendiente sin permitir sobrepagos.
-- **FR-049**: El sistema DEBE mostrar el resultado de cada operación de forma inmediata e inequívoca mediante estados vacíos, mensajes de validación/error y la actualización directa de listas y totales, sin requerir indicadores de carga: todas las operaciones del dominio son lecturas y escrituras síncronas sobre `localStorage`.
+- **FR-049**: Todas las vistas DEBEN seguir el mismo patrón de carga y retroalimentación: al cargar o actualizar listas se muestra un indicador de carga accesible; durante una acción asíncrona el botón correspondiente queda deshabilitado y muestra un spinner; al finalizar cada acción se muestra un mensaje inequívoco de éxito o error, anunciado mediante `aria-live` y con una acción de recuperación cuando corresponda. Los estados vacíos, la validación y el manejo de errores DEBEN conservar la terminología y el diseño del módulo base, de modo que el usuario entienda el estado, pueda navegar y recuperarse del error sin ambigüedad.
 - **FR-050**: El sistema DEBE presentar la pre-venta como «Cotizaciones (`sales_quotes`)» y la venta como «Órdenes de Venta (`sales_orders`)» en vistas diferenciadas. Aceptar una cotización aprobada DEBE crear como máximo una orden vinculada. Estos nombres son etiquetas de interfaz; se conservan las claves físicas `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
 - **FR-051**: El menú lateral DEBE ofrecer una sola entrada «Panel» para KPIs, gráficos y resúmenes; las vistas operativas de Órdenes de Venta (`sales_orders`) y Cotizaciones (`sales_quotes`) DEBEN ser distintas y mostrar solo sus propios registros y acciones. Las tablas no DEBEN duplicarse dentro del Panel ni entre sí.
 - **FR-052**: El sistema DEBE centralizar en «Agregar» los formularios de cotización, orden de venta, listas/precios y devolución RMA, accesibles mediante pestañas internas. Los formularios de cliente y documento también DEBEN estar en esa sección; las demás vistas operativas se limitan a sus tablas y acciones de gestión.

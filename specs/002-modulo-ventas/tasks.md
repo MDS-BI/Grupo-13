@@ -11,6 +11,8 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Pruebas**: Las tareas de prueba se incluyen porque la constitución del proyecto (Principio II, Test-First & Verification) exige cobertura automatizada de comportamiento visible y lógica de negocio.
 
+**Gate de formato**: `npm run format:check` debe terminar con 0 hallazgos; es bloqueante en T000, T111, T128 y cualquier verificación final. No se aceptan hallazgos preexistentes.
+
 **Organización**: Las tareas se agrupan por historia de usuario para permitir implementación y validación independientes. Las historias P2-P7 dependen de los datos creados por US1, pero cada una se valida con su propia prueba aislada.
 
 ## Formato: `[ID] [P?] [Story] Descripción`
@@ -33,6 +35,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Propósito**: Preparar el espacio de trabajo y verificar la línea base antes de agregar dominio.
 
+- [ ] T000 Ejecutar el formateador del proyecto (`npx prettier --write modulo-ventas/src`) sobre los 44 archivos con hallazgos y confirmar que `npm run format:check` pasa con 0 hallazgos desde la raíz. Gate bloqueante: ninguna otra tarea puede marcarse completada mientras haya hallazgos de formato.
 - [x] T001 Ejecutar `npm test` y `npm run build` desde la raíz del repositorio y registrar la línea base (111 pruebas y build vigente) antes de cualquier cambio.
 - [x] T002 [P] Agregar el script `test:ventas` (`vitest run modulo-ventas/tests/ventas`) en `package.json`.
 - [x] T003 [P] Crear el punto de entrada del dominio en `modulo-ventas/src/ventas/index.js` reexportando los módulos de Ventas a medida que se implementan.
@@ -218,19 +221,24 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T085 Ejecutar `npm test` desde la raíz y corregir cualquier regresión de la suite completa.
 - [x] T086 Ejecutar `npm run build` desde la raíz y verificar la salida en `modulo-ventas/dist/`.
 - [x] T087 [P] Configurar ESLint + Prettier en la raíz (`package.json`, `eslint.config.mjs`, `.prettierrc`) para `modulo-ventas/src/`.
-- [x] T088 [P] Ejecutar lint/format y corregir hallazgos en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`.
-- [x] T089 Agregar scripts `lint` y `format:check` y ejecutarlos junto a `npm test` y `npm run build` antes de cerrar la entrega.
+- [ ] T088 [P] Ejecutar lint/format y corregir todos los hallazgos en `modulo-ventas/src/ventas/` y `modulo-ventas/src/components/ventas/`; verificar `npm run format:check` con 0 hallazgos.
+- [ ] T089 Agregar scripts `lint` y `format:check` y ejecutarlos junto a `npm test` y `npm run build`; no cerrar ninguna fase si `format:check` tiene hallazgos.
 - [x] T090 [P] [US1] Escribir prueba de edición de pedido con recálculo y revalidación de stock en `modulo-ventas/tests/ventas/edit-order.test.js`. (Diferida de US1: se ejecuta en la fase Polish por conveniencia de secuencia.)
 - [x] T091 [US1] Implementar la edición de pedidos en estados modificables en `modulo-ventas/src/components/ventas/order-form.js` y `modulo-ventas/src/ventas/orders.js`. (Diferida de US1: se ejecuta en la fase Polish.)
 - [x] T092 [P] [US1] Escribir prueba de transición «cancelado» desde «cotización» y «pedido» en `modulo-ventas/tests/ventas/us1-cancel-order.test.js`. (Diferida de US1: se ejecuta en la fase Polish.)
 - [x] T093 Verificar que `data-model.md` refleje la distinción entre la entidad Cotización y el estado «cotización», y actualizar las entidades implementadas.
-- [x] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones.
-- [x] T095 Verificar y documentar la desviación del Principio III (estados de carga): confirmar que el dominio de Ventas no tiene operaciones asíncronas de red/E/S y que FR-049, FR-046 y los mensajes `aria-live` cubren la retroalimentación inmediata; reflejar la justificación en `plan.md`.
+- [ ] T094 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` tras los cambios y corregir regresiones; `format:check` debe terminar con 0 hallazgos.
+- [ ] T095a [P] Escribir primero las pruebas en `modulo-ventas/tests/ventas/loading-feedback.test.js` que fallen con el estado actual: indicador de carga accesible al cargar o actualizar listas, botón deshabilitado con spinner durante acciones asíncronas y mensaje de éxito o error `aria-live` tras cada acción (FR-049, Principio III).
+- [ ] T095b [P] Implementar el patrón compartido de carga y retroalimentación en `modulo-ventas/src/components/ventas/loading-feedback.js` y `modulo-ventas/src/styles.css`: indicador de listas, botón deshabilitado con spinner y mensajes accesibles de éxito/error con recuperación.
+- [ ] T095c [P] Aplicar el patrón en Panel, Resumen general, Panel de análisis y todas las pestañas de «Agregar».
+- [ ] T095d [P] Aplicar el patrón en los listados de Órdenes de Venta, Cotizaciones, Productos, Clientes, Documentos de clientes y Búsqueda.
+- [ ] T095e [P] Aplicar el patrón en Entregas, Devoluciones/RMA y Facturación y pagos, incluidas aprobación/rechazo, registro de pagos y transiciones de estado.
+- [ ] T095f Ejecutar las pruebas de `modulo-ventas/tests/ventas/loading-feedback.test.js`, `modulo-ventas/tests/ventas/ui-ventas.test.js` y la suite completa; verificar que todas las vistas de FR-063 muestran el patrón de FR-049 y que no queda mensaje de éxito/error sin `aria-live`.
 - [x] T096 [US1] Reorganizar la interfaz para concentrar consultas en «Panel Visual» y agrupar formularios/acciones en «Agregar / Operaciones», conservando accesos y datos existentes.
 - [x] T097 [US1] Separar el formulario de alta de Cotización de la Orden de Venta, usar precios vigentes a la fecha de emisión y proteger aprobación/rechazo en `quotes.js` y `quotes-panel.js`.
 - [x] T098 [US1] Aplicar la matriz de Jefe de Ventas, Ejecutivo Comercial, Postventa y Auditor, conservando roles heredados; añadir pruebas de autorización y revisión de órdenes generadas.
 - [x] T099 Sincronizar `spec.md`, `data-model.md`, `plan.md` y `tasks.md` con la separación de entidades, la organización de pantallas, las claves físicas y la matriz de permisos.
-- [x] T100 Ejecutar `npm test`, `npm run lint`, `npm run build` y `npm run format:check`; corregir regresiones y registrar las advertencias de formato existentes.
+- [ ] T100 Ejecutar `npm test`, `npm run lint`, `npm run build` y `npm run format:check`; corregir regresiones y confirmar que `format:check` termina con 0 hallazgos.
 - [x] T101 [US1] Agregar formularios de creación/edición de listas de precios y precios por producto bajo «Agregar / Operaciones», preservar los identificadores y colecciones, y probar validaciones de moneda/vigencia en `catalog.js`, `pricing-panel.js` y `catalog.test.js`.
 - [x] T102 [US4] Agregar acciones RMA de aprobar/rechazar (Jefe de Ventas) y completar (Postventa/Jefe de Ventas), con guardas de dominio y pruebas en `returns.js`, `returns-panel.js` y `us4-returns.test.js`.
 - [x] T103 Aplicar navegación por rol: Jefe con acceso total, Ejecutivo sin edición de precios/aprobación RMA, Postventa solo Panel/RMA y Auditor solo Panel Visual de lectura; mostrar controles bloqueados con aviso/candado y conservar roles heredados.
@@ -241,7 +249,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T108 [US1] Concentrar KPIs, gráficos y resúmenes en Panel; el Resumen general y el Panel de análisis muestran importes completos solo a Gerente, Jefe de Ventas y Ejecutivo Comercial, y solo conteos/unidades con importes y precios unitarios enmascarados a Postventa y Auditor, sin detalles por registro para Auditor (FR-053, FR-059 a FR-061).
 - [x] T109 [US1] Aplicar la matriz de visibilidad: costo/margen solo Jefe de Ventas, datos comerciales para Ejecutivo, órdenes despachadas y RMA sin montos para Postventa, y solo reportes agregados para Auditor.
 - [x] T110 [P] Añadir pruebas focalizadas de separación de vistas, centralización de formularios, máscara de costos y visibilidad Postventa/Auditor; actualizar la especificación, el plan y el modelo de datos.
-- [x] T111 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build`; registrar los resultados finales en `plan.md`.
+- [ ] T111 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build`; verificación final bloqueante: solo se marca completada si `format:check` termina con 0 hallazgos y T119-T134 están completados. Registrar los resultados en `plan.md` solo entonces.
 
 ---
 
@@ -282,7 +290,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 ### Verificación final
 
-- [ ] T128 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` desde la raíz; corregir regresiones y dejar constancia de que FR-066, FR-067 y FR-068 quedan cubiertos por las pruebas de T122/T134, T125 y T126.
+- [ ] T128 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` desde la raíz; corregir regresiones y dejar constancia de que FR-066, FR-067 y FR-068 quedan cubiertos por las pruebas de T122/T134, T125 y T126. `format:check` con 0 hallazgos es gate bloqueante de esta verificación final; no cerrar la fase mientras T119-T134 estén pendientes.
 
 ---
 
@@ -290,7 +298,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 ### Dependencias por fase
 
-- **Setup (Fase 1)**: sin dependencias; puede comenzar de inmediato.
+- **Setup (Fase 1)**: T000 se ejecuta primero y bloquea cualquier otra tarea hasta que `format:check` termine con 0 hallazgos.
 - **Foundational (Fase 2)**: depende de Setup; bloquea todas las historias.
 - **US1 (Fase 3)**: depende de Foundational; no depende de otras historias; T131 verifica SC-009 con tasas 19 % y 0 %.
 - **US2 (Fase 4)**: depende de Foundational y de un pedido en estado «facturado» creado por US1/US6 para su prueba de extremo a extremo; T120/T121 cubren el descuento de stock al despachar.
@@ -301,7 +309,7 @@ description: "Task list for Módulo de Ventas implementation"
 - **US7 (Fase 8)**: comparte fase con US6; depende de una factura emitida por US6 para registrar pagos; T130 cubre de extremo a extremo «parcial» → «pagada» y el rechazo de sobrepago.
 - **Polish (Fase 9)**: depende de todas las historias que se deseen entregar; T129 verifica SC-003 apoyándose en US1 y US5.
 - **Fase 10 (respaldo y verificación de matriz)**: depende de la matriz de FR-053 y de las vistas de FR-051; T119 verifica el enmascaramiento de importes del Resumen para Postventa y Auditor, y T134 amplía T118 con los conteos y estados estrictos de FR-066.
-- **Fase 11 (autonomía de la especificación)**: depende de Fase 10 y de FR-053, FR-066, FR-067 y FR-068; T122 y T126 se escriben antes que T123 y T127, T125 comprueba que ninguna referencia heredada queda viva y T128 cierra la fase con suite, lint, formato y build.
+- **Fase 11 (autonomía de la especificación)**: depende de Fase 10 y de FR-053, FR-066, FR-067 y FR-068; T122 y T126 se escriben antes que T123 y T127, T125 comprueba que ninguna referencia heredada queda viva y T128 cierra la fase con suite, lint, `format:check` con 0 hallazgos y build.
 
 ### Dependencias entre historias
 
@@ -399,8 +407,8 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 - El modelo lógico de `data-model.md` es la única fuente de verdad de entidades y relaciones.
 - Mantener `modulo-ventas/src/storage.js` y los componentes base sin bifurcaciones: el dominio nuevo vive en `modulo-ventas/src/ventas/`.
 - `PAGO` se incluye en US6/US7: figura en el modelo de datos y en las entidades clave de la especificación, y ahora responde al requisito FR-048 (US7).
-- T095 rastrea la desviación justificada del Principio III (sin estados de carga por operaciones síncronas); FR-049 y FR-046 definen la retroalimentación inmediata equivalente.
+- T095a–T095f aplican y verifican el patrón obligatorio de FR-049 en todas las vistas, conforme al Principio III; FR-046 conserva los estados vacíos accesibles.
 - T122–T128 hacen que la especificación sea autosuficiente: los nombres del seed son datos de demostración, no credenciales de acceso; FR-057 sigue rigiendo la selección de rol sin inicio de sesión.
 - T129–T134 cubren SC-003, US7, SC-009, FR-047 y la verificación estricta de FR-066; T132 precede a T133 (idempotencia de devoluciones) y T134 precede a la implementación del seed de T123.
-- T111 incluye `format:check` en la verificación final y T113 define «el número de accesos» como el recuento de entradas visibles de «Puedes realizar» de FR-058.
+- T000, T111, T128 y cualquier verificación final exigen `format:check` con 0 hallazgos como gate bloqueante; T113 define «el número de accesos» como el recuento de entradas visibles de «Puedes realizar» de FR-058.
 - Confirmar que las pruebas fallan antes de implementar y ejecutar la suite completa antes de cerrar cada fase.

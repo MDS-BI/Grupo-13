@@ -30,7 +30,7 @@ La entrega implementa clientes sobre `erp_base_module:entities` y conserva las c
 
 - **Calidad**: la personalización se realiza mediante configuración, sin bifurcar el código central; `storage.js` y los componentes conservan sus límites y responsabilidades.
 - **Pruebas**: los flujos de clientes, pedidos, campos propios, ciclo de vida, búsqueda y cascada están cubiertos por la suite automatizada.
-- **Experiencia de Usuario**: terminología de Ventas coherente, mensajes de validación claros, estados vacíos accesibles y comportamiento consistente con el módulo base. **Desviación documentada (Principio III - estados de carga)**: el dominio de Ventas no realiza operaciones asíncronas de red ni de E/S; todas las lecturas y escrituras son síncronas sobre `localStorage` (la carga de configuración y la siembra son inmediatas), por lo que no existen estados de carga que mostrar. La retroalimentación inmediata queda cubierta por FR-049, FR-046, mensajes `aria-live` y la actualización directa de listas y totales. T095 registra y verifica esta desviación conforme a Gobernanza.
+- **Experiencia de Usuario**: terminología de Ventas coherente, mensajes de validación claros, estados vacíos accesibles y comportamiento consistente con el módulo base. Conforme al Principio III, todas las vistas siguen el patrón de FR-049: indicador de carga accesible en listas, botones deshabilitados con spinner en acciones asíncronas y mensaje de éxito o error tras cada acción, con estados vacíos, validación y recuperación de errores inequívocos. T095a–T095f implementan y verifican el patrón.
 - **Rendimiento**: las colecciones se mantienen en el rango previsto por el módulo base y las operaciones de búsqueda y renderizado no cambian su complejidad.
 
 ## Estructura del Proyecto
@@ -146,13 +146,10 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 
 ## Verificación
 
-- `npm test`: **275/275 pruebas pasan** (45 archivos).
-- `npm run build`: compila sin errores.
-- `npm run lint`: pasa sin errores.
-- Verificación en navegador: las vistas y etiquetas de FR-002, FR-050 y FR-051 aparecen como destinos distintos; la matriz de FR-053 se cumple (Postventa sin montos, Auditor solo métricas agregadas), así como la visibilidad del Resumen y el Panel de análisis de FR-059 a FR-061.
-- Coherencia con el modelo: la terminología visible, la matriz de roles y la persistencia coinciden con `data-model.md` §7 y §8.
-- `npm run format:check`: falla por advertencias preexistentes en 44 archivos de `src/`; el nuevo `pricing-panel.js` y `quote-form.js` pasan la comprobación individual. No se aplicó un formateo masivo ajeno a esta iteración.
-- Backlog previo: T090-T105 completadas (incluye organización Panel/Operaciones, edición de precios, flujo de aprobación RMA y matriz inicial de roles). Esta iteración registra la navegación/visibilidad detallada en T106-T110.
+- **Estado: pendiente hasta completar T119-T134.** La funcionalidad no está completa; no se registra verificación final.
+- T000 ejecuta el formateador del proyecto sobre los 44 archivos con hallazgos y debe dejar `npm run format:check` con 0 hallazgos. No se aceptan hallazgos de formato preexistentes.
+- `format:check` con 0 hallazgos es un gate bloqueante en T111 y en toda verificación final: si falla, la verificación no se considera completada.
+- Las ejecuciones parciales anteriores de `npm test`, `npm run lint`, `npm run build` o comprobaciones en navegador no sustituyen la verificación final pendiente.
 - El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.
 
 ## Seguimiento de Complejidad
