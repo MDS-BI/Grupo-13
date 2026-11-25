@@ -238,6 +238,20 @@ description: "Task list for Módulo de Ventas implementation"
 
 ---
 
+## Fase 10: Respaldo en el spec del código existente (FR-057 a FR-066)
+
+**Propósito**: Documentar funcionalidades ya implementadas fuera de una tarea (commits `38d17de`, `6741975`, `18ebb86` y los datos de ejemplo), para que una implementación desde cero a partir de este spec las reproduzca.
+
+- [x] T112 [P] Selector «Rol activo» sin inicio de sesión, persistido en `erp_ventas:current_role` con Ejecutivo Comercial por defecto, en `modulo-ventas/src/ventas/roles.js` y `modulo-ventas/src/app.js` (FR-057).
+- [x] T113 [P] Insignia de rol y tarjeta «Rol activo» con resumen y lista «Puedes realizar» en `modulo-ventas/src/components/role-context.js` e `index.html` (FR-058).
+- [x] T114 Agregaciones `buildSalesEvolution` (series Ventas/Pedidos/Cotizaciones por mes, semana o día, con períodos vacíos en cero) y `buildTopProducts` (7 productos, unidades o monto) en `modulo-ventas/src/ventas/analytics.js` (FR-060, FR-061).
+- [x] T115 Gráficos con Chart.js (dependencia `chart.js`), filtros `#analytics-period`, `#analytics-metric` y `#analytics-type`, totales, estados vacíos y aviso sin canvas en `modulo-ventas/src/components/ventas/sales-analytics.js` y la sección «Panel de análisis» de `index.html` (FR-059 a FR-062).
+- [x] T116 [P] Pruebas de las agregaciones y de los gráficos en `modulo-ventas/tests/ventas/analytics.test.js` y `modulo-ventas/tests/ventas/sales-analytics.test.js` (FR-059 a FR-062).
+- [x] T117 [P] Barra lateral oscura con grupos Panel y Operaciones, barra superior, ruta de navegación y variables de estilo en `modulo-ventas/index.html`, `modulo-ventas/src/components/shell.js` y `modulo-ventas/src/styles.css` (FR-063, FR-064).
+- [x] T118 Datos de ejemplo con carga automática y botones de carga y recarga en `modulo-ventas/src/ventas/mock-data.js`, `modulo-ventas/src/main.js` y `modulo-ventas/src/app.js` (FR-065, FR-066).
+
+---
+
 ## Dependencias y orden de ejecución
 
 ### Dependencias por fase

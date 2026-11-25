@@ -234,7 +234,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 
 - **FR-043**: El sistema DEBE validar todos los campos obligatorios antes de guardar y mostrar retroalimentación clara indicando qué información falta o es inválida.
 - **FR-044**: El sistema DEBE calcular los importes con precisión monetaria y redondear al entero o decimal según la configuración de la moneda (p. ej., CLP sin decimales; USD con 2).
-- **FR-045**: El sistema DEBE restringir las acciones de creación, facturación, entrega, devolución y consulta del resumen según el rol del usuario autenticado.
+- **FR-045**: El sistema DEBE restringir las acciones de creación, facturación, entrega, devolución y consulta del resumen según el rol activo (FR-057).
 - **FR-046**: El sistema DEBE mostrar estados vacíos claros cuando no existan clientes, productos, ventas, cotizaciones, pedidos o devoluciones que mostrar.
 - **FR-047**: El sistema DEBE mantener la consistencia de los datos ante operaciones simultáneas o repetidas, evitando duplicados de facturas, devoluciones y líneas de pedido.
 - **FR-048**: El sistema DEBE registrar pagos aplicados a una factura, con fecha, monto, método y referencia, recalculando el saldo pendiente sin permitir sobrepagos.
@@ -246,6 +246,28 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - **FR-054**: El sistema DEBE permitir al Jefe de Ventas crear y editar listas de precios y precios por producto, validando claves, moneda, unicidad y fechas de vigencia sin modificar las colecciones ni perder registros existentes.
 - **FR-055**: Los costos estándar y márgenes DEBEN mostrarse solo al Jefe de Ventas; la interfaz DEBE ocultarlos o enmascararlos para los demás roles. Los montos financieros y detalles por registro DEBEN respetar las restricciones de Postventa y Auditor descritas en FR-053.
 - **FR-056**: Las acciones de aprobación/rechazo de RMA DEBEN estar habilitadas solo para el Jefe de Ventas; los controles no autorizados DEBEN aparecer bloqueados y explicar el rol requerido.
+
+**Acceso por rol activo (sin inicio de sesión)**
+
+- **FR-057**: El módulo NO tiene pantalla de inicio de sesión ni credenciales. El usuario elige su rol en el selector «Rol activo» de la barra superior, con 7 roles: Ejecutivo Comercial (`vendedor`), Encargado de operaciones y logística (`operaciones`), Gerente (`gerente`), Postventa (`devoluciones`), Jefe de Ventas (`jefe_ventas`), Encargado de facturación (`facturacion`) y Auditor (solo lectura) (`auditor`). El rol elegido se guarda en `localStorage` (`erp_ventas:current_role`), se conserva al recargar y por defecto es Ejecutivo Comercial. Todos los permisos de FR-045 y FR-053 se evalúan contra este rol activo.
+- **FR-058**: El sistema DEBE mostrar el rol activo en una insignia de la barra superior y, en la barra lateral, una tarjeta «Rol activo» con el nombre del rol, un resumen de lo que puede ver (por ejemplo, Ejecutivo Comercial: «Datos comerciales y clientes visibles; costos internos y márgenes reservados»; Jefe de Ventas: «Acceso completo a datos, costos, márgenes y acciones comerciales»; Postventa: «Información operativa de órdenes despachadas y devoluciones RMA, sin montos»; Auditor: «Solo métricas agregadas y reportes; acciones en modo de solo lectura») y la lista «Puedes realizar» con el número de accesos, que muestra solo las acciones permitidas: consultar pedidos, crear y editar órdenes de venta, crear cotizaciones, gestionar precios, aprobar cotizaciones, facturar, registrar pagos, entregar, devolver, aprobar devoluciones, ver el resumen y ver el historial.
+
+**Panel de análisis (gráficos)**
+
+- **FR-059**: El Panel DEBE incluir, junto al «Resumen general de ventas», la sección «Panel de análisis», visible para los roles con permiso de resumen (`ver_resumen`: Ejecutivo Comercial, Gerente, Postventa, Jefe de Ventas y Auditor), con dos gráficos dibujados con la biblioteca Chart.js: «Evolución de ventas por período» y «Productos más vendidos».
+- **FR-060**: «Evolución de ventas por período» DEBE ser un gráfico de líneas con tres series, sumando el total de cada documento por su fecha de emisión: **Ventas** (pedidos «facturado» y «entregado»), **Pedidos** (pedidos en estado «pedido») y **Cotizaciones** (pedidos en «cotización» más todas las cotizaciones). El filtro «Período» agrupa por mes (por defecto, etiquetas «nov 26»), semana (que comienza el lunes, «sem 23 nov») o día («23 nov»), y completa con cero los períodos intermedios sin datos. Sobre el gráfico se muestra el total de cada serie en CLP.
+- **FR-061**: «Productos más vendidos» DEBE mostrar los 7 productos con más ventas en pedidos confirmados («pedido», «facturado» y «entregado»). El filtro «Métrica» elige entre Unidades vendidas (por defecto) y Monto vendido; el filtro «Gráfico» elige entre Barras horizontales (por defecto) y Pastel (dona con leyenda). Los empates se ordenan por nombre. Sobre el gráfico se muestra el total de unidades y monto de esos productos.
+- **FR-062**: Cada gráfico se oculta si no tiene datos; si ninguno tiene datos, se muestra el aviso «No hay pedidos ni cotizaciones para mostrar en los gráficos». Si el navegador no puede dibujar el gráfico, se muestra «Vista disponible en navegadores con soporte de canvas». Los gráficos tienen `role="img"` con una descripción y se redibujan al cambiar cualquier filtro o los datos.
+
+**Diseño visual y navegación**
+
+- **FR-063**: La interfaz DEBE usar una barra lateral oscura (fondo `#0b1220`) de 252 px con dos grupos: **Panel** (Panel) y **Operaciones** (Agregar, Órdenes de Venta, Cotizaciones, Productos, Entregas, Devoluciones, Facturación y pagos, Clientes, Documentos de clientes y Búsqueda), cada entrada con descripción emergente (Panel, Clientes, Documentos de clientes y Búsqueda llevan además ícono); una barra superior de 68 px con la marca «Ventas», la insignia del rol y el selector «Rol activo»; y una ruta de navegación («Ventas / Panel»).
+- **FR-064**: El estilo visual DEBE basarse en estas variables: acento azul `#2563eb` (oscuro `#1d4ed8`), fondo `#f6f7fb`, superficies blancas, bordes `#e5e9f2`, texto `#0f172a`, texto secundario `#64748b`, peligro `#dc2626` y éxito `#059669`; tipografía Inter (o la del sistema); bordes redondeados de 14 px en tarjetas y 9 px en controles, y sombras suaves. Los indicadores del Panel se muestran como tarjetas con un borde superior de color.
+
+**Datos de ejemplo**
+
+- **FR-065**: Al abrir la aplicación sin datos, el sistema DEBE cargar automáticamente un conjunto de datos de ejemplo y marcarlo en `localStorage` (`erp_ventas:demo_data_loaded`). Los roles con permiso para crear cotizaciones ven los botones «Cargar datos de ejemplo» y «Recargar datos de ejemplo»; recargar borra todos los datos del módulo y los vuelve a crear, conservando el rol activo.
+- **FR-066**: El conjunto de ejemplo DEBE incluir como mínimo: 6 clientes con datos chilenos realistas (razón social, RUT, contacto, dirección, categoría, límite de crédito, condición de pago, vendedor y zona; 4 activos, 1 inactivo y 1 bloqueado), 5 zonas, 4 vendedores con nombre propio, 5 categorías, 10 productos con SKU, stock y stock mínimo, 3 listas de precios con 23 precios, 6 cotizaciones (borrador, 2 enviadas, aceptada, rechazada y vencida), 8 pedidos (cotización, 2 en pedido, 3 facturados, entregado y cancelado), 4 facturas (pendiente de pago, parcial y 2 pagadas) con 4 pagos, 4 devoluciones (solicitada, aprobada, completada y rechazada), 2 documentos de clientes y su bitácora de auditoría. Las fechas son relativas al día actual, de modo que todos los estados, plazos y gráficos tengan datos.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -282,7 +304,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 
 ## Assumptions
 
-- El módulo reutiliza la autenticación, los roles y el almacenamiento del módulo base ERP; existe un único espacio de trabajo empresarial.
+- El módulo reutiliza el almacenamiento del módulo base ERP; el acceso se controla con el selector de rol activo (FR-057), sin autenticación; existe un único espacio de trabajo empresarial.
 - «Orden de venta» y «Pedido de Venta» designan la misma entidad; el término canónico es **Pedido de Venta**.
 - Los clientes, productos, vendedores, zonas y listas de precios ya existen o se gestionan en los maestros correspondientes antes de registrar una venta.
 - Los precios de los productos se expresan sin impuesto y el IVA se suma para obtener el total; la tasa aplicable proviene de la configuración tributaria vigente de cada producto.
@@ -294,7 +316,7 @@ Como encargado de facturación, quiero registrar pagos aplicados a una factura (
 - El stock se descuenta al confirmar o despachar el pedido según la política operativa; la validación de disponibilidad se realiza al agregar cada producto y al guardar o confirmar el pedido.
 - Los importes se manejan en la moneda configurada para el pedido y se redondean según la precisión de esa moneda.
 - La cancelación de un pedido solo se permite desde los estados «cotización» y «pedido», conforme al ciclo de vida definido.
-- La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren un usuario autenticado con el rol correspondiente.
+- La emisión de facturas, la confirmación de entregas, la gestión de devoluciones y la consulta del resumen general requieren el rol activo correspondiente (FR-057); el módulo no tiene inicio de sesión.
 - La navegación y los datos visibles dependen del rol conforme a FR-051–FR-056: Panel concentra métricas; Agregar concentra altas; Cotizaciones y Órdenes de Venta son listados separados. Jefe de Ventas ve costos, márgenes y contactos completos; Ejecutivo Comercial no ve costos/márgenes; Postventa solo consulta órdenes despachadas y RMA sin importes; Auditor ve métricas agregadas en Panel y no accede a registros individuales. Operaciones, Gerente y Facturación se conservan como roles heredados con permisos específicos.
 - Las etiquetas `sales_quotes` y `sales_orders` no cambian las colecciones ni las claves físicas vigentes.
 - Los clientes se desactivan lógicamente sin eliminar sus pedidos, facturas ni devoluciones (trazabilidad, FR-006); el borrado en cascada de pedidos solo aplica al borrado físico del cliente, que el módulo no expone.
