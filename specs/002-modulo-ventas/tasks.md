@@ -255,6 +255,31 @@ description: "Task list for Módulo de Ventas implementation"
 
 ---
 
+## Fase 11: Autonomía de la especificación (FR-066 a FR-068)
+
+**Propósito**: Que `spec.md` y este `tasks.md` se sostengan solos: un seed abundante y verificable, sin rutas heredadas del template y con menús/permisos demostrablemente distintos por rol.
+
+### Seed abundante y casos límite (FR-066)
+
+- [ ] T122 [P] Escribir primero las pruebas del seed en `modulo-ventas/tests/ventas/mock-data.test.js` que fallen con el conjunto actual: 10 clientes, 6 vendedores, 12 productos, 10 pedidos, 5 facturas, 5 pagos y 4 devoluciones; nombres propios y razones sociales únicos (sin «Ana Pérez» repetido); un cliente sin cotizaciones/pedidos/facturas/devoluciones; todos los estados de pedido y cotización; un pedido y su factura con tasas 19 % y 0 % con impuesto por línea; devoluciones dentro de plazo; y un intento fuera de plazo rechazado sin persistir y expuesto en `detail`.
+- [ ] T123 Extender `modulo-ventas/src/ventas/mock-data.js` para cumplir FR-066: responsables únicos por rol (`Camila Rojas`, `Diego Fuentes`, `Paula Soto`, `Rodrigo Mena`, `Valentina Errázuriz`, `Matías Vergara`, `Antonia Beltrán`), vendedores únicos (`Ignacia Valdés`, `Tomás Herrera`, `Javiera Muñoz`, `Cristóbal Ríos`, `Fernanda Salas`, `Sebastián Tapia`), 10 clientes únicos con el cliente sin movimientos, 12 productos con stock 0/bajo mínimo y tasas mixtas, 25 precios, 6 cotizaciones, 10 pedidos con todos los estados, 5 facturas con 5 pagos, 4 devoluciones y el rechazo fuera de plazo documentado en el resultado de carga sin crear devolución.
+
+### Eliminación de rutas heredadas (FR-067)
+
+- [ ] T124 Quitar de `modulo-ventas/index.html` y `modulo-ventas/src/app.js` los botones, vistas y rutas heredadas `nav-entities`, `view-entities`, `data-module="entities"`, `nav-documents`, `view-documents` y `data-module="documents"`; dejar las entradas del dominio `nav-clients`/`clients` (Clientes) y `nav-client-documents`/`client-documents` (Documentos de clientes) con las acciones de FR-052 y FR-053, y hacer que una ruta heredada redirija al Panel con aviso.
+- [ ] T125 [P] Verificar que nada depende de lo eliminado: buscar los seis identificadores heredados en `modulo-ventas/index.html`, `modulo-ventas/src/` y `modulo-ventas/tests/`, revisar `VIEWS`, `MODULES`, `VIEW_TITLES`, `OPERATION_MODULES` y los imports de componentes base en `modulo-ventas/src/app.js`, ajustar las pruebas de integración heredadas y confirmar que `npm test` pasa sin referencias residuales.
+
+### Menús y permisos realmente distintos por rol (FR-053, FR-068)
+
+- [ ] T126 [P] Escribir primero pruebas por rol en `modulo-ventas/tests/ventas/roles-guard.test.js` y `modulo-ventas/tests/ventas/ui-ventas.test.js`: para los 7 roles, el conjunto exacto de entradas visibles de FR-068, el conjunto de permisos permitidos/denegados (incluidos `ver_pedidos`, `ver_cotizaciones`, `ver_productos`, `ver_clientes`, `ver_documentos_clientes`, `ver_resumen`, `facturar`, `entregar`, `devolver`, `aprobar_devolucion`, `ver_historial` y `ver_datos_sensibles`), el rechazo de navegación directa a rutas no listadas y la diferencia de menú y permisos entre cada par de roles.
+- [ ] T127 Ajustar `PERMISSIONS` y `canAccessModule` en `modulo-ventas/src/ventas/roles.js` y `modulo-ventas/src/app.js` para que coincidan con FR-068: quitar los permisos globales `ver_pedidos`, `ver_cotizaciones` y `ver_productos`, añadir `ver_clientes` y `ver_documentos_clientes`, limitar las vistas por rol y redirigir al Panel con aviso del rol requerido cuando la ruta no esté permitida.
+
+### Verificación final
+
+- [ ] T128 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` desde la raíz; corregir regresiones y dejar constancia de que FR-066, FR-067 y FR-068 quedan cubiertos por las pruebas de T122, T125 y T126.
+
+---
+
 ## Dependencias y orden de ejecución
 
 ### Dependencias por fase
@@ -270,6 +295,7 @@ description: "Task list for Módulo de Ventas implementation"
 - **US7 (Fase 8)**: comparte fase con US6; depende de una factura emitida por US6 para registrar pagos.
 - **Polish (Fase 9)**: depende de todas las historias que se deseen entregar.
 - **Fase 10 (respaldo y verificación de matriz)**: depende de la matriz de FR-053 y de las vistas de FR-051; T119 verifica el enmascaramiento de importes del Resumen para Postventa y Auditor.
+- **Fase 11 (autonomía de la especificación)**: depende de Fase 10 y de FR-053, FR-066, FR-067 y FR-068; T122 y T126 se escriben antes que T123 y T127, T125 comprueba que ninguna referencia heredada queda viva y T128 cierra la fase con suite, lint, formato y build.
 
 ### Dependencias entre historias
 
@@ -345,6 +371,7 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 5. US3 y US5 → habilitar supervisión e historial.
 6. US4 → habilitar devoluciones.
 7. Polish → accesibilidad, rendimiento, consistencia y documentación.
+8. Fase 11 → seed verificable, sin rutas heredadas y menús/permisos distintos por rol.
 
 ### Estrategia de equipo en paralelo
 
@@ -367,4 +394,5 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 - Mantener `modulo-ventas/src/storage.js` y los componentes base sin bifurcaciones: el dominio nuevo vive en `modulo-ventas/src/ventas/`.
 - `PAGO` se incluye en US6/US7: figura en el modelo de datos y en las entidades clave de la especificación, y ahora responde al requisito FR-048 (US7).
 - T095 rastrea la desviación justificada del Principio III (sin estados de carga por operaciones síncronas); FR-049 y FR-046 definen la retroalimentación inmediata equivalente.
+- T122–T128 hacen que la especificación sea autosuficiente: los nombres del seed son datos de demostración, no credenciales de acceso; FR-057 sigue rigiendo la selección de rol sin inicio de sesión.
 - Confirmar que las pruebas fallan antes de implementar y ejecutar la suite completa antes de cerrar cada fase.
