@@ -127,7 +127,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T043 [US3] Implementar la agregación del resumen en `modulo-ventas/src/ventas/summary.js` (cantidades, montos, estados y datos persistidos más recientes).
 - [x] T044 [US3] Crear la vista de resumen en `modulo-ventas/src/components/ventas/summary-view.js` con totales y estado vacío en cero.
 - [x] T045 [US3] Agregar el marcado de la vista de resumen y el mensaje de acceso restringido en `modulo-ventas/index.html`.
-- [x] T046 [US3] Conectar la vista de resumen y la restricción del rol gerente en `modulo-ventas/src/app.js`.
+- [x] T046 [US3] Conectar la vista de resumen con la matriz de FR-053: `ver_resumen` para Ejecutivo Comercial, Gerente, Postventa, Jefe de Ventas y Auditor; importes completos para Gerente (y según matriz para Ejecutivo Comercial y Jefe de Ventas); solo conteos con importes enmascarados para Postventa y Auditor; sin acceso para Operaciones y Facturación, en `modulo-ventas/src/app.js`.
 - [x] T047 [US3] Agregar estilos y semántica accesible de tabla/lista del resumen en `modulo-ventas/src/styles.css`.
 
 **Punto de control**: US1, US2 y US3 funcionan de forma independiente.
@@ -231,7 +231,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T105 Validar cambios con pruebas de catálogo, RMA, matriz de roles y UI, además de la suite completa, lint y build; actualizar el registro de verificación de `plan.md`.
 - [x] T106 [US1] Separar el listado operativo de Órdenes de Venta del listado de Cotizaciones, quitar contadores redundantes de la navegación y conservar la conversión aprobada solo desde Cotizaciones.
 - [x] T107 [US1] Centralizar formularios de cotización, orden, listas/precios, RMA, clientes y documentos en pestañas de «Agregar»; dejar las demás vistas operativas con tablas y acciones.
-- [x] T108 [US1] Concentrar KPIs, gráficos y resúmenes en Panel, sin exponer montos en el Panel de Postventa ni detalles por registro al Auditor.
+- [x] T108 [US1] Concentrar KPIs, gráficos y resúmenes en Panel; el Resumen general y el Panel de análisis muestran importes completos solo a Gerente, Jefe de Ventas y Ejecutivo Comercial, y solo conteos/unidades con importes y precios unitarios enmascarados a Postventa y Auditor, sin detalles por registro para Auditor (FR-053, FR-059 a FR-061).
 - [x] T109 [US1] Aplicar la matriz de visibilidad: costo/margen solo Jefe de Ventas, datos comerciales para Ejecutivo, órdenes despachadas y RMA sin montos para Postventa, y solo reportes agregados para Auditor.
 - [x] T110 [P] Añadir pruebas focalizadas de separación de vistas, centralización de formularios, máscara de costos y visibilidad Postventa/Auditor; actualizar la especificación, el plan y el modelo de datos.
 - [x] T111 Ejecutar pruebas completas, lint y build; registrar los resultados finales en `plan.md`.
@@ -249,6 +249,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T116 [P] Pruebas de las agregaciones y de los gráficos en `modulo-ventas/tests/ventas/analytics.test.js` y `modulo-ventas/tests/ventas/sales-analytics.test.js` (FR-059 a FR-062).
 - [x] T117 [P] Barra lateral oscura con grupos Panel y Operaciones, barra superior, ruta de navegación y variables de estilo en `modulo-ventas/index.html`, `modulo-ventas/src/components/shell.js` y `modulo-ventas/src/styles.css` (FR-063, FR-064).
 - [x] T118 Datos de ejemplo con carga automática y botones de carga y recarga en `modulo-ventas/src/ventas/mock-data.js`, `modulo-ventas/src/main.js` y `modulo-ventas/src/app.js` (FR-065, FR-066).
+- [ ] T119 [P] Agregar prueba de visibilidad del Resumen: Postventa y Auditor reciben solo conteos de ventas, cotizaciones y pedidos, sin importes ni precios unitarios, sin detalle por registro para Auditor, y Gerente recibe importes completos, en `modulo-ventas/tests/ventas/roles-guard.test.js` y `modulo-ventas/tests/ventas/us3-summary.test.js` (FR-023, FR-024, FR-053, FR-059).
 
 ---
 
@@ -266,6 +267,7 @@ description: "Task list for Módulo de Ventas implementation"
 - **US6 (Fase 8)**: depende de Foundational y de un pedido confirmado generado por US1.
 - **US7 (Fase 8)**: comparte fase con US6; depende de una factura emitida por US6 para registrar pagos.
 - **Polish (Fase 9)**: depende de todas las historias que se deseen entregar.
+- **Fase 10 (respaldo y verificación de matriz)**: depende de la matriz de FR-053 y de las vistas de FR-051; T119 verifica el enmascaramiento de importes del Resumen para Postventa y Auditor.
 
 ### Dependencias entre historias
 
