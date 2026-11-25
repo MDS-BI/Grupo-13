@@ -1,8 +1,4 @@
-import {
-  getPrecioVigente,
-  listCategorias,
-  searchProductos,
-} from "../../ventas/catalog.js";
+import { getPrecioVigente, listCategorias, searchProductos } from "../../ventas/catalog.js";
 import { can } from "../../ventas/roles.js";
 
 let wired = false;

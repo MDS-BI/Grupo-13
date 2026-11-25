@@ -119,10 +119,9 @@ export function renderQuotesPanel() {
       button.dataset.permissionLocked = String(!can(permission));
       button.disabled = !can(permission);
       if (button.disabled) {
-        button.title =
-          ["aceptada", "rechazada"].includes(action)
-            ? "Solo el Jefe de Ventas puede aprobar una cotización."
-            : "Tu rol no puede modificar cotizaciones.";
+        button.title = ["aceptada", "rechazada"].includes(action)
+          ? "Solo el Jefe de Ventas puede aprobar una cotización."
+          : "Tu rol no puede modificar cotizaciones.";
       }
       actions.appendChild(button);
     }

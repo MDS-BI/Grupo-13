@@ -46,9 +46,7 @@ export function applyShellLabels() {
   const titles = {
     "nav-dashboard": "Panel",
     "nav-entities": getConfig().labels.entities,
-    "nav-documents": salesDocumentLabels
-      ? "Documentos de clientes"
-      : getConfig().labels.documents,
+    "nav-documents": salesDocumentLabels ? "Documentos de clientes" : getConfig().labels.documents,
     "nav-search": "Búsqueda",
     "nav-sales-order": "Órdenes de Venta (sales_orders)",
     "nav-quotes": "Cotizaciones",

@@ -218,9 +218,10 @@ function selectAddTab(name) {
   const tabs = [...document.querySelectorAll("[data-add-tab]")];
   const requested = tabs.find((tab) => tab.dataset.addTab === name);
   const fallback = tabs.find((tab) => can(tab.dataset.permission));
-  const selected = requested && (can(requested.dataset.permission) || getCurrentRole() === ROLES.AUDITOR)
-    ? requested
-    : fallback || requested;
+  const selected =
+    requested && (can(requested.dataset.permission) || getCurrentRole() === ROLES.AUDITOR)
+      ? requested
+      : fallback || requested;
   for (const tab of tabs) {
     const active = tab === selected;
     tab.classList.toggle("active", active);

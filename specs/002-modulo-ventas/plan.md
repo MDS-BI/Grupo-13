@@ -147,7 +147,7 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 ## Verificación
 
 - **Estado: pendiente hasta completar T119-T134.** La funcionalidad no está completa; no se registra verificación final.
-- T000 ejecuta el formateador del proyecto sobre los 44 archivos con hallazgos y debe dejar `npm run format:check` con 0 hallazgos. No se aceptan hallazgos de formato preexistentes.
+- T000 ejecuta el formateador del proyecto sobre los 26 archivos con hallazgos y debe dejar `npm run format:check` con 0 hallazgos. No se aceptan hallazgos de formato preexistentes.
 - `format:check` con 0 hallazgos es un gate bloqueante en T111 y en toda verificación final: si falla, la verificación no se considera completada.
 - Las ejecuciones parciales anteriores de `npm test`, `npm run lint`, `npm run build` o comprobaciones en navegador no sustituyen la verificación final pendiente.
 - El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.

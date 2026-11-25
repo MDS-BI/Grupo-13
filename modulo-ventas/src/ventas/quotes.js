@@ -261,8 +261,7 @@ export function acceptQuote(id, options = {}) {
   if (!quote) throw new Error("Cotización no encontrada");
   const existingOrder = listOrders().find((order) => order.cotizacionId === quote.id);
   if (existingOrder) throw new Error("Esta cotización ya originó un pedido de venta");
-  const accepted =
-    quote.estado === "aceptada" ? quote : updateQuoteStatus(id, "aceptada", options);
+  const accepted = quote.estado === "aceptada" ? quote : updateQuoteStatus(id, "aceptada", options);
   const order = createOrder({
     clienteId: accepted.clienteId,
     vendedorId: accepted.vendedorId,

@@ -35,7 +35,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 **Propósito**: Preparar el espacio de trabajo y verificar la línea base antes de agregar dominio.
 
-- [ ] T000 Ejecutar el formateador del proyecto (`npx prettier --write modulo-ventas/src`) sobre los 44 archivos con hallazgos y confirmar que `npm run format:check` pasa con 0 hallazgos desde la raíz. Gate bloqueante: ninguna otra tarea puede marcarse completada mientras haya hallazgos de formato.
+- [x] T000 Ejecutar el formateador del proyecto (`npx prettier --write modulo-ventas/src`) sobre los 26 archivos con hallazgos y confirmar que `npm run format:check` pasa con 0 hallazgos desde la raíz. Gate bloqueante: ninguna otra tarea puede marcarse completada mientras haya hallazgos de formato.
 - [x] T001 Ejecutar `npm test` y `npm run build` desde la raíz del repositorio y registrar la línea base (111 pruebas y build vigente) antes de cualquier cambio.
 - [x] T002 [P] Agregar el script `test:ventas` (`vitest run modulo-ventas/tests/ventas`) en `package.json`.
 - [x] T003 [P] Crear el punto de entrada del dominio en `modulo-ventas/src/ventas/index.js` reexportando los módulos de Ventas a medida que se implementan.

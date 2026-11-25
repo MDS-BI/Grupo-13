@@ -26,7 +26,10 @@ export function renderSummaryView() {
 
   const summary = buildSummary({ role });
   if (postventa) {
-    fill("summary-delivered-count", summary.pedidos.filter((order) => order.estado === "entregado").length);
+    fill(
+      "summary-delivered-count",
+      summary.pedidos.filter((order) => order.estado === "entregado").length,
+    );
     fill("summary-returns-count", listReturns().length);
     for (const id of [
       "summary-total-ventas",
@@ -36,13 +39,16 @@ export function renderSummaryView() {
       "summary-monto-ventas",
       "summary-monto-cotizaciones",
       "summary-monto-pedidos",
-    ]) fill(id, "");
+    ])
+      fill(id, "");
     const ordersBody = qs("summary-orders-body");
     const statesBody = qs("summary-states-body");
     if (ordersBody) ordersBody.innerHTML = "";
     if (statesBody) statesBody.innerHTML = "";
     const empty = qs("summary-empty");
-    if (empty) empty.hidden = summary.pedidos.some((order) => order.estado === "entregado") || listReturns().length > 0;
+    if (empty)
+      empty.hidden =
+        summary.pedidos.some((order) => order.estado === "entregado") || listReturns().length > 0;
     clearSalesAnalytics();
     return;
   }
