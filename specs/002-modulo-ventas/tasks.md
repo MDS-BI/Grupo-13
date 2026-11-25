@@ -75,6 +75,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T018 [P] [US1] Escribir pruebas unitarias de catálogo, precios y reglas de stock en `modulo-ventas/tests/ventas/catalog.test.js`.
 - [x] T019 [P] [US1] Escribir pruebas unitarias de cálculo de líneas, consolidación de duplicados y totales en `modulo-ventas/tests/ventas/order-lines.test.js`.
 - [x] T020 [P] [US1] Escribir la prueba de integración del recorrido «crear orden» (cliente, dos productos, stock, IVA, validaciones) en `modulo-ventas/tests/ventas/us1-create-order.test.js`.
+- [ ] T131 [P] [US1] Escribir la prueba de tasas mixtas de SC-009 en `modulo-ventas/tests/ventas/order-lines.test.js` y `modulo-ventas/tests/ventas/us1-create-order.test.js`: registrar líneas con impuestos del 19 % y del 0 % en el mismo pedido, aseverar el subtotal, el impuesto y el total por línea y del documento, y comprobar que la factura derivada conserva esas tasas e importes (FR-009, FR-010, FR-037, FR-044).
 
 ### Implementación de US1
 
@@ -151,6 +152,8 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T054 [US4] Agregar la vista y el formulario de devoluciones en `modulo-ventas/index.html`.
 - [x] T055 [US4] Conectar el panel de devoluciones, el guardián de rol y la actualización de estados en `modulo-ventas/src/app.js`.
 - [x] T056 [US4] Agregar estilos de devoluciones y resaltado de campos inválidos en `modulo-ventas/src/styles.css`.
+- [ ] T132 [P] [US4] Escribir primero la prueba de idempotencia de devolución duplicada en `modulo-ventas/tests/ventas/returns.test.js` y `modulo-ventas/tests/ventas/us4-returns.test.js`: enviar dos veces la misma solicitud (misma factura, motivo, fecha y líneas, o la misma clave de idempotencia) y verificar una sola devolución persistida con el mismo `id`/`numero`, un solo detalle y una sola entrada de auditoría; una solicitud distinta sí debe crear otra devolución (FR-032, FR-047).
+- [ ] T133 [US4] Implementar la idempotencia en `modulo-ventas/src/ventas/returns.js`: derivar una clave de `facturaId`, motivo, fecha y líneas (o aceptar `idempotencyKey` explícita) y, si ya existe, devolver la devolución original sin persistir duplicados de detalle ni bitácora, conservando los guardas de plazo, motivo y cantidad para las solicitudes nuevas (FR-027, FR-047).
 
 **Punto de control**: US1 a US4 funcionan de forma independiente.
 
@@ -192,6 +195,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T073 [US6] Propagar el estado «facturado» a pedido, entrega y resumen en `modulo-ventas/src/ventas/orders.js`, `modulo-ventas/src/ventas/delivery.js` y `modulo-ventas/src/ventas/summary.js`.
 - [x] T074 [US6] Agregar estilos de facturación, saldos y estados de pago en `modulo-ventas/src/styles.css`.
 - [x] T075 [US6] Agregar la prueba de concurrencia/idempotencia que garantiza una sola factura persistida por pedido en `modulo-ventas/tests/ventas/us6-invoice-concurrency.test.js` (FR-041, FR-047).
+- [ ] T130 [P] [US6][US7] Escribir la prueba de integración de US7 en `modulo-ventas/tests/ventas/us7-payments.test.js`: generar una factura desde un pedido confirmado, registrar un pago parcial y verificar el estado `parcial` y el saldo reducido; aplicar el pago restante y verificar el estado `pagada` con saldo 0; intentar un pago mayor al saldo y comprobar que se rechaza sin persistirlo ni modificar la factura (FR-039, FR-048).
 
 **Punto de control**: Las siete historias de usuario funcionan de forma independiente.
 
@@ -206,6 +210,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T078 [P] Agregar etiquetas, `aria-live` y encabezados de tabla accesibles a las nuevas vistas en `modulo-ventas/index.html`.
 - [x] T079 Agregar la prueba de rendimiento con 500 pedidos para listados y resumen, verificando un umbral de percepción ~0,5 s por operación, en `modulo-ventas/tests/ventas/performance.test.js`.
 - [x] T080 Agregar pruebas transversales de consistencia (sin pedidos huérfanos, una factura por pedido y límites de devolución) en `modulo-ventas/tests/ventas/consistency.test.js`.
+- [ ] T129 [P] [US5] Escribir la prueba de SC-003 en `modulo-ventas/tests/ventas/consistency.test.js` y `modulo-ventas/tests/ventas/us5-client-history.test.js`: desactivar lógicamente un cliente (`inactivo` y `bloqueado`) con pedidos en varios estados, factura y devolución; verificar que el 100 % de sus pedidos históricos siguen consultables con su referencia en listas e historial, que no aparecen registros huérfanos y que el borrado físico permanece bloqueado (FR-006, FR-017).
 - [x] T081 Actualizar la tabla de estado de implementación de `specs/002-modulo-ventas/data-model.md` con las entidades implementadas y parciales.
 - [x] T082 Actualizar las fases y la sección de cambios de `specs/002-modulo-ventas/plan.md` con el estado final de la entrega.
 - [x] T083 Documentar las nuevas colecciones, roles y `businessRules` en `specs/002-modulo-ventas/data-model.md` §7 y §8.
@@ -236,7 +241,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T108 [US1] Concentrar KPIs, gráficos y resúmenes en Panel; el Resumen general y el Panel de análisis muestran importes completos solo a Gerente, Jefe de Ventas y Ejecutivo Comercial, y solo conteos/unidades con importes y precios unitarios enmascarados a Postventa y Auditor, sin detalles por registro para Auditor (FR-053, FR-059 a FR-061).
 - [x] T109 [US1] Aplicar la matriz de visibilidad: costo/margen solo Jefe de Ventas, datos comerciales para Ejecutivo, órdenes despachadas y RMA sin montos para Postventa, y solo reportes agregados para Auditor.
 - [x] T110 [P] Añadir pruebas focalizadas de separación de vistas, centralización de formularios, máscara de costos y visibilidad Postventa/Auditor; actualizar la especificación, el plan y el modelo de datos.
-- [x] T111 Ejecutar pruebas completas, lint y build; registrar los resultados finales en `plan.md`.
+- [x] T111 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build`; registrar los resultados finales en `plan.md`.
 
 ---
 
@@ -245,12 +250,13 @@ description: "Task list for Módulo de Ventas implementation"
 **Propósito**: Documentar funcionalidades ya implementadas fuera de una tarea (commits `38d17de`, `6741975`, `18ebb86` y los datos de ejemplo), para que una implementación desde cero a partir de este spec las reproduzca.
 
 - [x] T112 [P] Selector «Rol activo» sin inicio de sesión, persistido en `erp_ventas:current_role` con Ejecutivo Comercial por defecto, en `modulo-ventas/src/ventas/roles.js` y `modulo-ventas/src/app.js` (FR-057).
-- [x] T113 [P] Insignia de rol y tarjeta «Rol activo» con resumen y lista «Puedes realizar» en `modulo-ventas/src/components/role-context.js` e `index.html` (FR-058).
+- [x] T113 [P] Insignia de rol y tarjeta «Rol activo» con resumen y lista «Puedes realizar» en `modulo-ventas/src/components/role-context.js` e `index.html` (FR-058). «El número de accesos» cuenta solo las entradas visibles de esa lista: una por cada permiso de `TASKS` en `role-context.js` que pase `can(permission, rolActivo)` (las 13 acciones: consultar pedidos, crear orden, editar orden, crear cotización, gestionar precios, aprobar cotización, facturar, registrar pago, entregar, devolver, aprobar devolución, ver resumen y ver historial). NO cuenta entradas de menú, permisos de `PERMISSIONS` fuera de `TASKS`, roles ni documentos. El total se recalcula al cambiar de rol y se muestra como «1 acceso» / «N accesos».
 - [x] T114 Agregaciones `buildSalesEvolution` (series Ventas/Pedidos/Cotizaciones por mes, semana o día, con períodos vacíos en cero) y `buildTopProducts` (7 productos, unidades o monto) en `modulo-ventas/src/ventas/analytics.js` (FR-060, FR-061).
 - [x] T115 Gráficos con Chart.js (dependencia `chart.js`), filtros `#analytics-period`, `#analytics-metric` y `#analytics-type`, totales, estados vacíos y aviso sin canvas en `modulo-ventas/src/components/ventas/sales-analytics.js` y la sección «Panel de análisis» de `index.html` (FR-059 a FR-062).
 - [x] T116 [P] Pruebas de las agregaciones y de los gráficos en `modulo-ventas/tests/ventas/analytics.test.js` y `modulo-ventas/tests/ventas/sales-analytics.test.js` (FR-059 a FR-062).
 - [x] T117 [P] Barra lateral oscura con grupos Panel y Operaciones, barra superior, ruta de navegación y variables de estilo en `modulo-ventas/index.html`, `modulo-ventas/src/components/shell.js` y `modulo-ventas/src/styles.css` (FR-063, FR-064).
 - [x] T118 Datos de ejemplo con carga automática y botones de carga y recarga en `modulo-ventas/src/ventas/mock-data.js`, `modulo-ventas/src/main.js` y `modulo-ventas/src/app.js` (FR-065, FR-066).
+- [ ] T134 [P] Ampliar T118 con `modulo-ventas/tests/ventas/mock-data.test.js` (cobertura estricta de FR-066, detallando T122): aseverar cada conteo y estado — 7 responsables por rol con nombres únicos, 10 clientes (6 activos/2 inactivos/2 bloqueados y 1 sin cotizaciones, pedidos, facturas ni devoluciones), 5 zonas, 6 vendedores únicos, 5 categorías, 12 productos (1 con stock 0, 2 bajo mínimo, tasas 19 % y 0 %), 3 listas con al menos 25 precios vigentes y 1 vencido, 6 cotizaciones (1 borrador/2 enviadas/1 aceptada con orden/1 rechazada/1 vencida), 10 pedidos con los cinco estados y 1 con tasas mixtas, 5 facturas (1 pendiente/1 parcial/2 pagadas/1 desde el pedido de tasas mixtas), 5 pagos con al menos 3 métodos, 4 devoluciones (1 solicitada/1 aprobada/1 completada/1 rechazada) más 1 intento fuera de plazo rechazado y documentado en `detail` sin persistirse, y 2 documentos de clientes con su auditoría. Verificar además la unicidad de razones sociales y nombres propios; la prueba debe fallar con el seed actual hasta completar T123.
 - [ ] T119 [P] Agregar prueba de visibilidad del Resumen: Postventa y Auditor reciben solo conteos de ventas, cotizaciones y pedidos, sin importes ni precios unitarios, sin detalle por registro para Auditor, y Gerente recibe importes completos, en `modulo-ventas/tests/ventas/roles-guard.test.js` y `modulo-ventas/tests/ventas/us3-summary.test.js` (FR-023, FR-024, FR-053, FR-059).
 
 ---
@@ -261,7 +267,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 ### Seed abundante y casos límite (FR-066)
 
-- [ ] T122 [P] Escribir primero las pruebas del seed en `modulo-ventas/tests/ventas/mock-data.test.js` que fallen con el conjunto actual: 10 clientes, 6 vendedores, 12 productos, 10 pedidos, 5 facturas, 5 pagos y 4 devoluciones; nombres propios y razones sociales únicos (sin «Ana Pérez» repetido); un cliente sin cotizaciones/pedidos/facturas/devoluciones; todos los estados de pedido y cotización; un pedido y su factura con tasas 19 % y 0 % con impuesto por línea; devoluciones dentro de plazo; y un intento fuera de plazo rechazado sin persistir y expuesto en `detail`.
+- [ ] T122 [P] Escribir primero las pruebas del seed en `modulo-ventas/tests/ventas/mock-data.test.js` (la versión estricta de conteos y estados se detalla en T134) que fallen con el conjunto actual: 10 clientes, 6 vendedores, 12 productos, 10 pedidos, 5 facturas, 5 pagos y 4 devoluciones; nombres propios y razones sociales únicos (sin «Ana Pérez» repetido); un cliente sin cotizaciones/pedidos/facturas/devoluciones; todos los estados de pedido y cotización; un pedido y su factura con tasas 19 % y 0 % con impuesto por línea; devoluciones dentro de plazo; y un intento fuera de plazo rechazado sin persistir y expuesto en `detail`.
 - [ ] T123 Extender `modulo-ventas/src/ventas/mock-data.js` para cumplir FR-066: responsables únicos por rol (`Camila Rojas`, `Diego Fuentes`, `Paula Soto`, `Rodrigo Mena`, `Valentina Errázuriz`, `Matías Vergara`, `Antonia Beltrán`), vendedores únicos (`Ignacia Valdés`, `Tomás Herrera`, `Javiera Muñoz`, `Cristóbal Ríos`, `Fernanda Salas`, `Sebastián Tapia`), 10 clientes únicos con el cliente sin movimientos, 12 productos con stock 0/bajo mínimo y tasas mixtas, 25 precios, 6 cotizaciones, 10 pedidos con todos los estados, 5 facturas con 5 pagos, 4 devoluciones y el rechazo fuera de plazo documentado en el resultado de carga sin crear devolución.
 
 ### Eliminación de rutas heredadas (FR-067)
@@ -276,7 +282,7 @@ description: "Task list for Módulo de Ventas implementation"
 
 ### Verificación final
 
-- [ ] T128 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` desde la raíz; corregir regresiones y dejar constancia de que FR-066, FR-067 y FR-068 quedan cubiertos por las pruebas de T122, T125 y T126.
+- [ ] T128 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` desde la raíz; corregir regresiones y dejar constancia de que FR-066, FR-067 y FR-068 quedan cubiertos por las pruebas de T122/T134, T125 y T126.
 
 ---
 
@@ -286,15 +292,15 @@ description: "Task list for Módulo de Ventas implementation"
 
 - **Setup (Fase 1)**: sin dependencias; puede comenzar de inmediato.
 - **Foundational (Fase 2)**: depende de Setup; bloquea todas las historias.
-- **US1 (Fase 3)**: depende de Foundational; no depende de otras historias.
+- **US1 (Fase 3)**: depende de Foundational; no depende de otras historias; T131 verifica SC-009 con tasas 19 % y 0 %.
 - **US2 (Fase 4)**: depende de Foundational y de un pedido en estado «facturado» creado por US1/US6 para su prueba de extremo a extremo; T120/T121 cubren el descuento de stock al despachar.
 - **US3 (Fase 5)**: depende de Foundational y de pedidos/cotizaciones generados por US1.
-- **US4 (Fase 6)**: depende de Foundational y de una venta/factura generada por US1/US6.
+- **US4 (Fase 6)**: depende de Foundational y de una venta/factura generada por US1/US6; T132 se escribe antes que T133 para fijar la idempotencia de FR-047.
 - **US5 (Fase 7)**: depende de Foundational y de cotizaciones/pedidos generados por US1.
 - **US6 (Fase 8)**: depende de Foundational y de un pedido confirmado generado por US1.
-- **US7 (Fase 8)**: comparte fase con US6; depende de una factura emitida por US6 para registrar pagos.
-- **Polish (Fase 9)**: depende de todas las historias que se deseen entregar.
-- **Fase 10 (respaldo y verificación de matriz)**: depende de la matriz de FR-053 y de las vistas de FR-051; T119 verifica el enmascaramiento de importes del Resumen para Postventa y Auditor.
+- **US7 (Fase 8)**: comparte fase con US6; depende de una factura emitida por US6 para registrar pagos; T130 cubre de extremo a extremo «parcial» → «pagada» y el rechazo de sobrepago.
+- **Polish (Fase 9)**: depende de todas las historias que se deseen entregar; T129 verifica SC-003 apoyándose en US1 y US5.
+- **Fase 10 (respaldo y verificación de matriz)**: depende de la matriz de FR-053 y de las vistas de FR-051; T119 verifica el enmascaramiento de importes del Resumen para Postventa y Auditor, y T134 amplía T118 con los conteos y estados estrictos de FR-066.
 - **Fase 11 (autonomía de la especificación)**: depende de Fase 10 y de FR-053, FR-066, FR-067 y FR-068; T122 y T126 se escriben antes que T123 y T127, T125 comprueba que ninguna referencia heredada queda viva y T128 cierra la fase con suite, lint, formato y build.
 
 ### Dependencias entre historias
@@ -395,4 +401,6 @@ T070 [US6] Panel de facturación en modulo-ventas/src/components/ventas/invoice-
 - `PAGO` se incluye en US6/US7: figura en el modelo de datos y en las entidades clave de la especificación, y ahora responde al requisito FR-048 (US7).
 - T095 rastrea la desviación justificada del Principio III (sin estados de carga por operaciones síncronas); FR-049 y FR-046 definen la retroalimentación inmediata equivalente.
 - T122–T128 hacen que la especificación sea autosuficiente: los nombres del seed son datos de demostración, no credenciales de acceso; FR-057 sigue rigiendo la selección de rol sin inicio de sesión.
+- T129–T134 cubren SC-003, US7, SC-009, FR-047 y la verificación estricta de FR-066; T132 precede a T133 (idempotencia de devoluciones) y T134 precede a la implementación del seed de T123.
+- T111 incluye `format:check` en la verificación final y T113 define «el número de accesos» como el recuento de entradas visibles de «Puedes realizar» de FR-058.
 - Confirmar que las pruebas fallan antes de implementar y ejecutar la suite completa antes de cerrar cada fase.
