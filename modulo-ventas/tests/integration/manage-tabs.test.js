@@ -33,27 +33,27 @@ describe('User Story 4 - manage entities and documents via the workspace sidebar
   it('shows a persistent module navigation with Dashboard, Entities, Documents, and Search buttons', () => {
     const buttons = [...document.querySelectorAll('.nav-module')];
     expect(buttons.length).toBe(4);
-    expect(buttons.map(b => b.dataset.module)).toEqual(['dashboard', 'entities', 'documents', 'search']);
+    expect(buttons.map(b => b.dataset.module)).toEqual(['dashboard', 'clients', 'client-documents', 'search']);
   });
 
   it('switches between the entities and documents management views', () => {
-    qs('nav-entities').click();
-    expect(qs('view-entities').hidden).toBe(false);
-    expect(qs('view-documents').hidden).toBe(true);
+    qs('nav-clients').click();
+    expect(qs('view-clients').hidden).toBe(false);
+    expect(qs('view-client-documents').hidden).toBe(true);
     expect(qs('view-operations').hidden).toBe(true);
 
-    qs('nav-documents').click();
-    expect(qs('view-entities').hidden).toBe(true);
-    expect(qs('view-documents').hidden).toBe(false);
+    qs('nav-client-documents').click();
+    expect(qs('view-clients').hidden).toBe(true);
+    expect(qs('view-client-documents').hidden).toBe(false);
 
-    qs('nav-entities').click();
-    expect(qs('view-entities').hidden).toBe(false);
-    expect(qs('view-documents').hidden).toBe(true);
+    qs('nav-clients').click();
+    expect(qs('view-clients').hidden).toBe(false);
+    expect(qs('view-client-documents').hidden).toBe(true);
   });
 
   it('does not display an entity list anywhere in the management views', () => {
     addEntity({ name: 'Acme', code: 'AC-001' });
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     expect(document.getElementById('entity-list')).toBeNull();
 
     qs('nav-search').click();
@@ -61,7 +61,7 @@ describe('User Story 4 - manage entities and documents via the workspace sidebar
   });
 
   it('creates, edits, and deletes an entity from the entities view', () => {
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('entity-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));
@@ -81,7 +81,7 @@ describe('User Story 4 - manage entities and documents via the workspace sidebar
 
   it('adds and deletes a document from the documents view', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
-    qs('nav-documents').click();
+    qs('nav-client-documents').click();
     qs('document-entity').value = entity.entity_id;
     qs('series').value = 'FAC';
     qs('folio').value = '1001';
@@ -99,10 +99,10 @@ describe('User Story 4 - manage entities and documents via the workspace sidebar
   });
 
   it('returns to the dashboard via the Dashboard module button', () => {
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     expect(qs('view-dashboard').hidden).toBe(true);
     qs('nav-dashboard').click();
     expect(qs('view-dashboard').hidden).toBe(false);
-    expect(qs('view-entities').hidden).toBe(true);
+    expect(qs('view-clients').hidden).toBe(true);
   });
 });

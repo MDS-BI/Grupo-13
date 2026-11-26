@@ -11,7 +11,7 @@ import {
   isTerminal,
   transitionError,
 } from "./lifecycle.js";
-import { getProducto, getPrecioVigente, hasStock, deductStock, validateStock } from "./catalog.js";
+import { getProducto, getPrecioVigente, validateStock } from "./catalog.js";
 import { findVendedor } from "./masters.js";
 
 function now() {
@@ -262,27 +262,6 @@ function hydrate(order) {
   return { ...order, lineas: details.length > 0 ? details : order.lineas || [] };
 }
 
-function maybeDeductStock(order) {
-  if (order.stockDescontado) return order;
-  const lines = hydrate(order).lineas || [];
-  for (const line of lines) {
-    if (!hasStock(line.productoId, line.cantidad)) {
-      throw new Error(`Stock insuficiente para "${line.productoId}"`);
-    }
-  }
-  for (const line of lines) {
-    deductStock(line.productoId, line.cantidad);
-  }
-  const list = loadCollection(COLLECTIONS.pedidos);
-  const idx = list.findIndex((o) => o.id === order.id);
-  if (idx !== -1) {
-    list[idx] = { ...list[idx], stockDescontado: true, updatedAt: now() };
-    saveCollection(COLLECTIONS.pedidos, list);
-    return list[idx];
-  }
-  return order;
-}
-
 export function createOrder(payload = {}) {
   const check = validateOrder(payload);
   if (!check.valid) throw new Error(Object.values(check.errors)[0]);
@@ -291,9 +270,6 @@ export function createOrder(payload = {}) {
   list.push(order);
   saveCollection(COLLECTIONS.pedidos, list);
   saveDetails(order);
-  if (["pedido", "facturado", "entregado"].includes(order.estado)) {
-    maybeDeductStock(order);
-  }
   return getOrder(order.id);
 }
 
@@ -391,24 +367,24 @@ export function updateOrder(id, updates = {}) {
   list[idx] = updated;
   saveCollection(COLLECTIONS.pedidos, list);
   saveDetails(updated);
-  if (["pedido", "facturado", "entregado"].includes(updated.estado)) {
-    maybeDeductStock(updated);
-  }
   return getOrder(id);
 }
 
-export function updateOrderStatus(id, estado, _options = {}) {
+export function updateOrderStatus(id, estado, options = {}) {
   const list = loadCollection(COLLECTIONS.pedidos);
   const idx = list.findIndex((order) => order.id === id);
   if (idx === -1) throw new Error("Pedido no encontrado");
   const prev = list[idx];
   if (prev.estado === estado) return getOrder(id);
   assertTransition(prev.estado, estado);
-  list[idx] = { ...prev, estado, status: estado, updatedAt: now() };
+  list[idx] = {
+    ...prev,
+    estado,
+    status: estado,
+    stockDescontado: options.stockDescontado ?? prev.stockDescontado,
+    updatedAt: now(),
+  };
   saveCollection(COLLECTIONS.pedidos, list);
-  if (["pedido", "facturado", "entregado"].includes(estado)) {
-    maybeDeductStock(list[idx]);
-  }
   return getOrder(id);
 }
 

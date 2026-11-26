@@ -5,6 +5,7 @@ import { createQuote } from "../../ventas/quotes.js";
 import { orderTotals } from "../../ventas/money.js";
 import { getPrecioVigente } from "../../ventas/catalog.js";
 import { renderProductPicker } from "./product-picker.js";
+import { runWithBusy } from "./loading-feedback.js";
 
 let wired = false;
 let lines = [];
@@ -134,40 +135,42 @@ function refreshLinePrices() {
 
 function handleSubmit(event) {
   event.preventDefault();
-  const feedback = qs("quote-feedback");
-  if (!can("crear_cotizacion")) {
-    if (feedback) feedback.textContent = "Tu rol no tiene permiso para crear cotizaciones.";
-    return;
-  }
-  if (lines.some((line) => line.sinPrecio)) {
-    if (feedback)
-      feedback.textContent = "Cada producto debe tener un precio vigente en la fecha de emisión.";
-    return;
-  }
-  try {
-    const quote = createQuote({
-      clienteId: qs("quote-client")?.value,
-      vendedorId: qs("quote-seller")?.value.trim(),
-      fechaEmision: qs("quote-date")?.value || today(),
-      validaHasta: qs("quote-valid-until")?.value || undefined,
-      moneda: qs("quote-currency")?.value.trim() || "CLP",
-      descuento: Number(qs("quote-discount")?.value || 0),
-      notas: qs("quote-notes")?.value.trim(),
-      lineas: lines.map((line) => ({
-        productoId: line.productoId,
-        cantidad: line.cantidad,
-        precioUnitario: line.precioUnitario,
-        impuestoPorcentaje: line.impuestoPorcentaje,
-      })),
-    });
-    clearForm({ clearFeedback: false });
-    if (feedback)
-      feedback.textContent = `Cotización ${quote.numero} creada en estado "${quote.estado}".`;
-    populateClients();
-    notify(quote);
-  } catch (error) {
-    if (feedback) feedback.textContent = error.message;
-  }
+  runWithBusy(qs("quote-save"), () => {
+    const feedback = qs("quote-feedback");
+    if (!can("crear_cotizacion")) {
+      if (feedback) feedback.textContent = "Tu rol no tiene permiso para crear cotizaciones.";
+      return;
+    }
+    if (lines.some((line) => line.sinPrecio)) {
+      if (feedback)
+        feedback.textContent = "Cada producto debe tener un precio vigente en la fecha de emisión.";
+      return;
+    }
+    try {
+      const quote = createQuote({
+        clienteId: qs("quote-client")?.value,
+        vendedorId: qs("quote-seller")?.value.trim(),
+        fechaEmision: qs("quote-date")?.value || today(),
+        validaHasta: qs("quote-valid-until")?.value || undefined,
+        moneda: qs("quote-currency")?.value.trim() || "CLP",
+        descuento: Number(qs("quote-discount")?.value || 0),
+        notas: qs("quote-notes")?.value.trim(),
+        lineas: lines.map((line) => ({
+          productoId: line.productoId,
+          cantidad: line.cantidad,
+          precioUnitario: line.precioUnitario,
+          impuestoPorcentaje: line.impuestoPorcentaje,
+        })),
+      });
+      clearForm({ clearFeedback: false });
+      if (feedback)
+        feedback.textContent = `Cotización ${quote.numero} creada en estado "${quote.estado}".`;
+      populateClients();
+      notify(quote);
+    } catch (error) {
+      if (feedback) feedback.textContent = error.message;
+    }
+  });
 }
 
 export function initQuoteForm(options = {}) {

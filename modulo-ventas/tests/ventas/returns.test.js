@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { installLocalStorage, resetVentasStorage, seedVentas, seedInvoicedOrder } from './fixtures.js';
-import { daysBetween, getReturnWindowDays, validateReturn, returnableQuantity, RETURN_STATUSES } from '../../src/ventas/returns.js';
+import { daysBetween, getReturnWindowDays, validateReturn, returnableQuantity, returnIdempotencyKey, RETURN_STATUSES } from '../../src/ventas/returns.js';
 
 let seed;
 let invoice;
@@ -58,5 +58,16 @@ describe('return validation rules', () => {
   it('knows the remaining returnable quantity', () => {
     const line = validateReturn(payload()).lineas[0].detail;
     expect(returnableQuantity(line.id)).toBe(1);
+  });
+
+  it('derives a stable idempotency key from invoice, motive, date and lines', () => {
+    const first = returnIdempotencyKey(payload());
+    expect(first).toBe(returnIdempotencyKey(payload()));
+    expect(first).not.toBe(returnIdempotencyKey(payload({ motivo: 'Otro motivo' })));
+    expect(first).not.toBe(returnIdempotencyKey(payload({ fecha: '2026-11-11' })));
+    expect(returnIdempotencyKey(payload({ idempotencyKey: 'RMA-123' }))).toBe(
+      returnIdempotencyKey(payload({ idempotencyKey: 'RMA-123' }))
+    );
+    expect(returnIdempotencyKey(payload({ idempotencyKey: 'RMA-123' }))).not.toBe(first);
   });
 });

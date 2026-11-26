@@ -3,7 +3,11 @@ import { listOrders } from "./orders.js";
 import { listQuotes } from "./quotes.js";
 import { ORDER_STATUSES } from "./lifecycle.js";
 import { roundMoney } from "./money.js";
-import { can } from "./roles.js";
+import { can, normalizeRole, ROLES } from "./roles.js";
+
+export const MASKED_AMOUNT = "••••";
+
+const COUNT_ONLY_ROLES = Object.freeze([ROLES.DEVOLUCIONES, ROLES.AUDITOR]);
 
 function number(value) {
   const n = Number(value);
@@ -92,6 +96,19 @@ export function buildSummary(options = {}) {
     moneda: quote.moneda,
   }));
   summary.vacio = orders.length === 0 && quotes.length === 0;
+
+  const role = normalizeRole(options.role);
+  if (COUNT_ONLY_ROLES.includes(role)) {
+    summary.montoVentas = MASKED_AMOUNT;
+    summary.montoCotizaciones = MASKED_AMOUNT;
+    summary.montoPedidos = MASKED_AMOUNT;
+    summary.montoTotal = MASKED_AMOUNT;
+    summary.pedidos = [];
+    summary.ventas = [];
+    summary.cotizaciones = [];
+    summary.importesOcultos = true;
+    summary.sinDetallePorRegistro = role === ROLES.AUDITOR;
+  }
   return summary;
 }
 

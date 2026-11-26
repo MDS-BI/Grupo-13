@@ -43,7 +43,7 @@ async function bootWith(configOverride){
 describe('User Story 7 - declare custom fields for records', () => {
   it('renders declared fields with the correct input types on the entity form', async () => {
     await bootWith();
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     const numberInput = qs('cf-ingresosAnuales');
     expect(numberInput).not.toBeNull();
     expect(numberInput.getAttribute('type')).toBe('number');
@@ -55,7 +55,7 @@ describe('User Story 7 - declare custom fields for records', () => {
 
   it('blocks saving when a required custom field is blank and explains why', async () => {
     await bootWith();
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('entity-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));
@@ -65,7 +65,7 @@ describe('User Story 7 - declare custom fields for records', () => {
 
   it('persists custom values and displays them in search results with labels', async () => {
     await bootWith();
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('cf-ingresosAnuales').value = '5000';
@@ -89,8 +89,8 @@ describe('User Story 7 - declare custom fields for records', () => {
         { target: 'document', key: 'metodoEnvio', label: 'Método de envío', type: 'select', options: ['estándar', 'exprés'] }
       ]
     });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     const select = qs('cf-metodoEnvio');
     expect(select).not.toBeNull();
     expect(select.tagName).toBe('SELECT');
@@ -99,7 +99,7 @@ describe('User Story 7 - declare custom fields for records', () => {
 
   it('behaves identically to the unmodified base when no fields are declared', async () => {
     await bootWith({});
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     expect(qs('entity-custom-fields').hidden).toBe(true);
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
@@ -110,7 +110,7 @@ describe('User Story 7 - declare custom fields for records', () => {
 
   it('populates custom field values when editing an existing entity', async () => {
     await bootWith();
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('cf-ingresosAnuales').value = '750';

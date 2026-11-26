@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { installLocalStorage, resetVentasStorage, seedVentas, seedQuoteOrder, seedConfirmedOrder, seedInvoicedOrder, seedDeliveredOrder } from './fixtures.js';
-import { buildSummary, getSummaryForRole, emptySummary } from '../../src/ventas/summary.js';
+import { buildSummary, getSummaryForRole, emptySummary, MASKED_AMOUNT } from '../../src/ventas/summary.js';
 import { ROLES, setCurrentRole } from '../../src/ventas/roles.js';
 
 let seed;
@@ -66,5 +66,28 @@ describe('US3 - resumen general de ventas', () => {
     expect(getSummaryForRole(ROLES.GERENTE).totalPedidos).toBe(1);
     expect(getSummaryForRole(ROLES.JEFE_VENTAS).totalPedidos).toBe(1);
     expect(emptySummary().vacio).toBe(true);
+  });
+
+  it('masks amounts and removes record details for Postventa and Auditor only', () => {
+    seedConfirmedOrder(seed);
+    const full = buildSummary();
+    for (const role of [ROLES.DEVOLUCIONES, ROLES.AUDITOR]) {
+      const summary = getSummaryForRole(role);
+      expect(summary.totalVentas).toBe(full.totalVentas);
+      expect(summary.totalCotizaciones).toBe(full.totalCotizaciones);
+      expect(summary.totalPedidos).toBe(full.totalPedidos);
+      expect(summary.totalOrdenes).toBe(full.totalOrdenes);
+      expect(summary.estados).toEqual(full.estados);
+      expect(summary.montoVentas).toBe(MASKED_AMOUNT);
+      expect(summary.montoCotizaciones).toBe(MASKED_AMOUNT);
+      expect(summary.montoPedidos).toBe(MASKED_AMOUNT);
+      expect(summary.montoTotal).toBe(MASKED_AMOUNT);
+      expect(summary.pedidos).toEqual([]);
+      expect(summary.ventas).toEqual([]);
+      expect(summary.cotizaciones).toEqual([]);
+    }
+    const manager = getSummaryForRole(ROLES.GERENTE);
+    expect(manager.montoTotal).toBe(full.montoTotal);
+    expect(manager.pedidos).toEqual(full.pedidos);
   });
 });

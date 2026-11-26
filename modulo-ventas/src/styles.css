@@ -134,6 +134,68 @@ p {
   font-size: 0.9rem;
 }
 
+.route-notice {
+  margin: 12px 16px 0;
+}
+
+.list-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.list-loading::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.feedback[data-tone="success"] {
+  color: var(--success);
+}
+
+.feedback[data-tone="error"] {
+  color: var(--danger);
+}
+
+.feedback-retry {
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .list-loading::before,
+  .spinner {
+    animation: none;
+  }
+}
+
 /* ==========================================================================
    Workspace shell: top bar + sidebar + content
    ========================================================================== */

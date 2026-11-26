@@ -146,10 +146,12 @@ Las fases se completaron manteniendo la compatibilidad con los datos persistidos
 
 ## Verificación
 
-- **Estado: pendiente hasta completar T119-T134.** La funcionalidad no está completa; no se registra verificación final.
-- T000 ejecuta el formateador del proyecto sobre los 26 archivos con hallazgos y debe dejar `npm run format:check` con 0 hallazgos. No se aceptan hallazgos de formato preexistentes.
-- `format:check` con 0 hallazgos es un gate bloqueante en T111 y en toda verificación final: si falla, la verificación no se considera completada.
-- Las ejecuciones parciales anteriores de `npm test`, `npm run lint`, `npm run build` o comprobaciones en navegador no sustituyen la verificación final pendiente.
+- **Estado: verificación final completada.** T119-T134 y T088/T089/T094/T095a-f/T100/T111/T128 están completados.
+- `npm test`: 47 archivos y 306 pruebas pasan desde la raíz.
+- `npm run lint`: termina sin errores ni advertencias.
+- `npm run format:check`: todos los archivos coinciden con Prettier; 0 hallazgos.
+- `npm run build`: build de producción correcto en `modulo-ventas/dist/` (`index.html`, CSS y JS).
+- FR-066 queda cubierto por las pruebas de T122/T134, FR-067 por T125 y FR-068 por T126; el patrón accesible de FR-049 en todas las vistas de FR-063 queda cubierto por T095a-f.
 - El plan no reproduce el modelo entidad-relación: las entidades, atributos, relaciones y restricciones se consultan en `data-model.md` §2 a §5.
 
 ## Seguimiento de Complejidad

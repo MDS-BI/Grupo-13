@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { installLocalStorage, resetVentasStorage, seedVentas, seedInvoicedOrder } from './fixtures.js';
-import { createReturn, validateReturn, listReturns, getReturn, updateReturnStatus, previousReturnedQuantity } from '../../src/ventas/returns.js';
+import { createReturn, validateReturn, listReturns, getReturn, getReturnDetails, updateReturnStatus, previousReturnedQuantity } from '../../src/ventas/returns.js';
 import { listAudit, auditForSale } from '../../src/ventas/audit.js';
 import { getProducto } from '../../src/ventas/catalog.js';
 import { ROLES, setCurrentRole } from '../../src/ventas/roles.js';
@@ -87,6 +87,54 @@ describe('US4 - devoluciones', () => {
     expect(previousReturnedQuantity(rejected.detalles[0].detallePedidoId)).toBe(0);
     expect(() => createReturn(basePayload({ lineas: [{ productoId: seed.productos[1].id, cantidad: 2 }] }))).not.toThrow();
     expect(getReturn(rejected.devolucion.id).estado).toBe('rechazada');
+  });
+
+  it('treats an identical repeated request as one persisted return', () => {
+    const payload = basePayload({
+      motivo: 'Producto defectuoso',
+      fecha: '2026-11-10',
+      lineas: [{ productoId: seed.productos[1].id, cantidad: 1 }]
+    });
+    const first = createReturn(payload);
+    const repeated = createReturn({ ...payload });
+
+    expect(repeated.devolucion.id).toBe(first.devolucion.id);
+    expect(repeated.devolucion.numero).toBe(first.devolucion.numero);
+    expect(repeated.total).toBe(first.total);
+    expect(listReturns()).toHaveLength(1);
+    expect(getReturnDetails(first.devolucion.id)).toHaveLength(1);
+    expect(listAudit()).toHaveLength(1);
+  });
+
+  it('accepts an explicit idempotency key and still creates a different request', () => {
+    const first = createReturn(
+      basePayload({
+        idempotencyKey: 'RMA-CLIENTE-1',
+        motivo: 'Motivo original',
+        lineas: [{ productoId: seed.productos[1].id, cantidad: 1 }]
+      })
+    );
+    const repeated = createReturn(
+      basePayload({
+        idempotencyKey: 'RMA-CLIENTE-1',
+        motivo: 'Motivo distinto',
+        lineas: [{ productoId: seed.productos[1].id, cantidad: 1 }]
+      })
+    );
+    expect(repeated.devolucion.id).toBe(first.devolucion.id);
+
+    const different = createReturn(
+      basePayload({
+        motivo: 'Motivo distinto',
+        lineas: [{ productoId: seed.productos[1].id, cantidad: 1 }]
+      })
+    );
+    expect(different.devolucion.id).not.toBe(first.devolucion.id);
+    expect(different.devolucion.numero).not.toBe(first.devolucion.numero);
+    expect(listReturns()).toHaveLength(2);
+    expect(listReturns().every(item => item.idempotencyKey)).toBe(true);
+    expect(listReturns().reduce((sum, item) => sum + getReturnDetails(item.id).length, 0)).toBe(2);
+    expect(listAudit()).toHaveLength(2);
   });
 
   it('requires the devoluciones role', () => {

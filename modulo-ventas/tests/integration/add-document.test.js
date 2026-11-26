@@ -32,8 +32,8 @@ afterEach(() => {
 describe('User Story 10 - add a document to an entity', () => {
   it('saves a document associated with the selected entity', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     qs('document-entity').value = entity.entity_id;
     qs('series').value = 'FAC';
     qs('folio').value = '1001';
@@ -65,8 +65,8 @@ describe('User Story 10 - add a document to an entity', () => {
 
   it('prevents saving when required document information is blank', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     qs('document-entity').value = entity.entity_id;
     qs('folio').value = '';
     qs('document-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));
@@ -76,8 +76,8 @@ describe('User Story 10 - add a document to an entity', () => {
 
   it('rejects a discount greater than the subtotal with an explanation', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     qs('document-entity').value = entity.entity_id;
     qs('folio').value = '1002';
     qs('startDate').value = '2026-08-01';
@@ -91,8 +91,8 @@ describe('User Story 10 - add a document to an entity', () => {
 
   it('rejects an end date before the start date with an explanation', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     qs('document-entity').value = entity.entity_id;
     qs('folio').value = '1003';
     qs('startDate').value = '2026-08-05';
@@ -103,8 +103,8 @@ describe('User Story 10 - add a document to an entity', () => {
   });
 
   it('requires a known entity for the document', () => {
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     qs('folio').value = '9999';
     qs('startDate').value = '2026-08-01';
     qs('endDate').value = '2026-08-05';

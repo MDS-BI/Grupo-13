@@ -33,6 +33,20 @@ describe('order lines and totals', () => {
     expect(totals.total).toBe(2930);
   });
 
+  it('keeps 19% and 0% tax rates separate on every line and on the order', () => {
+    const payload = buildOrderPayload(seed);
+    payload.lineas = [
+      { productoId: seed.productos[0].id, cantidad: 2, precioUnitario: 1000, impuestoPorcentaje: 19 },
+      { productoId: seed.productos[1].id, cantidad: 3, precioUnitario: 500, impuestoPorcentaje: 0 }
+    ];
+    const order = createOrder(payload);
+    expect(order.lineas.map(line => line.impuestoPorcentaje)).toEqual([19, 0]);
+    expect(order.lineas.map(line => line.impuestoLinea)).toEqual([380, 0]);
+    expect(order.subtotal).toBe(3500);
+    expect(order.impuesto).toBe(380);
+    expect(order.total).toBe(3880);
+  });
+
   it('consolidates duplicate lines when an order is created', () => {
     const payload = buildOrderPayload(seed);
     payload.lineas = [payload.lineas[0], { ...payload.lineas[0], cantidad: 2 }];

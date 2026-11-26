@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { installLocalStorage, resetVentasStorage, seedVentas, buildOrderPayload } from './fixtures.js';
-import { createOrder, listOrders, getOrder } from '../../src/ventas/orders.js';
+import { createOrder, listOrders, getOrder, updateOrderStatus } from '../../src/ventas/orders.js';
 import { createProducto } from '../../src/ventas/catalog.js';
+import { createInvoiceFromOrder } from '../../src/ventas/invoices.js';
 
 let seed;
 
@@ -48,6 +49,34 @@ describe('US1 - crear orden de venta', () => {
     });
     expect(() => createOrder(payload)).toThrow(/stock/i);
     expect(listOrders()).toHaveLength(0);
+  });
+
+  it('copies mixed 19% and 0% tax rates and amounts into the derived invoice', () => {
+    const exento = createProducto({
+      sku: 'EXENTO',
+      nombre: 'Producto exento',
+      unidadMedida: 'UN',
+      impuestoPorcentaje: 0,
+      stockActual: 50
+    });
+    const payload = buildOrderPayload(seed, {
+      lineas: [
+        { productoId: seed.productos[0].id, cantidad: 2, precioUnitario: 1000, impuestoPorcentaje: 19 },
+        { productoId: exento.id, cantidad: 1, precioUnitario: 500, impuestoPorcentaje: 0 }
+      ]
+    });
+    const order = createOrder(payload);
+    expect(order.subtotal).toBe(2500);
+    expect(order.impuesto).toBe(380);
+    expect(order.total).toBe(2880);
+
+    updateOrderStatus(order.id, 'pedido');
+    const invoice = createInvoiceFromOrder(order.id, { skipRoleCheck: true, role: 'facturacion' });
+    expect(invoice.lineas.map(line => line.impuestoPorcentaje)).toEqual([19, 0]);
+    expect(invoice.lineas.map(line => line.impuestoLinea)).toEqual([380, 0]);
+    expect(invoice.subtotal).toBe(2500);
+    expect(invoice.impuesto).toBe(380);
+    expect(invoice.total).toBe(2880);
   });
 
   it('keeps subtotal, tax and total available for later consultation', () => {

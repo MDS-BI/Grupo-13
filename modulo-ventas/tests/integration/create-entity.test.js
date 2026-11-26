@@ -31,8 +31,8 @@ afterEach(() => {
 
 describe('User Story 1 - create and organize entities', () => {
   it('creates a new entity that appears in storage and the edit selector', () => {
-    qs('nav-entities').click();
-    expect(qs('view-entities').hidden).toBe(false);
+    qs('nav-clients').click();
+    expect(qs('view-clients').hidden).toBe(false);
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('entity-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));
@@ -46,7 +46,7 @@ describe('User Story 1 - create and organize entities', () => {
   });
 
   it('persists ERP identity and commercial fields entered through the form', () => {
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('taxId').value = 'RFC800101AB1';
@@ -66,7 +66,7 @@ describe('User Story 1 - create and organize entities', () => {
   });
 
   it('rejects a malformed email with an explanation', () => {
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('email').value = 'no-es-correo';
@@ -76,7 +76,7 @@ describe('User Story 1 - create and organize entities', () => {
   });
 
   it('prevents saving when required information is blank and explains what is needed', () => {
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = '';
     qs('code').value = '';
     qs('entity-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));

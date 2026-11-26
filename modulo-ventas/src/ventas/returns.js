@@ -41,6 +41,26 @@ function read(payload, ...keys) {
   return undefined;
 }
 
+export function returnIdempotencyKey(payload = {}, options = {}) {
+  const explicit = read(payload, "idempotencyKey", "idempotency_key") ?? options.idempotencyKey;
+  if (!isEmpty(explicit)) return `key:${text(explicit)}`;
+  const rawLines = read(payload, "lineas", "lines", "detalles") || [];
+  const lines = (Array.isArray(rawLines) ? rawLines : [])
+    .map((line) => {
+      const detail = read(line, "detallePedidoId", "detalle_pedido_id", "detalleId");
+      const product = read(line, "productoId", "producto_id", "productId");
+      const cantidad = Number(read(line, "cantidad", "quantity"));
+      return isEmpty(detail) ? `p:${text(product)}:${cantidad}` : `d:${text(detail)}:${cantidad}`;
+    })
+    .sort();
+  return `derived:${JSON.stringify({
+    facturaId: text(read(payload, "facturaId", "factura_id")),
+    motivo: text(read(payload, "motivo", "reason")),
+    fecha: text(read(payload, "fecha")),
+    lineas: lines,
+  })}`;
+}
+
 function parseDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return undefined;
   const dt = new Date(`${value}T00:00:00Z`);
@@ -212,6 +232,17 @@ export function createReturn(payload = {}, options = {}) {
   if (!options.skipRoleCheck) {
     assertCan("devolver", options.role);
   }
+  const idempotencyKey = returnIdempotencyKey(payload, options);
+  const existing = listReturns().find((item) => item.idempotencyKey === idempotencyKey);
+  if (existing) {
+    return {
+      devolucion: existing,
+      detalles: getReturnDetails(existing.id),
+      numero: existing.numero,
+      total: existing.total,
+      idempotent: true,
+    };
+  }
   const check = validateReturn(payload);
   if (!check.valid) throw new Error(Object.values(check.errors)[0]);
   const timestamp = now();
@@ -227,6 +258,7 @@ export function createReturn(payload = {}, options = {}) {
     pedido_id: check.order.id,
     fecha: check.fecha,
     motivo: check.motivo,
+    idempotencyKey,
     estado: "solicitada",
     status: "solicitada",
     moneda: check.order.moneda || "CLP",

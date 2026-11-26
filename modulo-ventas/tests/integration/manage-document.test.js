@@ -45,8 +45,8 @@ describe('User Story 10 - manage documents (edit, delete, cascade)', () => {
     await bootWith(undefined);
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
     const doc = await (await import('../../src/storage.js')).addDocument({ entityId: entity.entity_id, series: 'FAC', folio: 1001, startDate: '2026-08-01', endDate: '2026-08-05' });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     const select = qs('edit-document');
     select.value = doc.id;
     select.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
@@ -65,8 +65,8 @@ describe('User Story 10 - manage documents (edit, delete, cascade)', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
     const { addDocument } = await import('../../src/storage.js');
     const doc = addDocument({ entityId: entity.entity_id, folio: 1001, startDate: '2026-08-01', endDate: '2026-08-05' });
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     const select = qs('edit-document');
     select.value = doc.id;
     select.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
@@ -82,7 +82,7 @@ describe('User Story 10 - manage documents (edit, delete, cascade)', () => {
     addDocument({ entityId: entity.entity_id, folio: 1001, startDate: '2026-08-01', endDate: '2026-08-05' });
     addDocument({ entityId: other.entity_id, folio: 2001, startDate: '2026-08-02', endDate: '2026-08-06' });
 
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     const select = qs('edit-entity');
     select.value = select.options[1].value;
     select.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
@@ -101,8 +101,8 @@ describe('User Story 12 - configured document status lifecycle', () => {
     const { addDocument } = await import('../../src/storage.js');
     addDocument({ entityId: entity.entity_id, folio: 1001, startDate: '2026-08-01', endDate: '2026-08-05', status: 'quote' });
 
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     const select = qs('edit-document');
     select.value = select.options[1].value;
     select.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
@@ -114,16 +114,16 @@ describe('User Story 12 - configured document status lifecycle', () => {
 
   it('offers all configured statuses when creating a document', async () => {
     await bootWith(lifecycle);
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     const statusOptions = [...qs('status').options].map(o => o.value);
     expect(statusOptions).toEqual(['', 'quote', 'order', 'invoiced']);
   });
 
   it('keeps status free-form text input when no lifecycle is configured', async () => {
     await bootWith(undefined);
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     const control = qs('status');
     expect(control.tagName).toBe('INPUT');
     expect(control.getAttribute('type')).toBe('text');

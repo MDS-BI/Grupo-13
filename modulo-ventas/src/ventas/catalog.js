@@ -296,6 +296,48 @@ export function restoreStock(reference, cantidad) {
   return adjustStock(reference, Math.abs(Number(cantidad) || 0));
 }
 
+function stockChanges(lines, sign) {
+  const changes = new Map();
+  for (const line of lines || []) {
+    const reference = line.productoId ?? line.producto_id ?? line.productId ?? line.sku;
+    const producto = getProducto(reference);
+    if (!producto) throw new Error("Producto no encontrado");
+    const cantidad = Number(line.cantidad ?? line.quantity);
+    if (!Number.isInteger(cantidad) || cantidad <= 0) {
+      throw new Error("La cantidad debe ser un entero positivo");
+    }
+    changes.set(producto.id, (changes.get(producto.id) || 0) + sign * cantidad);
+  }
+  return changes;
+}
+
+function applyStockChanges(lines, sign) {
+  const changes = stockChanges(lines, sign);
+  const list = listProductos();
+  const updated = list.map((producto) => {
+    const delta = changes.get(producto.id);
+    if (!delta) return producto;
+    const available = Number(producto.stockActual ?? producto.stock_actual) || 0;
+    const next = available + delta;
+    if (next < 0) {
+      throw new Error(
+        `Stock insuficiente para "${producto.nombre}": disponible ${available}, solicitado ${Math.abs(delta)}`,
+      );
+    }
+    return { ...producto, stockActual: next, updatedAt: now() };
+  });
+  saveCollection(COLLECTIONS.productos, updated);
+  return updated.filter((producto) => changes.has(producto.id));
+}
+
+export function deductStockAtomic(lines) {
+  return applyStockChanges(lines, -1);
+}
+
+export function restoreStockAtomic(lines) {
+  return applyStockChanges(lines, 1);
+}
+
 export function validateStock(lines) {
   const errors = {};
   (lines || []).forEach((line, index) => {

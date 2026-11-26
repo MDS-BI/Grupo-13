@@ -1,4 +1,5 @@
 import { deliverOrder, listDeliverableOrders, validateDelivery } from "../../ventas/delivery.js";
+import { runWithBusy } from "./loading-feedback.js";
 
 let wired = false;
 let onDelivered = () => {};
@@ -52,15 +53,17 @@ export function initDeliveryPanel(options = {}) {
     );
   const button = qs("delivery-confirm");
   if (button)
-    button.addEventListener("click", () => {
-      const feedback = qs("delivery-feedback");
-      try {
-        const delivered = deliverOrder(qs("delivery-order").value);
-        if (feedback) feedback.textContent = `Pedido ${delivered.numero} marcado como entregado.`;
-        renderDeliveryPanel();
-        onDelivered(delivered);
-      } catch (error) {
-        if (feedback) feedback.textContent = error.message;
-      }
-    });
+    button.addEventListener("click", () =>
+      runWithBusy(button, () => {
+        const feedback = qs("delivery-feedback");
+        try {
+          const delivered = deliverOrder(qs("delivery-order").value);
+          if (feedback) feedback.textContent = `Pedido ${delivered.numero} marcado como entregado.`;
+          renderDeliveryPanel();
+          onDelivered(delivered);
+        } catch (error) {
+          if (feedback) feedback.textContent = error.message;
+        }
+      }),
+    );
 }

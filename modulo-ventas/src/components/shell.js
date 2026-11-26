@@ -32,8 +32,8 @@ export function applyShellLabels() {
   const salesDocumentLabels = getConfig().labels.documents.toLowerCase() === "pedidos de venta";
   const labels = {
     "nav-dashboard-label": "Panel",
-    "nav-entities-label": getConfig().labels.entities,
-    "nav-documents-label": salesDocumentLabels
+    "nav-clients-label": getConfig().labels.entities,
+    "nav-client-documents-label": salesDocumentLabels
       ? "Documentos de clientes"
       : getConfig().labels.documents,
     "nav-search-label": "Búsqueda",
@@ -45,8 +45,10 @@ export function applyShellLabels() {
 
   const titles = {
     "nav-dashboard": "Panel",
-    "nav-entities": getConfig().labels.entities,
-    "nav-documents": salesDocumentLabels ? "Documentos de clientes" : getConfig().labels.documents,
+    "nav-clients": getConfig().labels.entities,
+    "nav-client-documents": salesDocumentLabels
+      ? "Documentos de clientes"
+      : getConfig().labels.documents,
     "nav-search": "Búsqueda",
     "nav-sales-order": "Órdenes de Venta (sales_orders)",
     "nav-quotes": "Cotizaciones",

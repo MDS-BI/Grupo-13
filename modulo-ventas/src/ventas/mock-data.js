@@ -19,7 +19,7 @@ import {
   updateQuoteStatus,
 } from "./quotes.js";
 import { createOrder, listOrders, updateOrderStatus } from "./orders.js";
-import { createInvoiceFromOrder, listInvoices } from "./invoices.js";
+import { createInvoiceFromOrder, listInvoices, markInvoiceAnnulled } from "./invoices.js";
 import { addPayment, listPayments } from "./payments.js";
 import { RETURN_STATUSES, createReturn, listReturns, updateReturnStatus } from "./returns.js";
 import { deliverOrder } from "./delivery.js";
@@ -27,12 +27,23 @@ import { getCurrentRole, setCurrentRole, ROLES } from "./roles.js";
 
 const DEMO_MARKER = "erp_ventas:demo_data_loaded";
 
+const RESPONSABLES_POR_ROL = Object.freeze([
+  { rol: "vendedor", nombre: "Camila Rojas" },
+  { rol: "operaciones", nombre: "Diego Fuentes" },
+  { rol: "gerente", nombre: "Paula Soto" },
+  { rol: "devoluciones", nombre: "Rodrigo Mena" },
+  { rol: "jefe_ventas", nombre: "Valentina Errázuriz" },
+  { rol: "facturacion", nombre: "Matías Vergara" },
+  { rol: "auditor", nombre: "Antonia Beltrán" },
+]);
+
 const CLIENTES = [
   {
     name: "Comercial Andes SpA",
     code: "CLI-001",
     taxId: "76.123.456-7",
     email: "contacto@comercialandes.cl",
+    contacto: "Renata Fuentes",
     phone: "+56 2 2200 1001",
     address: "Av. Providencia 1234, Providencia, Santiago",
     category: "Mayorista",
@@ -41,7 +52,7 @@ const CLIENTES = [
     creditLimit: 5000000,
     paymentTerms: "neto 30",
     estado: "activo",
-    vendedor: "Camila Rojas",
+    vendedor: "Ignacia Valdés",
     zona: "Centro",
   },
   {
@@ -49,6 +60,7 @@ const CLIENTES = [
     code: "CLI-002",
     taxId: "76.234.567-8",
     email: "ventas@costanorte.cl",
+    contacto: "Óscar Salinas",
     phone: "+56 51 220 1002",
     address: "Calle Serrano 456, Antofagasta",
     category: "Distribuidor",
@@ -57,7 +69,7 @@ const CLIENTES = [
     creditLimit: 3500000,
     paymentTerms: "neto 15",
     estado: "activo",
-    vendedor: "Diego Fuentes",
+    vendedor: "Tomás Herrera",
     zona: "Norte",
   },
   {
@@ -65,6 +77,7 @@ const CLIENTES = [
     code: "CLI-003",
     taxId: "76.345.678-9",
     email: "gerencia@inversionessur.cl",
+    contacto: "Mónica Arriagada",
     phone: "+56 65 220 1003",
     address: "Av. Alemania 0891, Temuco",
     category: "Minorista",
@@ -72,8 +85,8 @@ const CLIENTES = [
     targetDate: "2026-12-05",
     creditLimit: 1200000,
     paymentTerms: "contado",
-    estado: "activo",
-    vendedor: "Camila Rojas",
+    estado: "inactivo",
+    vendedor: "Javiera Muñoz",
     zona: "Sur",
   },
   {
@@ -81,6 +94,7 @@ const CLIENTES = [
     code: "CLI-004",
     taxId: "76.456.789-0",
     email: "compras@tecnologiaoriente.cl",
+    contacto: "Eduardo Birkner",
     phone: "+56 2 2200 1004",
     address: "Av. Vitacura 2780, Vitacura, Santiago",
     category: "Corporativo",
@@ -88,8 +102,8 @@ const CLIENTES = [
     targetDate: "2027-01-20",
     creditLimit: 8000000,
     paymentTerms: "neto 45",
-    estado: "inactivo",
-    vendedor: "Paula Soto",
+    estado: "activo",
+    vendedor: "Fernanda Salas",
     zona: "Este",
   },
   {
@@ -97,6 +111,7 @@ const CLIENTES = [
     code: "CLI-005",
     taxId: "76.567.890-1",
     email: "administracion@serviciosponiente.cl",
+    contacto: "Lucía Alarcón",
     phone: "+56 32 220 1005",
     address: "Av. Libertad 1450, Valparaíso",
     category: "Servicios",
@@ -105,7 +120,7 @@ const CLIENTES = [
     creditLimit: 900000,
     paymentTerms: "contado",
     estado: "activo",
-    vendedor: "Rodrigo Mena",
+    vendedor: "Cristóbal Ríos",
     zona: "Oeste",
   },
   {
@@ -113,6 +128,7 @@ const CLIENTES = [
     code: "CLI-006",
     taxId: "76.678.901-2",
     email: "finanzas@grupocentro.cl",
+    contacto: "Hugo Pizarro",
     phone: "+56 2 2200 1006",
     address: "Av. Apoquindo 3200, Las Condes, Santiago",
     category: "Corporativo",
@@ -121,39 +137,121 @@ const CLIENTES = [
     creditLimit: 6000000,
     paymentTerms: "neto 60",
     estado: "bloqueado",
-    vendedor: "Paula Soto",
+    vendedor: "Sebastián Tapia",
     zona: "Centro",
+  },
+  {
+    name: "Logística Río Bravo S.A.",
+    code: "CLI-007",
+    taxId: "76.789.012-3",
+    email: "logistica@riobravo.cl",
+    contacto: "Natalia Quintana",
+    phone: "+56 41 220 1007",
+    address: "Av. Colón 567, Concepción",
+    category: "Mayorista",
+    description: "Operador logístico con requerimientos frecuentes de papelería.",
+    targetDate: "2026-12-20",
+    creditLimit: 2800000,
+    paymentTerms: "neto 30",
+    estado: "activo",
+    vendedor: "Ignacia Valdés",
+    zona: "Sur",
+  },
+  {
+    name: "Agroexportadora Maipo Ltda.",
+    code: "CLI-008",
+    taxId: "76.890.123-4",
+    email: "exportacion@agromaipo.cl",
+    contacto: "Esteban Larenas",
+    phone: "+56 2 2200 1008",
+    address: "Camino a Melipilla 2345, Talagante",
+    category: "Distribuidor",
+    description: "Exportadora de frutas con compras estacionales de equipos.",
+    targetDate: "2027-01-10",
+    creditLimit: 4200000,
+    paymentTerms: "neto 15",
+    estado: "inactivo",
+    vendedor: "Tomás Herrera",
+    zona: "Oeste",
+  },
+  {
+    name: "Editorial Cordillera SpA",
+    code: "CLI-009",
+    taxId: "76.901.234-5",
+    email: "redaccion@editorialcordillera.cl",
+    contacto: "Verónica Silva",
+    phone: "+56 2 2200 1009",
+    address: "Av. Providencia 987, Providencia, Santiago",
+    category: "Servicios",
+    description: "Cliente sin movimientos para probar el historial vacío.",
+    targetDate: "2027-03-01",
+    creditLimit: 600000,
+    paymentTerms: "contado",
+    estado: "activo",
+    vendedor: "Javiera Muñoz",
+    zona: "Centro",
+  },
+  {
+    name: "Hotelera Pacífico S.A.",
+    code: "CLI-010",
+    taxId: "76.012.345-6",
+    email: "recepcion@hotelpacifico.cl",
+    contacto: "Mauricio Orellana",
+    phone: "+56 32 220 1010",
+    address: "Av. Coquimbo 321, Viña del Mar",
+    category: "Corporativo",
+    description: "Cadena hotelera bloqueada por revisión de crédito.",
+    targetDate: "2027-02-28",
+    creditLimit: 5500000,
+    paymentTerms: "neto 45",
+    estado: "bloqueado",
+    vendedor: "Fernanda Salas",
+    zona: "Este",
   },
 ];
 
 const VENDEDORES = [
   {
     codigo: "VEN-01",
-    nombre: "Camila Rojas",
-    email: "camila.rojas@ejemplo.cl",
+    nombre: "Ignacia Valdés",
+    email: "ignacia.valdes@ejemplo.cl",
     telefono: "+56 9 8100 1001",
     zonaId: "CENTRO",
   },
   {
     codigo: "VEN-02",
-    nombre: "Diego Fuentes",
-    email: "diego.fuentes@ejemplo.cl",
+    nombre: "Tomás Herrera",
+    email: "tomas.herrera@ejemplo.cl",
     telefono: "+56 9 8100 1002",
     zonaId: "NORTE",
   },
   {
     codigo: "VEN-03",
-    nombre: "Paula Soto",
-    email: "paula.soto@ejemplo.cl",
+    nombre: "Javiera Muñoz",
+    email: "javiera.munoz@ejemplo.cl",
     telefono: "+56 9 8100 1003",
     zonaId: "SUR",
   },
   {
     codigo: "VEN-04",
-    nombre: "Rodrigo Mena",
-    email: "rodrigo.mena@ejemplo.cl",
+    nombre: "Cristóbal Ríos",
+    email: "cristobal.rios@ejemplo.cl",
     telefono: "+56 9 8100 1004",
     zonaId: "OESTE",
+  },
+  {
+    codigo: "VEN-05",
+    nombre: "Fernanda Salas",
+    email: "fernanda.salas@ejemplo.cl",
+    telefono: "+56 9 8100 1005",
+    zonaId: "ESTE",
+  },
+  {
+    codigo: "VEN-06",
+    nombre: "Sebastián Tapia",
+    email: "sebastian.tapia@ejemplo.cl",
+    telefono: "+56 9 8100 1006",
+    zonaId: "CENTRO",
   },
 ];
 
@@ -277,6 +375,30 @@ const PRODUCTOS = [
     categoria: "papeleria",
     precio: 3990,
     precioPremium: 4290,
+  },
+  {
+    sku: "SKU-1011",
+    nombre: "Estación de trabajo gráfica",
+    descripcion: "Equipo para diseño con tarjeta gráfica dedicada y 32 GB de RAM.",
+    unidadMedida: "UN",
+    impuestoPorcentaje: 19,
+    stockActual: 0,
+    stockMinimo: 8,
+    categoria: "tecnologia",
+    precio: 1899990,
+    precioPremium: 1999990,
+  },
+  {
+    sku: "SKU-1012",
+    nombre: "Servicio de capacitación",
+    descripcion: "Jornada de capacitación presencial para equipos de oficina.",
+    unidadMedida: "SE",
+    impuestoPorcentaje: 0,
+    stockActual: 6,
+    stockMinimo: 10,
+    categoria: "servicios",
+    precio: 75000,
+    precioPremium: 82000,
   },
 ];
 
@@ -415,7 +537,7 @@ function seedCatalog() {
         vigenteHasta: "2025-12-31",
       });
     }
-    if (producto.sku === "SKU-1005" || producto.sku === "SKU-1009") {
+    if (["SKU-1005", "SKU-1009", "SKU-1012"].includes(producto.sku)) {
       createPrecioProducto({
         listaId: listaOnline.id,
         productoId: creado.id,
@@ -583,7 +705,7 @@ export function loadDemoData(options = {}) {
   acceptQuote(aceptada.id, { role: ROLES.JEFE_VENTAS });
 
   const cotizacion = createOrder(
-    orderPayload(clientes[0], seller("VEN-01"), productos, {
+    orderPayload(clientes[9], seller("VEN-01"), productos, {
       estado: "cotización",
       canal: "Web",
       fechaEmision: dayOffset(-5),
@@ -601,10 +723,12 @@ export function loadDemoData(options = {}) {
       lineas: [lineFor(productos, 3, 3), lineFor(productos, 5, 2)],
     }),
   );
-  const pendiente = createOrder(
+  const antiguo = createOrder(
     orderPayload(clientes[2], seller("VEN-01"), productos, {
       estado: "pedido",
       descuento: 9000,
+      fechaEmision: dayOffset(-45),
+      fechaEntrega: dayOffset(-40),
       lineas: [lineFor(productos, 4, 1)],
     }),
   );
@@ -634,25 +758,48 @@ export function loadDemoData(options = {}) {
   );
   const cancelado = createOrder(
     orderPayload(clientes[5], seller("VEN-03"), productos, {
-      estado: "cotización",
+      estado: "pedido",
       canal: "Teléfono",
       notas: "Pedido cancelado por decisión del cliente.",
       lineas: [lineFor(productos, 0, 1)],
     }),
   );
   updateOrderStatus(cancelado.id, "cancelado");
+  createOrder(
+    orderPayload(clientes[6], seller("VEN-01"), productos, {
+      estado: "pedido",
+      descuento: 5000,
+      lineas: [lineFor(productos, 9, 3)],
+    }),
+  );
+  const mixto = createOrder(
+    orderPayload(clientes[7], seller("VEN-02"), productos, {
+      estado: "pedido",
+      condicionesPago: "neto 30",
+      notas: "Pedido de demostración con impuestos 19 % y 0 %.",
+      lineas: [lineFor(productos, 0, 1), lineFor(productos, 6, 2)],
+    }),
+  );
 
-  const facturaPendiente = invoiceFor(pendiente, dayOffset(-2));
+  const facturaAntigua = invoiceFor(antiguo, dayOffset(-40));
   const facturaParcial = invoiceFor(parcial, dayOffset(-4));
   const facturaEntregada = invoiceFor(entregado, dayOffset(-6));
   const facturaDevuelta = invoiceFor(conDevolucion, dayOffset(-3));
+  const facturaMixta = invoiceFor(mixto, dayOffset(-5));
 
   addPayment({
     facturaId: facturaParcial.id,
-    fecha: dayOffset(-2),
+    fecha: dayOffset(-3),
     monto: Math.round(facturaParcial.total * 0.4),
     metodo: "transferencia",
     referencia: "TRF-DEMO-001",
+  });
+  addPayment({
+    facturaId: facturaParcial.id,
+    fecha: dayOffset(-2),
+    monto: Math.round(facturaParcial.total * 0.2),
+    metodo: "transferencia",
+    referencia: "TRF-DEMO-005",
   });
   addPayment({
     facturaId: facturaEntregada.id,
@@ -677,6 +824,29 @@ export function loadDemoData(options = {}) {
   });
 
   deliverOrder(entregado.id, { skipRoleCheck: true, role: "operaciones" });
+
+  let intentoFueraDePlazo;
+  try {
+    createReturn(
+      {
+        facturaId: facturaAntigua.id,
+        pedidoId: antiguo.id,
+        fecha: dayOffset(-1),
+        motivo: "Cambio de opinión del cliente dentro del plazo comercial.",
+        lineas: [{ detallePedidoId: antiguo.lineas[0].id, cantidad: 1 }],
+      },
+      { skipRoleCheck: true, role: "devoluciones" },
+    );
+  } catch (error) {
+    intentoFueraDePlazo = {
+      facturaId: facturaAntigua.id,
+      numero: facturaAntigua.numero,
+      fecha: dayOffset(-1),
+      motivo: "Cambio de opinión del cliente dentro del plazo comercial.",
+      error: error.message,
+    };
+  }
+  markInvoiceAnnulled(facturaAntigua.id);
 
   const devolucionCompletada = createReturn(
     {
@@ -716,11 +886,11 @@ export function loadDemoData(options = {}) {
 
   const devolucionAprobada = createReturn(
     {
-      facturaId: facturaPendiente.id,
-      pedidoId: pendiente.id,
+      facturaId: facturaMixta.id,
+      pedidoId: mixto.id,
       fecha: dayOffset(-1),
       motivo: "Diferencia respecto a la ficha técnica publicada.",
-      lineas: [{ detallePedidoId: pendiente.lineas[0].id, cantidad: 1 }],
+      lineas: [{ detallePedidoId: mixto.lineas[1].id, cantidad: 1 }],
     },
     { skipRoleCheck: true, role: "devoluciones" },
   );
@@ -740,6 +910,9 @@ export function loadDemoData(options = {}) {
         estado,
         cantidad: listReturns().filter((item) => item.estado === estado).length,
       })),
+      responsablesPorRol: RESPONSABLES_POR_ROL,
+      contactosClientes: CLIENTES.map((cliente) => cliente.contacto),
+      intentoFueraDePlazo,
       ejemplo: {
         borrador: borrador.numero,
         enviada: enviada.numero,

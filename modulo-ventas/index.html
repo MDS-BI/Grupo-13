@@ -13,6 +13,13 @@
   </head>
   <body>
     <div id="config-errors" class="config-error" role="alert" hidden></div>
+    <div
+      id="route-notice"
+      class="permission-notice route-notice"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
 
     <div class="workspace">
       <header class="topbar">
@@ -57,7 +64,7 @@
             </svg>
             <span class="nav-label" id="nav-dashboard-label">Panel</span>
           </button>
-          <button type="button" class="nav-module" data-module="entities" id="nav-entities">
+          <button type="button" class="nav-module" data-module="clients" id="nav-clients">
             <svg
               viewBox="0 0 20 20"
               width="18"
@@ -73,9 +80,14 @@
               <path d="M3.5 6 10 9.5 16.5 6"></path>
               <path d="M10 9.5v8"></path>
             </svg>
-            <span class="nav-label" id="nav-entities-label">Entidades</span>
+            <span class="nav-label" id="nav-clients-label">Clientes</span>
           </button>
-          <button type="button" class="nav-module" data-module="documents" id="nav-documents">
+          <button
+            type="button"
+            class="nav-module"
+            data-module="client-documents"
+            id="nav-client-documents"
+          >
             <svg
               viewBox="0 0 20 20"
               width="18"
@@ -92,7 +104,7 @@
               <path d="M8 10h5"></path>
               <path d="M8 13h5"></path>
             </svg>
-            <span class="nav-label" id="nav-documents-label">Documentos</span>
+            <span class="nav-label" id="nav-client-documents-label">Documentos de clientes</span>
           </button>
           <button type="button" class="nav-module" data-module="search" id="nav-search">
             <svg
@@ -365,11 +377,11 @@
 
         <section
           class="view-panel"
-          id="view-entities"
-          aria-labelledby="entities-view-heading"
+          id="view-clients"
+          aria-labelledby="clients-view-heading"
           hidden
         >
-          <h1 id="entities-view-heading">Entidades</h1>
+          <h1 id="clients-view-heading">Clientes</h1>
 
           <section class="card" id="entity-create-panel" aria-labelledby="entity-form-heading">
             <h2 id="entity-form-heading">Agregar / Editar Entidad</h2>
@@ -468,11 +480,11 @@
 
         <section
           class="view-panel"
-          id="view-documents"
-          aria-labelledby="documents-view-heading"
+          id="view-client-documents"
+          aria-labelledby="client-documents-view-heading"
           hidden
         >
-          <h1 id="documents-view-heading">Documentos</h1>
+          <h1 id="client-documents-view-heading">Documentos de clientes</h1>
 
           <div id="documents-lifecycle-notice" class="empty" hidden>
             <p>

@@ -43,7 +43,7 @@ describe('User Story 3 - Panel metrics and centralized registration', () => {
     await bootWith(undefined);
     expect(qs('view-dashboard').hidden).toBe(false);
     expect(qs('view-operations').hidden).toBe(true);
-    expect(qs('view-entities').hidden).toBe(true);
+    expect(qs('view-clients').hidden).toBe(true);
     expect(qs('view-search').hidden).toBe(true);
     expect(qs('view-quotes').hidden).toBe(true);
     expect(qs('view-products').hidden).toBe(true);
@@ -80,7 +80,7 @@ describe('User Story 3 - Panel metrics and centralized registration', () => {
 
   it('refreshes statistics after creating records elsewhere in the app', async () => {
     await bootWith(undefined);
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     qs('name').value = 'Acme';
     qs('code').value = 'AC-001';
     qs('entity-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));

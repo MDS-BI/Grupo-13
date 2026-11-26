@@ -61,9 +61,19 @@ import { listQuotes } from "./ventas/quotes.js";
 import { listInvoices } from "./ventas/invoices.js";
 import { listReturns } from "./ventas/returns.js";
 import { renderSalesOrders } from "./components/ventas/orders-panel.js";
+import {
+  ensureFeedbackPattern,
+  runWithBusy,
+  showListLoading,
+  hideListLoading,
+} from "./components/ventas/loading-feedback.js";
 
 function qs(id) {
   return document.getElementById(id);
+}
+
+function viewFeedback(module) {
+  return qs(VIEWS[module])?.querySelector("[data-view-feedback]");
 }
 
 // Ayudantes de género gramatical para etiquetas configurables en español.
@@ -78,8 +88,8 @@ const seleccionada = (word) => (esFemenina(word) ? "seleccionada" : "seleccionad
 const MODULES = [
   "dashboard",
   "operations",
-  "entities",
-  "documents",
+  "clients",
+  "client-documents",
   "search",
   "sales-order",
   "quotes",
@@ -92,8 +102,8 @@ const MODULES = [
 const VIEWS = {
   dashboard: "view-dashboard",
   operations: "view-operations",
-  entities: "view-entities",
-  documents: "view-documents",
+  clients: "view-clients",
+  "client-documents": "view-client-documents",
   search: "view-search",
   "sales-order": "view-sales-order",
   quotes: "view-quotes",
@@ -108,8 +118,8 @@ const VIEWS = {
 const VIEW_TITLES = {
   dashboard: "Panel",
   operations: "Agregar",
-  entities: "Entidades",
-  documents: "Documentos",
+  clients: "Clientes",
+  "client-documents": "Documentos de clientes",
   search: "Búsqueda",
   "sales-order": "Órdenes de Venta (sales_orders)",
   quotes: "Cotizaciones (sales_quotes)",
@@ -125,8 +135,8 @@ let currentModule = "dashboard";
 const VISUAL_MODULES = ["dashboard"];
 const OPERATION_MODULES = [
   "operations",
-  "entities",
-  "documents",
+  "clients",
+  "client-documents",
   "search",
   "sales-order",
   "quotes",
@@ -136,26 +146,20 @@ const OPERATION_MODULES = [
   "history",
   "invoices",
 ];
-const OPERATION_MODULE_PERMISSIONS = {
-  entities: ["gestionar_clientes"],
-  documents: ["gestionar_documentos"],
-  "sales-order": ["gestionar_orden"],
-  delivery: ["entregar"],
-  returns: ["gestionar_devoluciones"],
-  invoices: ["facturar", "registrar_pago"],
+const MODULE_ACCESS_PERMISSIONS = {
+  dashboard: ["ver_panel"],
+  operations: ["ver_agregar"],
+  "sales-order": ["ver_pedidos"],
+  quotes: ["ver_cotizaciones"],
+  products: ["ver_productos"],
+  delivery: ["ver_entregas"],
+  returns: ["ver_devoluciones"],
+  invoices: ["ver_facturacion"],
+  clients: ["ver_clientes"],
+  "client-documents": ["ver_documentos_clientes"],
+  search: ["ver_busqueda"],
   history: ["ver_historial"],
 };
-const OPERATION_ACCESS_PERMISSIONS = [
-  "gestionar_clientes",
-  "gestionar_documentos",
-  "crear_cotizacion",
-  "gestionar_orden",
-  "gestionar_precios",
-  "entregar",
-  "gestionar_devoluciones",
-  "facturar",
-  "registrar_pago",
-];
 
 function organizeWorkspace() {
   const visual = qs("visual-consultations");
@@ -202,8 +206,8 @@ function organizeWorkspace() {
     "nav-returns",
     "nav-history",
     "nav-invoices",
-    "nav-entities",
-    "nav-documents",
+    "nav-clients",
+    "nav-client-documents",
     "nav-search",
   ]) {
     const button = qs(id);
@@ -298,25 +302,8 @@ function applyDataVisibility() {
   });
 }
 
-function canAccessModule(name) {
-  const role = getCurrentRole();
-  if (role === ROLES.AUDITOR) {
-    return ["dashboard", "operations"].includes(name);
-  }
-  if (role === ROLES.DEVOLUCIONES) {
-    return ["dashboard", "operations", "sales-order", "returns"].includes(name);
-  }
-  if (name === "dashboard") return can("ver_panel");
-  if (name === "operations") return canAny(OPERATION_ACCESS_PERMISSIONS);
-  if (name === "search") return true;
-  if (name === "quotes") return can("ver_cotizaciones");
-  if (name === "products") return can("ver_productos");
-  if (name === "history") return can("ver_datos_sensibles");
-  if (name === "sales-order") return can("ver_pedidos");
-  if (name === "returns") return true;
-  if (["delivery", "invoices"].includes(name)) return true;
-  const permissions = OPERATION_MODULE_PERMISSIONS[name];
-  return permissions ? canAny(permissions) : false;
+export function canAccessModule(name) {
+  return canAny(MODULE_ACCESS_PERMISSIONS[name]);
 }
 
 function applyModuleAccess() {
@@ -372,10 +359,42 @@ function animateView(name) {
   active.classList.add("is-entering");
 }
 
-function showModule(name, opts = {}) {
+function showRouteNotice(message = "") {
+  const notice = qs("route-notice");
+  if (!notice) return;
+  notice.textContent = message;
+  notice.hidden = !message;
+}
+
+function refreshListView(id, task) {
+  const view = qs(id);
+  showListLoading(view, "Actualizando registros…");
+  try {
+    const result = task();
+    if (result && typeof result.then === "function") {
+      return result.finally(() => hideListLoading(view));
+    }
+    hideListLoading(view);
+    return result;
+  } catch (error) {
+    hideListLoading(view);
+    throw error;
+  }
+}
+
+export function showModule(name, opts = {}) {
   if (name === "summary") name = "dashboard";
-  if (!MODULES.includes(name)) name = "dashboard";
-  if (!canAccessModule(name)) name = "dashboard";
+  if (!MODULES.includes(name)) {
+    showRouteNotice("Ruta no disponible; se muestra el Panel.");
+    name = "dashboard";
+  } else if (!canAccessModule(name)) {
+    showRouteNotice(
+      `Ruta no disponible para el rol ${ROLE_LABELS[getCurrentRole()] || getCurrentRole()}; se muestra el Panel.`,
+    );
+    name = "dashboard";
+  } else {
+    showRouteNotice();
+  }
   currentModule = name;
   const visualActive = VISUAL_MODULES.includes(name);
   for (const [module, id] of Object.entries(VIEWS)) {
@@ -389,29 +408,33 @@ function showModule(name, opts = {}) {
   if (visualContainer) visualContainer.hidden = !visualActive;
   setActiveModule(name);
   if (visualActive) {
-    renderDashboard();
-    renderSummaryView();
+    refreshListView("view-dashboard", () => {
+      renderDashboard();
+      renderSummaryView();
+    });
   }
-  if (name === "search") refreshSearch();
-  if (name === "quotes") renderQuotesPanel();
-  if (name === "products") renderProductsPanel();
-  if (name === "history") renderClientHistory();
-  if (name === "sales-order") renderSalesOrders();
+  if (name === "search") refreshListView("view-search", refreshSearch);
+  if (name === "quotes") refreshListView("view-quotes", renderQuotesPanel);
+  if (name === "products") refreshListView("view-products", renderProductsPanel);
+  if (name === "history") refreshListView("view-history", renderClientHistory);
+  if (name === "sales-order") refreshListView("view-sales-order", renderSalesOrders);
   if (OPERATION_MODULES.includes(name)) {
-    populateDocumentEntitySelect();
-    populateEditEntitySelect();
-    populateEditDocumentSelect();
-    refreshOrderForm();
-    populateOrderEditSelect();
-    refreshQuoteForm();
-    renderDeliveryPanel();
-    renderReturnsPanel();
-    renderInvoicePanel();
-    renderPricingPanel();
-    if (name === "entities" && opts.newRecord) clearEntityForm();
-    if (name === "documents" && opts.newRecord) clearDocumentForm();
-    if (opts.focusForm && name === "entities") qs("name")?.focus();
-    if (opts.focusForm && name === "documents") qs("document-entity")?.focus();
+    refreshListView("view-operations", () => {
+      populateDocumentEntitySelect();
+      populateEditEntitySelect();
+      populateEditDocumentSelect();
+      refreshOrderForm();
+      populateOrderEditSelect();
+      refreshQuoteForm();
+      renderDeliveryPanel();
+      renderReturnsPanel();
+      renderInvoicePanel();
+      renderPricingPanel();
+    });
+    if (name === "clients" && opts.newRecord) clearEntityForm();
+    if (name === "client-documents" && opts.newRecord) clearDocumentForm();
+    if (opts.focusForm && name === "clients") qs("name")?.focus();
+    if (opts.focusForm && name === "client-documents") qs("document-entity")?.focus();
   }
   if (name === "search" && opts.focusSearch) qs("search-input")?.focus();
   applyPermissions();
@@ -530,35 +553,40 @@ function onEditEntityChange() {
 }
 
 function handleDeleteSelectedEntity() {
-  if (!can("gestionar_clientes")) {
-    qs("error-edit-entity").textContent = "Tu rol no tiene permiso para gestionar clientes.";
-    return;
-  }
-  const id = qs("edit-entity").value;
-  if (!id) {
-    qs("error-edit-entity").textContent =
-      `Selecciona ${articulo(labelFor("entity"))} ${labelFor("entity").toLowerCase()} para eliminar.`;
-    return;
-  }
-  const entity = loadEntities().find((item) => item.id === id);
-  try {
-    assertClienteEliminable(entity?.entity_id || id);
-  } catch (error) {
-    qs("error-edit-entity").textContent = error.message;
-    return;
-  }
-  if (
-    !confirm(
-      `¿Eliminar ${demostrativo(labelFor("entity"))} ${labelFor("entity").toLowerCase()}? Sus ${labelFor("documents").toLowerCase()} también se eliminarán.`,
-    )
-  )
-    return;
-  deleteEntity(id);
-  qs("error-edit-entity").textContent = "";
-  clearEntityForm();
-  populateDocumentEntitySelect();
-  populateEditEntitySelect();
-  populateEditDocumentSelect();
+  runWithBusy(
+    qs("delete-entity"),
+    () => {
+      if (!can("gestionar_clientes")) {
+        throw new Error("Tu rol no tiene permiso para gestionar clientes.");
+      }
+      const id = qs("edit-entity").value;
+      if (!id) {
+        throw new Error(
+          `Selecciona ${articulo(labelFor("entity"))} ${labelFor("entity").toLowerCase()} para eliminar.`,
+        );
+      }
+      const entity = loadEntities().find((item) => item.id === id);
+      assertClienteEliminable(entity?.entity_id || id);
+      if (
+        !confirm(
+          `¿Eliminar ${demostrativo(labelFor("entity"))} ${labelFor("entity").toLowerCase()}? Sus ${labelFor("documents").toLowerCase()} también se eliminarán.`,
+        )
+      )
+        return;
+      deleteEntity(id);
+      qs("error-edit-entity").textContent = "";
+      clearEntityForm();
+      populateDocumentEntitySelect();
+      populateEditEntitySelect();
+      populateEditDocumentSelect();
+    },
+    {
+      feedback: viewFeedback("clients"),
+      success: "Cliente eliminado.",
+      error: "No se pudo eliminar el cliente.",
+      recoveryLabel: "Reintentar",
+    },
+  );
 }
 
 function onEditDocumentChange() {
@@ -576,26 +604,36 @@ function onEditDocumentChange() {
 }
 
 function handleDeleteSelectedDocument() {
-  if (!can("gestionar_documentos")) {
-    qs("error-edit-document").textContent = "Tu rol no tiene permiso para gestionar documentos.";
-    return;
-  }
-  const id = qs("edit-document").value;
-  if (!id) {
-    qs("error-edit-document").textContent =
-      `Selecciona ${articulo(labelFor("document"))} ${labelFor("document").toLowerCase()} para eliminar.`;
-    return;
-  }
-  if (
-    !confirm(
-      `¿Eliminar ${demostrativo(labelFor("document"))} ${labelFor("document").toLowerCase()}?`,
-    )
-  )
-    return;
-  deleteDocument(id);
-  qs("error-edit-document").textContent = "";
-  clearDocumentForm();
-  populateEditDocumentSelect();
+  runWithBusy(
+    qs("delete-document"),
+    () => {
+      if (!can("gestionar_documentos")) {
+        throw new Error("Tu rol no tiene permiso para gestionar documentos.");
+      }
+      const id = qs("edit-document").value;
+      if (!id) {
+        throw new Error(
+          `Selecciona ${articulo(labelFor("document"))} ${labelFor("document").toLowerCase()} para eliminar.`,
+        );
+      }
+      if (
+        !confirm(
+          `¿Eliminar ${demostrativo(labelFor("document"))} ${labelFor("document").toLowerCase()}?`,
+        )
+      )
+        return;
+      deleteDocument(id);
+      qs("error-edit-document").textContent = "";
+      clearDocumentForm();
+      populateEditDocumentSelect();
+    },
+    {
+      feedback: viewFeedback("client-documents"),
+      success: "Documento de cliente eliminado.",
+      error: "No se pudo eliminar el documento.",
+      recoveryLabel: "Reintentar",
+    },
+  );
 }
 
 function afterSaveRefresh() {
@@ -606,53 +644,57 @@ function afterSaveRefresh() {
 
 function handleEntitySubmit(ev) {
   ev.preventDefault();
-  const id = qs("entity-id").value;
-  if (!can(id ? "editar_cliente" : "crear_cliente")) {
-    qs("error-edit-entity").textContent = "Tu rol no tiene permiso para gestionar clientes.";
-    return;
-  }
-  const payload = collectEntityPayload();
-  const { valid, errors } = validateEntity(payload);
-  showEntityErrors(errors);
-  if (!valid) return;
-  if (id) {
-    try {
-      updateEntity(id, payload);
+  runWithBusy(
+    qs("submit-button"),
+    () => {
+      const id = qs("entity-id").value;
+      if (!can(id ? "editar_cliente" : "crear_cliente")) {
+        throw new Error("Tu rol no tiene permiso para gestionar clientes.");
+      }
+      const payload = collectEntityPayload();
+      const { valid, errors } = validateEntity(payload);
+      showEntityErrors(errors);
+      if (!valid) return;
+      if (id) updateEntity(id, payload);
+      else addEntity(payload);
       clearEntityForm();
-    } catch (e) {
-      alert(e.message);
-    }
-  } else {
-    addEntity(payload);
-    clearEntityForm();
-  }
-  afterSaveRefresh();
+      afterSaveRefresh();
+    },
+    {
+      feedback: viewFeedback("clients"),
+      success: "Cliente guardado.",
+      error: "No se pudo guardar el cliente.",
+      recoveryLabel: "Reintentar",
+    },
+  );
 }
 
 function handleDocumentSubmit(ev) {
   ev.preventDefault();
-  const id = qs("document-id").value;
-  if (!can(id ? "editar_documento" : "crear_documento")) {
-    qs("error-edit-document").textContent = "Tu rol no tiene permiso para gestionar documentos.";
-    return;
-  }
-  const payload = collectDocumentPayload();
-  const existing = id ? loadDocuments().find((d) => d.id === id) : undefined;
-  const { valid, errors } = validateDocument(payload, existing ? existing.status : undefined);
-  showDocumentErrors(errors);
-  if (!valid) return;
-  try {
-    if (id) {
-      updateDocument(id, payload);
-    } else {
-      addDocument(payload);
-    }
-    clearDocumentForm();
-  } catch (e) {
-    alert(e.message);
-    showDocumentErrors({ status: e.message });
-  }
-  afterSaveRefresh();
+  runWithBusy(
+    qs("document-submit-button"),
+    () => {
+      const id = qs("document-id").value;
+      if (!can(id ? "editar_documento" : "crear_documento")) {
+        throw new Error("Tu rol no tiene permiso para gestionar documentos.");
+      }
+      const payload = collectDocumentPayload();
+      const existing = id ? loadDocuments().find((d) => d.id === id) : undefined;
+      const { valid, errors } = validateDocument(payload, existing ? existing.status : undefined);
+      showDocumentErrors(errors);
+      if (!valid) return;
+      if (id) updateDocument(id, payload);
+      else addDocument(payload);
+      clearDocumentForm();
+      afterSaveRefresh();
+    },
+    {
+      feedback: viewFeedback("client-documents"),
+      success: "Documento de cliente guardado.",
+      error: "No se pudo guardar el documento.",
+      recoveryLabel: "Reintentar",
+    },
+  );
 }
 
 function applyLabels(config) {
@@ -674,8 +716,8 @@ function applyLabels(config) {
   qs("action-find-title").textContent = "Buscar registros";
   qs("action-find-sub").textContent = `Buscar ${entities.toLowerCase()}`;
 
-  qs("entities-view-heading").textContent = entities;
-  qs("documents-view-heading").textContent = documentsLabel;
+  qs("clients-view-heading").textContent = entities;
+  qs("client-documents-view-heading").textContent = documentsLabel;
   qs("entity-form-heading").textContent = `Agregar / Editar ${entity}`;
   qs("edit-entity-heading").textContent =
     `Editar o eliminar ${articulo(entity)} ${entity.toLowerCase()}`;
@@ -722,16 +764,19 @@ function applyTheme(config) {
 }
 
 function handleDemoReset() {
-  const button = qs("demo-reset");
-  const original = button?.textContent || "Recargar datos de ejemplo";
-  seedMockData({ force: true });
-  if (button) {
-    button.textContent = "Datos de ejemplo listos";
-    window.setTimeout(() => {
-      button.textContent = original;
-    }, 1800);
-  }
-  showModule(currentModule);
+  runWithBusy(
+    qs("demo-reset"),
+    () => {
+      seedMockData({ force: true });
+      showModule(currentModule);
+    },
+    {
+      feedback: viewFeedback("dashboard"),
+      success: "Datos de ejemplo recargados.",
+      error: "No se pudieron recargar los datos de ejemplo.",
+      recoveryLabel: "Reintentar",
+    },
+  );
 }
 
 export function refreshActiveView() {
@@ -810,9 +855,20 @@ function wireEvents() {
   const demoReset = qs("demo-reset");
   if (demoReset) demoReset.addEventListener("click", handleDemoReset);
   qs("demo-load")?.addEventListener("click", () => {
-    seedMockData();
-    updateDemoStatus();
-    showModule(currentModule);
+    runWithBusy(
+      qs("demo-load"),
+      () => {
+        seedMockData();
+        updateDemoStatus();
+        showModule(currentModule);
+      },
+      {
+        feedback: viewFeedback("dashboard"),
+        success: "Datos de ejemplo cargados.",
+        error: "No se pudieron cargar los datos de ejemplo.",
+        recoveryLabel: "Reintentar",
+      },
+    );
   });
   qs("breadcrumb-home")?.addEventListener("click", () => showModule("dashboard"));
   qs("breadcrumb-back")?.addEventListener("click", () => showModule("dashboard"));
@@ -855,6 +911,7 @@ export function initApp(resolved) {
   applyTheme(resolved.config);
   renderLogo(qs("logo-mark"));
   organizeWorkspace();
+  ensureFeedbackPattern();
   applyLabels(resolved.config);
   populateRoleSelect();
   renderRoleContext();

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { installLocalStorage, resetVentasStorage, seedVentas, seedQuoteOrder, seedConfirmedOrder, seedDeliveredOrder } from './fixtures.js';
+import { installLocalStorage, resetVentasStorage, seedVentas, seedQuoteOrder, seedConfirmedOrder, seedInvoicedOrder, seedDeliveredOrder } from './fixtures.js';
+import { loadEntities, updateEntity } from '../../src/storage.js';
 import { getClientHistory } from '../../src/ventas/history.js';
 
 let seed;
@@ -30,4 +31,23 @@ describe('US5 - commercial client profile', () => {
     expect(history.vacio).toBe(true);
     expect(history.cantidad).toBe(0);
   });
+
+  it.each(['inactivo', 'bloqueado'])(
+    'keeps 100% of historical orders queryable by reference when the client is %s',
+    (estado) => {
+      const quoteOrder = seedQuoteOrder(seed);
+      const confirmed = seedConfirmedOrder(seed);
+      const { order: invoiced } = seedInvoicedOrder(seed);
+      const { order: delivered } = seedDeliveredOrder(seed);
+      updateEntity(seed.client.id, { estado });
+
+      const expected = [quoteOrder.id, confirmed.id, invoiced.id, delivered.id];
+      const history = getClientHistory(seed.client.entity_id);
+      expect(history.clienteId).toBe(seed.client.entity_id);
+      expect(history.clienteNombre).toBe('Cliente Demo');
+      expect(history.cantidad).toBe(expected.length);
+      expect(expected.every((id) => history.items.some((item) => item.id === id))).toBe(true);
+      expect(loadEntities().some((entity) => entity.id === seed.client.id)).toBe(true);
+    }
+  );
 });

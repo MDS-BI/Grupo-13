@@ -36,10 +36,10 @@ describe('User Story 6 - relabel screens from configuration', () => {
   it('shows default Entidad/Documento terms everywhere when no mappings are provided', async () => {
     await bootWith(undefined);
     expect(qs('brand-name').textContent).toBe('Módulo Base ERP');
-    expect(qs('nav-entities-label').textContent).toBe('Entidades');
-    expect(qs('nav-documents-label').textContent).toBe('Documentos');
+    expect(qs('nav-clients-label').textContent).toBe('Entidades');
+    expect(qs('nav-client-documents-label').textContent).toBe('Documentos');
     expect(qs('add-tab-client').textContent).toBe('Agregar Entidad');
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     expect(qs('entity-form-heading').textContent).toBe('Agregar / Editar Entidad');
     expect(qs('delete-entity').textContent).toBe('Eliminar la entidad seleccionada');
     qs('nav-search').click();
@@ -54,19 +54,19 @@ describe('User Story 6 - relabel screens from configuration', () => {
     expect(document.title).toBe('Ventas');
     expect(qs('brand-name').textContent).toBe('Ventas');
     expect(qs('dashboard-heading').textContent).toBe('Panel');
-    expect(qs('nav-entities-label').textContent).toBe('Clientes');
-    expect(qs('nav-documents-label').textContent).toBe('Documentos de clientes');
+    expect(qs('nav-clients-label').textContent).toBe('Clientes');
+    expect(qs('nav-client-documents-label').textContent).toBe('Documentos de clientes');
     expect(qs('add-tab-client').textContent).toBe('Agregar Cliente');
     expect(qs('add-tab-document').textContent).toBe('Agregar Documento de cliente');
 
-    qs('nav-entities').click();
-    expect(qs('entities-view-heading').textContent).toBe('Clientes');
+    qs('nav-clients').click();
+    expect(qs('clients-view-heading').textContent).toBe('Clientes');
     expect(qs('entity-form-heading').textContent).toBe('Agregar / Editar Cliente');
     expect(qs('edit-entity-heading').textContent).toBe('Editar o eliminar el cliente');
     expect(qs('delete-entity').textContent).toBe('Eliminar el cliente seleccionado');
 
-    qs('nav-documents').click();
-    expect(qs('documents-view-heading').textContent).toBe('Documentos de clientes');
+    qs('nav-client-documents').click();
+    expect(qs('client-documents-view-heading').textContent).toBe('Documentos de clientes');
     expect(qs('document-form-heading').textContent).toBe('Agregar / Editar Documento de cliente');
     expect(qs('edit-document-heading').textContent).toBe('Editar o eliminar el documento de cliente');
     expect(qs('delete-document').textContent).toBe('Eliminar el documento de cliente seleccionado');
@@ -78,11 +78,11 @@ describe('User Story 6 - relabel screens from configuration', () => {
 
   it('keeps navigation behavior unchanged after relabeling', async () => {
     await bootWith({ labels: { entity: 'Producto', entities: 'Productos', document: 'Orden', documents: 'Órdenes' } });
-    qs('nav-entities').click();
-    expect(qs('view-entities').hidden).toBe(false);
-    qs('nav-documents').click();
-    expect(qs('view-entities').hidden).toBe(true);
-    expect(qs('view-documents').hidden).toBe(false);
+    qs('nav-clients').click();
+    expect(qs('view-clients').hidden).toBe(false);
+    qs('nav-client-documents').click();
+    expect(qs('view-clients').hidden).toBe(true);
+    expect(qs('view-client-documents').hidden).toBe(false);
     qs('nav-dashboard').click();
     expect(qs('view-dashboard').hidden).toBe(false);
   });

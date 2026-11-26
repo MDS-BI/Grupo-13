@@ -1,6 +1,7 @@
 import { listInvoices, getInvoice } from "../../ventas/invoices.js";
 import { createReturn, listReturns, updateReturnStatus } from "../../ventas/returns.js";
 import { can, getCurrentRole } from "../../ventas/roles.js";
+import { runWithBusy } from "./loading-feedback.js";
 
 let wired = false;
 let onReturned = () => {};
@@ -66,32 +67,34 @@ function renderInvoiceLines() {
 
 function handleSubmit(event) {
   event.preventDefault();
-  const feedback = qs("return-feedback");
-  const lineas = [...document.querySelectorAll("#return-lines input")]
-    .map((input) => ({
-      detallePedidoId: input.dataset.lineId,
-      productoId: input.dataset.productId,
-      cantidad: Number(input.value),
-    }))
-    .filter((line) => line.cantidad > 0);
-  try {
-    const result = createReturn({
-      facturaId: qs("return-invoice")?.value,
-      motivo: qs("return-reason")?.value.trim(),
-      fecha: qs("return-date")?.value || today(),
-      lineas,
-    });
-    if (feedback) {
-      feedback.textContent = can("ver_montos_financieros")
-        ? `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}" por ${result.total.toLocaleString("es-CL")} ${result.devolucion.moneda}.`
-        : `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}".`;
+  runWithBusy(qs("return-save"), () => {
+    const feedback = qs("return-feedback");
+    const lineas = [...document.querySelectorAll("#return-lines input")]
+      .map((input) => ({
+        detallePedidoId: input.dataset.lineId,
+        productoId: input.dataset.productId,
+        cantidad: Number(input.value),
+      }))
+      .filter((line) => line.cantidad > 0);
+    try {
+      const result = createReturn({
+        facturaId: qs("return-invoice")?.value,
+        motivo: qs("return-reason")?.value.trim(),
+        fecha: qs("return-date")?.value || today(),
+        lineas,
+      });
+      if (feedback) {
+        feedback.textContent = can("ver_montos_financieros")
+          ? `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}" por ${result.total.toLocaleString("es-CL")} ${result.devolucion.moneda}.`
+          : `Devolución ${result.numero} registrada en estado "${result.devolucion.estado}".`;
+      }
+      renderReturnsPanel();
+      if (qs("return-reason")) qs("return-reason").value = "";
+      onReturned(result);
+    } catch (error) {
+      if (feedback) feedback.textContent = error.message;
     }
-    renderReturnsPanel();
-    if (qs("return-reason")) qs("return-reason").value = "";
-    onReturned(result);
-  } catch (error) {
-    if (feedback) feedback.textContent = error.message;
-  }
+  });
 }
 
 function addReturnAction(entry, item, label, status, permission) {
@@ -112,14 +115,16 @@ function handleReturnAction(event) {
   if (!button) return;
   const feedback = qs("return-feedback");
   const { returnId, returnStatus: status } = button.dataset;
-  try {
-    const updated = updateReturnStatus(returnId, status, { role: getCurrentRole() });
-    if (feedback) feedback.textContent = `Devolución ${updated.numero}: estado "${status}".`;
-    renderReturnsPanel();
-    onReturned({ devolucion: updated });
-  } catch (error) {
-    if (feedback) feedback.textContent = error.message;
-  }
+  runWithBusy(button, () => {
+    try {
+      const updated = updateReturnStatus(returnId, status, { role: getCurrentRole() });
+      if (feedback) feedback.textContent = `Devolución ${updated.numero}: estado "${status}".`;
+      renderReturnsPanel();
+      onReturned({ devolucion: updated });
+    } catch (error) {
+      if (feedback) feedback.textContent = error.message;
+    }
+  });
 }
 
 export function initReturnsPanel(options = {}) {

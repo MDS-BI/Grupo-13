@@ -8,6 +8,7 @@ import {
   getOrder,
 } from "../../ventas/orders.js";
 import { can } from "../../ventas/roles.js";
+import { runWithBusy } from "./loading-feedback.js";
 import { renderProductPicker } from "./product-picker.js";
 import {
   addLine,
@@ -135,36 +136,38 @@ function collectPayload() {
 
 function handleSubmit(event) {
   event.preventDefault();
-  const payload = collectPayload();
-  const wasEditing = Boolean(editingOrderId);
-  if (!can(wasEditing ? "editar_orden" : "crear_orden")) {
-    const feedback = qs("order-feedback");
-    if (feedback) feedback.textContent = "Tu rol no tiene permiso para esta acción.";
-    return;
-  }
-  const check = wasEditing
-    ? validateOrder(payload, { existing: getOrder(editingOrderId) })
-    : validateOrder(payload);
-  showErrors(check.errors);
-  if (!check.valid) return;
-  try {
-    const order = wasEditing ? updateOrder(editingOrderId, payload) : createOrder(payload);
-    const feedback = qs("order-feedback");
-    if (feedback)
-      feedback.textContent = wasEditing
-        ? `Pedido ${order.numero} actualizado en estado "${order.estado}" por un total de ${order.total.toLocaleString("es-CL")} ${order.moneda}.`
-        : `Pedido ${order.numero} registrado en estado "${order.estado}" por un total de ${order.total.toLocaleString("es-CL")} ${order.moneda}.`;
-    setEditingState(null);
-    const edit = qs("order-edit-select");
-    if (edit) edit.value = "";
-    resetLineEditor();
-    refreshEditor();
-    populateClients();
-    onCreated(order);
-  } catch (error) {
-    const feedback = qs("order-feedback");
-    if (feedback) feedback.textContent = error.message;
-  }
+  runWithBusy(qs("order-save"), () => {
+    const payload = collectPayload();
+    const wasEditing = Boolean(editingOrderId);
+    if (!can(wasEditing ? "editar_orden" : "crear_orden")) {
+      const feedback = qs("order-feedback");
+      if (feedback) feedback.textContent = "Tu rol no tiene permiso para esta acción.";
+      return;
+    }
+    const check = wasEditing
+      ? validateOrder(payload, { existing: getOrder(editingOrderId) })
+      : validateOrder(payload);
+    showErrors(check.errors);
+    if (!check.valid) return;
+    try {
+      const order = wasEditing ? updateOrder(editingOrderId, payload) : createOrder(payload);
+      const feedback = qs("order-feedback");
+      if (feedback)
+        feedback.textContent = wasEditing
+          ? `Pedido ${order.numero} actualizado en estado "${order.estado}" por un total de ${order.total.toLocaleString("es-CL")} ${order.moneda}.`
+          : `Pedido ${order.numero} registrado en estado "${order.estado}" por un total de ${order.total.toLocaleString("es-CL")} ${order.moneda}.`;
+      setEditingState(null);
+      const edit = qs("order-edit-select");
+      if (edit) edit.value = "";
+      resetLineEditor();
+      refreshEditor();
+      populateClients();
+      onCreated(order);
+    } catch (error) {
+      const feedback = qs("order-feedback");
+      if (feedback) feedback.textContent = error.message;
+    }
+  });
 }
 
 export function initOrderForm(options = {}) {

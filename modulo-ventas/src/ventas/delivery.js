@@ -2,6 +2,7 @@ import { getOrder, listOrders, updateOrderStatus } from "./orders.js";
 import { isTerminal } from "./lifecycle.js";
 import { assertCan } from "./roles.js";
 import { logAudit } from "./audit.js";
+import { deductStockAtomic, restoreStockAtomic } from "./catalog.js";
 
 export function canDeliver(order) {
   return !!order && order.estado === "facturado" && !isTerminal(order.estado);
@@ -25,7 +26,19 @@ export function deliverOrder(orderId, options = {}) {
       `Solo se puede entregar un pedido en estado "facturado"; estado actual: "${order.estado}"`,
     );
   }
-  const updated = updateOrderStatus(orderId, "entregado");
+  const lineas = order.lineas || [];
+  let deducted = false;
+  if (!order.stockDescontado && lineas.length > 0) {
+    deductStockAtomic(lineas);
+    deducted = true;
+  }
+  let updated;
+  try {
+    updated = updateOrderStatus(orderId, "entregado", { stockDescontado: true });
+  } catch (error) {
+    if (deducted) restoreStockAtomic(lineas);
+    throw error;
+  }
   logAudit({
     accion: "entrega",
     ventaId: updated.id,

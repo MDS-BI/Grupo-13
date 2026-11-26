@@ -4,7 +4,7 @@ import { listOrders } from '../../src/ventas/orders.js';
 import { listQuotes } from '../../src/ventas/quotes.js';
 import { listListasPrecio, listPreciosProducto } from '../../src/ventas/catalog.js';
 import { createReturn } from '../../src/ventas/returns.js';
-import { setCurrentRole, ROLES } from '../../src/ventas/roles.js';
+import { setCurrentRole, ROLES, ALL_ROLES } from '../../src/ventas/roles.js';
 import { createQuote } from '../../src/ventas/quotes.js';
 
 let seed;
@@ -20,6 +20,29 @@ async function bootSalesApp(){
 
 function clickNav(id){
   document.getElementById(id).click();
+}
+
+const expectedMenus = {
+  [ROLES.VENDEDOR]: ['dashboard', 'operations', 'sales-order', 'quotes', 'products', 'clients', 'client-documents', 'search', 'delivery', 'returns'],
+  [ROLES.OPERACIONES]: ['sales-order', 'delivery'],
+  [ROLES.GERENTE]: ['dashboard', 'sales-order', 'quotes', 'clients', 'client-documents', 'search'],
+  [ROLES.DEVOLUCIONES]: ['dashboard', 'operations', 'sales-order', 'returns'],
+  [ROLES.JEFE_VENTAS]: ['dashboard', 'operations', 'sales-order', 'quotes', 'products', 'delivery', 'returns', 'invoices', 'clients', 'client-documents', 'search', 'history'],
+  [ROLES.FACTURACION]: ['sales-order', 'invoices'],
+  [ROLES.AUDITOR]: ['dashboard', 'operations'],
+};
+
+function setRole(role){
+  const select = document.getElementById('role-select');
+  select.value = role;
+  select.dispatchEvent(new window.Event('change', { bubbles: true }));
+}
+
+function visibleModules(){
+  return [...document.querySelectorAll('.nav-module, .nav-ventas')]
+    .filter((button) => !button.hidden)
+    .map((button) => button.dataset.module)
+    .sort();
 }
 
 beforeEach(async () => {
@@ -147,13 +170,25 @@ describe('Ventas UI wiring', () => {
   });
 
   it('hides the client delete action and shows the documents stock notice', () => {
-    clickNav('nav-entities');
+    clickNav('nav-clients');
     expect(document.getElementById('delete-entity').hidden).toBe(true);
     expect(document.getElementById('entity-delete-note').hidden).toBe(false);
 
-    clickNav('nav-documents');
+    clickNav('nav-client-documents');
     expect(document.getElementById('documents-lifecycle-notice').hidden).toBe(false);
     expect(document.getElementById('documents-lifecycle-notice').textContent).toMatch(/cotización/);
+  });
+
+  it('redirects an unavailable route to Panel with an accessible notice', async () => {
+    clickNav('nav-sales-order');
+    const { showModule } = await import('../../src/app.js');
+    showModule('ruta-no-disponible');
+
+    expect(document.getElementById('view-dashboard').hidden).toBe(false);
+    const notice = document.getElementById('route-notice');
+    expect(notice.hidden).toBe(false);
+    expect(notice.getAttribute('aria-live')).toBe('polite');
+    expect(notice.textContent).toMatch(/no disponible/i);
   });
 
   it('converts a quote into a pedido and opens it in the order form', () => {
@@ -373,4 +408,47 @@ describe('Ventas UI wiring', () => {
     document.getElementById('return-invoice').dispatchEvent(new window.Event('change'));
     expect(document.querySelector('#return-lines label').textContent).not.toContain('CLP');
   });
+
+  it('shows exactly the FR-068 sidebar entries for every role', () => {
+    for (const role of ALL_ROLES) {
+      setRole(role);
+      expect(visibleModules()).toEqual([...expectedMenus[role]].sort());
+    }
+  });
+
+  it('keeps every pair of roles distinct in menu composition', () => {
+    for (let i = 0; i < ALL_ROLES.length; i += 1) {
+      for (let j = i + 1; j < ALL_ROLES.length; j += 1) {
+        const first = visibleModulesAfterRole(ALL_ROLES[i]).join('|');
+        const second = visibleModulesAfterRole(ALL_ROLES[j]).join('|');
+        expect(first).not.toBe(second);
+      }
+    }
+  });
+
+  it('redirects direct access to a module excluded for the active role', async () => {
+    const { showModule } = await import('../../src/app.js');
+    const forbidden = {
+      [ROLES.VENDEDOR]: 'invoices',
+      [ROLES.OPERACIONES]: 'dashboard',
+      [ROLES.GERENTE]: 'delivery',
+      [ROLES.DEVOLUCIONES]: 'quotes',
+      [ROLES.JEFE_VENTAS]: 'ruta-inexistente',
+      [ROLES.FACTURACION]: 'products',
+      [ROLES.AUDITOR]: 'sales-order',
+    };
+    for (const role of ALL_ROLES) {
+      setRole(role);
+      showModule(forbidden[role]);
+      expect(document.getElementById('view-dashboard').hidden).toBe(false);
+      const notice = document.getElementById('route-notice');
+      expect(notice.hidden).toBe(false);
+      expect(notice.textContent).toMatch(/no disponible/i);
+    }
+  });
 });
+
+function visibleModulesAfterRole(role){
+  setRole(role);
+  return visibleModules();
+}

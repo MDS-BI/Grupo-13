@@ -8,6 +8,7 @@ import {
   updatePrecioProducto,
 } from "../../ventas/catalog.js";
 import { can } from "../../ventas/roles.js";
+import { runWithBusy } from "./loading-feedback.js";
 
 let wired = false;
 
@@ -173,57 +174,61 @@ function clearPriceForm() {
 
 function handleListSubmit(event) {
   event.preventDefault();
-  const feedback = qs("price-list-feedback");
-  if (!can("gestionar_precios")) {
-    if (feedback)
-      feedback.textContent = "Solo el Jefe de Ventas puede crear o editar listas de precios.";
-    return;
-  }
-  const id = qs("price-list-id").value;
-  const payload = {
-    codigo: qs("price-list-code").value,
-    nombre: qs("price-list-name").value,
-    moneda: qs("price-list-currency").value,
-    vigenteDesde: qs("price-list-start").value,
-    vigenteHasta: qs("price-list-end").value,
-    activa: qs("price-list-active").checked,
-  };
-  try {
-    const list = id ? updateListaPrecio(id, payload) : createListaPrecio(payload);
-    clearListForm();
-    if (feedback) feedback.textContent = `Lista ${list.codigo} guardada.`;
-    populateSelectors();
-    renderPriceTable();
-  } catch (error) {
-    if (feedback) feedback.textContent = error.message;
-  }
+  runWithBusy(qs("price-list-save"), () => {
+    const feedback = qs("price-list-feedback");
+    if (!can("gestionar_precios")) {
+      if (feedback)
+        feedback.textContent = "Solo el Jefe de Ventas puede crear o editar listas de precios.";
+      return;
+    }
+    const id = qs("price-list-id").value;
+    const payload = {
+      codigo: qs("price-list-code").value,
+      nombre: qs("price-list-name").value,
+      moneda: qs("price-list-currency").value,
+      vigenteDesde: qs("price-list-start").value,
+      vigenteHasta: qs("price-list-end").value,
+      activa: qs("price-list-active").checked,
+    };
+    try {
+      const list = id ? updateListaPrecio(id, payload) : createListaPrecio(payload);
+      clearListForm();
+      if (feedback) feedback.textContent = `Lista ${list.codigo} guardada.`;
+      populateSelectors();
+      renderPriceTable();
+    } catch (error) {
+      if (feedback) feedback.textContent = error.message;
+    }
+  });
 }
 
 function handlePriceSubmit(event) {
   event.preventDefault();
-  const feedback = qs("price-item-feedback");
-  if (!can("gestionar_precios")) {
-    if (feedback) feedback.textContent = "Solo el Jefe de Ventas puede crear o editar precios.";
-    return;
-  }
-  const id = qs("price-item-id").value;
-  const payload = {
-    listaId: qs("price-item-list").value,
-    productoId: qs("price-item-product").value,
-    precio: Number(qs("price-item-amount").value),
-    moneda: qs("price-item-currency").value,
-    vigenteDesde: qs("price-item-start").value,
-    vigenteHasta: qs("price-item-end").value,
-  };
-  try {
-    const price = id ? updatePrecioProducto(id, payload) : createPrecioProducto(payload);
-    clearPriceForm();
-    if (feedback) feedback.textContent = `Precio guardado desde ${price.vigenteDesde}.`;
-    populateSelectors();
-    renderPriceTable();
-  } catch (error) {
-    if (feedback) feedback.textContent = error.message;
-  }
+  runWithBusy(qs("price-item-save"), () => {
+    const feedback = qs("price-item-feedback");
+    if (!can("gestionar_precios")) {
+      if (feedback) feedback.textContent = "Solo el Jefe de Ventas puede crear o editar precios.";
+      return;
+    }
+    const id = qs("price-item-id").value;
+    const payload = {
+      listaId: qs("price-item-list").value,
+      productoId: qs("price-item-product").value,
+      precio: Number(qs("price-item-amount").value),
+      moneda: qs("price-item-currency").value,
+      vigenteDesde: qs("price-item-start").value,
+      vigenteHasta: qs("price-item-end").value,
+    };
+    try {
+      const price = id ? updatePrecioProducto(id, payload) : createPrecioProducto(payload);
+      clearPriceForm();
+      if (feedback) feedback.textContent = `Precio guardado desde ${price.vigenteDesde}.`;
+      populateSelectors();
+      renderPriceTable();
+    } catch (error) {
+      if (feedback) feedback.textContent = error.message;
+    }
+  });
 }
 
 export function initPricingPanel() {

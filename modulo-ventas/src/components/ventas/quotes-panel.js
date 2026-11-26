@@ -8,6 +8,7 @@ import {
   updateQuoteStatus,
 } from "../../ventas/quotes.js";
 import { can } from "../../ventas/roles.js";
+import { runWithBusy } from "./loading-feedback.js";
 
 let wired = false;
 let notify = () => {};
@@ -53,36 +54,38 @@ export function initQuotesPanel(callbacks = {}) {
   body.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-quote-action]");
     if (!button) return;
-    const feedback = qs("quotes-feedback");
-    const quoteId = button.dataset.quoteId;
-    const action = button.dataset.quoteAction;
-    const permission = ["aceptada", "rechazada"].includes(action)
-      ? "aprobar_cotizacion"
-      : "editar_cotizacion";
-    if (!can(permission)) {
-      if (feedback) feedback.textContent = "Tu rol no tiene permiso para esta acción.";
-      return;
-    }
-    try {
-      if (action === "aceptada") {
-        const { quote, order } = acceptQuote(quoteId);
-        if (feedback) {
-          feedback.textContent = `Cotización ${quote.numero} aceptada: pedido ${order.numero} generado en estado "${order.estado}". El pedido vinculado está disponible para su revisión en Órdenes de Venta.`;
-        }
-        renderQuotesPanel();
-        notify();
-        onOrderCreated(order);
+    runWithBusy(button, () => {
+      const feedback = qs("quotes-feedback");
+      const quoteId = button.dataset.quoteId;
+      const action = button.dataset.quoteAction;
+      const permission = ["aceptada", "rechazada"].includes(action)
+        ? "aprobar_cotizacion"
+        : "editar_cotizacion";
+      if (!can(permission)) {
+        if (feedback) feedback.textContent = "Tu rol no tiene permiso para esta acción.";
         return;
       }
-      if (action === "rechazada") rejectQuote(quoteId);
-      else if (action === "vencida") expireQuote(quoteId);
-      else if (action === "enviada") updateQuoteStatus(quoteId, "enviada");
-      if (feedback) feedback.textContent = "Cotización actualizada correctamente.";
-      renderQuotesPanel();
-      notify();
-    } catch (error) {
-      if (feedback) feedback.textContent = error.message;
-    }
+      try {
+        if (action === "aceptada") {
+          const { quote, order } = acceptQuote(quoteId);
+          if (feedback) {
+            feedback.textContent = `Cotización ${quote.numero} aceptada: pedido ${order.numero} generado en estado "${order.estado}". El pedido vinculado está disponible para su revisión en Órdenes de Venta.`;
+          }
+          renderQuotesPanel();
+          notify();
+          onOrderCreated(order);
+          return;
+        }
+        if (action === "rechazada") rejectQuote(quoteId);
+        else if (action === "vencida") expireQuote(quoteId);
+        else if (action === "enviada") updateQuoteStatus(quoteId, "enviada");
+        if (feedback) feedback.textContent = "Cotización actualizada correctamente.";
+        renderQuotesPanel();
+        notify();
+      } catch (error) {
+        if (feedback) feedback.textContent = error.message;
+      }
+    });
   });
 }
 

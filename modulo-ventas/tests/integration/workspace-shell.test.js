@@ -44,10 +44,10 @@ describe('User Story 13 - branded ERP workspace shell', () => {
     expect(qs('logo-mark').querySelector('svg')).not.toBeNull();
     expect(qs('brand-name').textContent).toBe('Sales Suite');
 
-    qs('nav-entities').click();
+    qs('nav-clients').click();
     expect(qs('logo-mark').querySelector('svg')).not.toBeNull();
 
-    qs('nav-documents').click();
+    qs('nav-client-documents').click();
     qs('nav-search').click();
     expect(qs('logo-mark').querySelector('svg')).not.toBeNull();
     expect(document.querySelector('.topbar .brand')).not.toBeNull();
@@ -62,8 +62,8 @@ describe('User Story 13 - branded ERP workspace shell', () => {
   it('offers sidebar module buttons using configured terminology', async () => {
     await bootWith(brandedConfig);
     expect(qs('nav-dashboard-label').textContent).toBe('Panel');
-    expect(qs('nav-entities-label').textContent).toBe('Entidades');
-    expect(qs('nav-documents-label').textContent).toBe('Documentos');
+    expect(qs('nav-clients-label').textContent).toBe('Entidades');
+    expect(qs('nav-client-documents-label').textContent).toBe('Documentos');
     expect(qs('nav-search-label').textContent).toBe('Búsqueda');
     expect(document.querySelectorAll('.nav-module').length).toBe(4);
   });
@@ -73,8 +73,8 @@ describe('User Story 13 - branded ERP workspace shell', () => {
       moduleName: 'Ventas',
       labels: { entity: 'Cliente', entities: 'Clientes', document: 'Pedido de Venta', documents: 'Pedidos de Venta' }
     });
-    expect(qs('nav-entities-label').textContent).toBe('Clientes');
-    expect(qs('nav-documents-label').textContent).toBe('Documentos de clientes');
+    expect(qs('nav-clients-label').textContent).toBe('Clientes');
+    expect(qs('nav-client-documents-label').textContent).toBe('Documentos de clientes');
   });
 
   it('keeps every module button labeled for accessible icon-rail collapse', async () => {
@@ -91,14 +91,14 @@ describe('User Story 13 - branded ERP workspace shell', () => {
 
     expect(activeModule()).toBe('dashboard');
 
-    qs('nav-entities').click();
-    expect(activeModule()).toBe('entities');
-    expect(qs('view-entities').hidden).toBe(false);
+    qs('nav-clients').click();
+    expect(activeModule()).toBe('clients');
+    expect(qs('view-clients').hidden).toBe(false);
     expect(qs('view-operations').hidden).toBe(true);
 
-    qs('nav-documents').click();
-    expect(activeModule()).toBe('documents');
-    expect(qs('view-documents').hidden).toBe(false);
+    qs('nav-client-documents').click();
+    expect(activeModule()).toBe('client-documents');
+    expect(qs('view-client-documents').hidden).toBe(false);
 
     qs('nav-search').click();
     expect(activeModule()).toBe('search');
@@ -115,8 +115,8 @@ describe('User Story 13 - branded ERP workspace shell', () => {
     const entity = addEntity({ name: 'Acme', code: 'AC-001' });
     addDocument({ entityId: entity.entity_id, folio: 1001, startDate: '2026-08-01', endDate: '2026-08-05' });
 
-    qs('nav-entities').click();
-    qs('nav-documents').click();
+    qs('nav-clients').click();
+    qs('nav-client-documents').click();
     qs('nav-search').click();
     qs('nav-dashboard').click();
 
