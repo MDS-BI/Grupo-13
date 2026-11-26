@@ -254,8 +254,6 @@ p {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  position: sticky;
-  top: 18px;
 }
 
 .nav-module,
@@ -420,42 +418,43 @@ textarea:focus-visible {
   font-weight: 500;
 }
 
+.sales-overview {
+  background: linear-gradient(115deg, #0b1f3a, #16467c);
+  color: #ffffff;
+  border-radius: var(--radius);
+  padding: clamp(18px, 3vw, 30px);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.sales-overview h1 {
+  color: inherit;
+  margin: 0 0 4px;
+}
+
+.sales-overview p {
+  color: #dbeafe;
+  margin: 0;
+}
+
 #quick-actions-heading {
-  margin-bottom: 6px;
-}
-
-.action-group {
-  margin-top: 18px;
-}
-
-.action-group + .action-group {
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid var(--border);
-}
-
-.action-group-heading {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 10px;
   margin-bottom: 12px;
 }
 
-.action-group-heading h3 {
-  margin: 0;
-  font-size: 0.96rem;
-  color: var(--text);
+#summary-heading,
+#analytics-heading {
+  scroll-margin-top: calc(var(--topbar-h) + 16px);
 }
 
-.action-group-heading span {
-  color: var(--muted);
-  font-size: 0.8rem;
+#summary-heading:focus-visible,
+#analytics-heading:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
   gap: 14px;
 }
 
@@ -1592,7 +1591,7 @@ button.danger:hover {
 
 @media (max-width: 900px) {
   :root {
-    --sidebar-w: 68px;
+    --sidebar-w: 172px;
   }
 
   .content {
@@ -1600,12 +1599,8 @@ button.danger:hover {
   }
   .nav-module,
   .nav-ventas {
-    justify-content: center;
+    justify-content: flex-start;
     padding: 10px 8px;
-  }
-  .nav-module .nav-label,
-  .nav-ventas .nav-label {
-    display: none;
   }
   .side-nav-heading,
   .role-context {
@@ -1656,6 +1651,11 @@ button.danger:hover {
 }
 
 @media (max-width: 640px) {
+  #summary-heading,
+  #analytics-heading {
+    scroll-margin-top: 140px;
+  }
+
   .workspace {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto minmax(0, 1fr);
@@ -1691,7 +1691,6 @@ button.danger:hover {
   .side-nav {
     flex-direction: row;
     gap: 6px;
-    position: static;
   }
   .sales-nav {
     margin-top: 0;

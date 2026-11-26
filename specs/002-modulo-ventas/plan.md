@@ -8,7 +8,7 @@
 
 El Módulo de Ventas se construye sobre el módulo base ERP sin modificar su núcleo. La adaptación actual se concentra en `modulo-ventas/src/module-config.js`, que declara:
 
-- **Terminología y vistas**: Entidad → **Cliente**; la separación entre Cotizaciones (`sales_quotes`) y Órdenes de Venta (`sales_orders`) se define en FR-002 y FR-050.
+- **Terminología y vistas**: Entidad → **Cliente**. La interfaz distingue **Cotizaciones** de **Órdenes de venta** usando etiquetas comerciales (FR-002, FR-050). FR-069 concentra los atajos permitidos por rol en el Panel y conserva etiquetas legibles en pantallas angostas.
 - **Campos propios**: `vendedor` y `zona` en el cliente; `canal` y `fechaEntrega` en el pedido.
 - **Ciclo de vida**: `cotización → pedido → facturado → entregado`, con cancelación desde `cotización` o `pedido`.
 - **Marca**: nombre "Ventas" y color de acento `#2563eb` (oscuro `#1d4ed8`, FR-064).

@@ -887,7 +887,7 @@ Tipos admitidos para campos personalizados: `text`, `number`, `date`, `select`.
 
 ### 8.1 Roles y permisos
 
-El selector de rol reside en la barra superior. El «Panel» concentra KPIs, gráficos y resúmenes; «Agregar» centraliza formularios de alta/edición en pestañas. Las vistas de «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» tienen listados distintos. Son etiquetas de interfaz: las colecciones persistidas siguen siendo `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
+El selector de rol reside en la barra superior. El «Panel» concentra KPIs, gráficos y resúmenes; «Agregar» centraliza formularios de alta/edición en pestañas. Las vistas «Cotizaciones» y «Órdenes de venta» tienen listados distintos. Los identificadores técnicos `sales_quotes` y `sales_orders` se usan en documentación; las colecciones persistidas siguen siendo `erp_ventas:cotizaciones` y `erp_ventas:pedidos`.
 
 | Rol | Acceso a vistas | Permisos de escritura |
 |---|---|---|

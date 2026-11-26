@@ -121,8 +121,8 @@ const VIEW_TITLES = {
   clients: "Clientes",
   "client-documents": "Documentos de clientes",
   search: "Búsqueda",
-  "sales-order": "Órdenes de Venta (sales_orders)",
-  quotes: "Cotizaciones (sales_quotes)",
+  "sales-order": "Órdenes de venta",
+  quotes: "Cotizaciones",
   products: "Productos",
   delivery: "Despacho",
   returns: "Devoluciones",
@@ -233,6 +233,7 @@ function selectAddTab(name) {
     const panel = qs(`add-panel-${tab.dataset.addTab}`);
     if (panel) panel.hidden = !active;
   }
+  return selected;
 }
 
 function applyPermissions() {
@@ -291,8 +292,6 @@ function applyDataVisibility() {
   if (postventaMetrics) postventaMetrics.hidden = !postventa;
   const baseMetrics = qs("dashboard-base-stats");
   if (baseMetrics) baseMetrics.hidden = postventa;
-  const findAction = qs("action-find");
-  if (findAction) findAction.hidden = postventa || auditor;
   const analytics = document.querySelector(".analytics-panel");
   if (analytics) analytics.hidden = postventa;
   const readOnlyNotice = qs("add-readonly-notice");
@@ -311,6 +310,17 @@ function applyModuleAccess() {
     const accessible = canAccessModule(button.dataset.module);
     button.hidden = !accessible;
   });
+  const shortcuts = {
+    "action-open-add":
+      canAccessModule("operations") &&
+      [...document.querySelectorAll("[data-add-tab]")].some((tab) => can(tab.dataset.permission)),
+    "action-find": canAccessModule("search"),
+    "action-open-analytics": can("ver_resumen") && getCurrentRole() !== ROLES.DEVOLUCIONES,
+  };
+  for (const [id, visible] of Object.entries(shortcuts)) {
+    qs(id).hidden = !visible;
+  }
+  qs("dashboard-shortcuts").hidden = !Object.values(shortcuts).some(Boolean);
   const demoCard = document.querySelector("#operations-forms .demo-card");
   if (demoCard) demoCard.hidden = !can("crear_cotizacion");
 }
@@ -383,7 +393,10 @@ function refreshListView(id, task) {
 }
 
 export function showModule(name, opts = {}) {
-  if (name === "summary") name = "dashboard";
+  let panelHeading;
+  if (name === "summary") panelHeading = "summary-heading";
+  if (name === "analysis") panelHeading = "analytics-heading";
+  if (panelHeading) name = "dashboard";
   if (!MODULES.includes(name)) {
     showRouteNotice("Ruta no disponible; se muestra el Panel.");
     name = "dashboard";
@@ -445,7 +458,13 @@ export function showModule(name, opts = {}) {
   refreshNavCounts();
   updateDemoStatus();
   animateView(name);
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  const heading = panelHeading && qs(panelHeading);
+  if (heading && !heading.closest("[hidden]")) {
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView?.({ block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 }
 
 function populateDocumentEntitySelect() {
@@ -709,12 +728,9 @@ function applyLabels(config) {
   applyShellLabels();
 
   qs("dashboard-heading").textContent = "Panel";
-  qs("dashboard-subtitle").textContent =
-    "Indicadores, consultas y seguimiento del proceso comercial.";
   qs("add-tab-client").textContent = `Agregar ${entity}`;
   qs("add-tab-document").textContent = `Agregar ${documentLabel}`;
-  qs("action-find-title").textContent = "Buscar registros";
-  qs("action-find-sub").textContent = `Buscar ${entities.toLowerCase()}`;
+  qs("action-find-title").textContent = `Buscar ${entities.toLowerCase()}`;
 
   qs("clients-view-heading").textContent = entities;
   qs("client-documents-view-heading").textContent = documentsLabel;
@@ -745,7 +761,7 @@ function applyLabels(config) {
     const noticeText = documentsNotice.querySelector("p");
     if (noticeText) {
       noticeText.innerHTML =
-        "Las órdenes de venta se registran en la vista dedicada <strong>Órdenes de Venta (sales_orders)</strong>, que valida el stock de cada producto y asigna el estado inicial «cotización».";
+        "Las órdenes de venta se registran en <strong>Agregar → Agregar Orden de Venta</strong>. El formulario valida el stock y asigna el estado inicial «cotización».";
     }
   }
 }
@@ -882,8 +898,9 @@ function wireEvents() {
   });
   document.querySelectorAll("[data-add-target]").forEach((button) => {
     button.addEventListener("click", () => {
+      if (!canAccessModule("operations")) return;
       showModule("operations");
-      selectAddTab(button.dataset.addTarget);
+      selectAddTab(button.dataset.addTarget)?.focus();
     });
   });
   qs("sales-orders-body")?.addEventListener("click", (event) => {

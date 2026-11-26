@@ -242,7 +242,7 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T101 [US1] Agregar formularios de creación/edición de listas de precios y precios por producto bajo «Agregar / Operaciones», preservar los identificadores y colecciones, y probar validaciones de moneda/vigencia en `catalog.js`, `pricing-panel.js` y `catalog.test.js`.
 - [x] T102 [US4] Agregar acciones RMA de aprobar/rechazar (Jefe de Ventas) y completar (Postventa/Jefe de Ventas), con guardas de dominio y pruebas en `returns.js`, `returns-panel.js` y `us4-returns.test.js`.
 - [x] T103 Aplicar navegación por rol: Jefe con acceso total, Ejecutivo sin edición de precios/aprobación RMA, Postventa solo Panel/RMA y Auditor solo Panel Visual de lectura; mostrar controles bloqueados con aviso/candado y conservar roles heredados.
-- [x] T104 Alinear las etiquetas «Cotizaciones (`sales_quotes`)» y «Órdenes de Venta (`sales_orders`)» con el flujo de conversión y documentar las claves físicas vigentes conforme a FR-002 y FR-050.
+- [x] T104 Alinear las etiquetas «Cotizaciones» y «Órdenes de venta» con el flujo de conversión y documentar las claves físicas vigentes conforme a FR-002 y FR-050.
 - [x] T105 Validar cambios con pruebas de catálogo, RMA, matriz de roles y UI, además de la suite completa, lint y build; actualizar el registro de verificación de `plan.md`.
 - [x] T106 [US1] Separar el listado operativo de Órdenes de Venta del listado de Cotizaciones, quitar contadores redundantes de la navegación y conservar la conversión aprobada solo desde Cotizaciones.
 - [x] T107 [US1] Centralizar formularios de cotización, orden, listas/precios, RMA, clientes y documentos en pestañas de «Agregar»; dejar las demás vistas operativas con tablas y acciones.
@@ -293,6 +293,12 @@ description: "Task list for Módulo de Ventas implementation"
 - [x] T128 Ejecutar `npm test`, `npm run lint`, `npm run format:check` y `npm run build` desde la raíz; corregir regresiones y dejar constancia de que FR-066, FR-067 y FR-068 quedan cubiertos por las pruebas de T122/T134, T125 y T126. `format:check` con 0 hallazgos es gate bloqueante de esta verificación final; no cerrar la fase mientras T119-T134 estén pendientes.
 
 ---
+
+## Fase 12: Retroalimentación del MVP (US8, FR-069)
+
+- [x] T135 [US8] Simplificar nombres y descripciones visibles y personalizar la cabecera y los atajos del Panel en `modulo-ventas/index.html` y `modulo-ventas/src/styles.css`.
+- [x] T136 [US8] Respetar los permisos en los atajos, enfocar el resumen o análisis y abrir directamente el formulario de cotización en `modulo-ventas/src/app.js`.
+- [x] T137 [US8] Verificar navegación, foco, etiquetas y permisos con las pruebas de Panel y Ventas, y comprobar en navegador que el menú angosto mantiene nombres visibles.
 
 ## Dependencias y orden de ejecución
 

@@ -91,8 +91,8 @@ describe('Ventas UI wiring', () => {
 
   it('keeps orders and quotes in separate tables and moves their forms into Agregar', () => {
     expect(document.querySelectorAll('[data-module="sales-order"]')).toHaveLength(1);
-    expect(document.getElementById('nav-sales-order').textContent).toContain('Órdenes de Venta (sales_orders)');
-    expect(document.getElementById('nav-quotes').textContent).toContain('Cotizaciones (sales_quotes)');
+    expect(document.getElementById('nav-sales-order').textContent.trim()).toBe('Órdenes de venta');
+    expect(document.getElementById('nav-quotes').textContent.trim()).toBe('Cotizaciones');
 
     clickNav('nav-sales-order');
     expect(document.getElementById('sales-orders-body')).not.toBeNull();
@@ -218,16 +218,40 @@ describe('Ventas UI wiring', () => {
   });
 
   it('opens the analytics panel from the dashboard', () => {
-    const role = document.getElementById('role-select');
-    role.value = ROLES.GERENTE;
-    role.dispatchEvent(new window.Event('change', { bubbles: true }));
+    setRole(ROLES.GERENTE);
     document.getElementById('action-open-analytics').click();
     expect(document.getElementById('view-summary').hidden).toBe(false);
+    expect(document.activeElement.id).toBe('analytics-heading');
 
     expect(document.getElementById('summary-content').hidden).toBe(false);
     expect(document.getElementById('analytics-evolution-chart')).not.toBeNull();
     expect(document.getElementById('analytics-products-chart')).not.toBeNull();
     expect(document.getElementById('analytics-empty').hidden).toBe(false);
+  });
+
+  it('opens the quote form from its list even after using a different registration tab', () => {
+    clickNav('nav-operations');
+    clickNav('add-tab-order');
+    expect(document.getElementById('add-panel-order').hidden).toBe(false);
+
+    clickNav('nav-quotes');
+    document.querySelector('#view-quotes [data-add-target="quote"]').click();
+
+    expect(document.getElementById('view-operations').hidden).toBe(false);
+    expect(document.getElementById('add-panel-quote').hidden).toBe(false);
+    expect(document.getElementById('add-panel-order').hidden).toBe(true);
+    expect(document.activeElement.id).toBe('add-tab-quote');
+  });
+
+  it('keeps only available quick actions and focuses the summary through its shortcut', () => {
+    document.querySelector('#role-task-summary button').click();
+    expect(document.activeElement.id).toBe('summary-heading');
+
+    setRole(ROLES.AUDITOR);
+    expect(document.getElementById('action-open-add').hidden).toBe(true);
+    expect(document.getElementById('action-find').hidden).toBe(true);
+    expect(document.getElementById('action-open-analytics').hidden).toBe(false);
+    expect(document.getElementById('dashboard-shortcuts').hidden).toBe(false);
   });
 
   it('blocks a second conversion of the same quote', () => {

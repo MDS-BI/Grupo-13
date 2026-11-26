@@ -51,9 +51,9 @@ describe('User Story 3 - Panel metrics and centralized registration', () => {
   });
 
   it('links registration to the single Agregar section', async () => {
-    await bootWith(undefined);
-    expect(qs('action-open-add').textContent).toMatch(/Ir a Agregar/);
-    expect(qs('action-find-title').textContent).toBe('Buscar registros');
+    await bootWith(salesConfig);
+    expect(qs('action-open-add').textContent).toMatch(/Crear un registro/);
+    expect(qs('action-find-title').textContent).toBe('Buscar clientes');
     expect(qs('operations-heading').textContent).toBe('Agregar');
     expect(document.querySelectorAll('#operations-forms [role="tab"]').length).toBe(6);
   });

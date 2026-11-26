@@ -141,18 +141,18 @@
             class="nav-ventas"
             data-module="sales-order"
             id="nav-sales-order"
-            aria-label="Órdenes de Venta (sales_orders)"
+            aria-label="Órdenes de venta"
           >
-            <span class="nav-label">Órdenes de Venta (sales_orders)</span>
+            <span class="nav-label">Órdenes de venta</span>
           </button>
           <button
             type="button"
             class="nav-ventas"
             data-module="quotes"
             id="nav-quotes"
-            aria-label="Cotizaciones (sales_quotes)"
+            aria-label="Cotizaciones"
           >
-            <span class="nav-label">Cotizaciones (sales_quotes)</span>
+            <span class="nav-label">Cotizaciones</span>
           </button>
           <button
             type="button"
@@ -269,10 +269,10 @@
         </nav>
 
         <section class="view-panel" id="view-dashboard" aria-labelledby="dashboard-heading">
-          <h1 id="dashboard-heading">Panel</h1>
-          <p id="dashboard-subtitle" class="muted">
-            Indicadores, consultas y seguimiento del proceso comercial.
-          </p>
+          <header class="sales-overview">
+            <h1 id="dashboard-heading">Panel</h1>
+            <p id="dashboard-subtitle">Consulta tus indicadores comerciales y accede a las tareas de tu rol.</p>
+          </header>
 
           <div class="stat-grid" id="dashboard-base-stats">
             <div class="stat-card">
@@ -285,40 +285,25 @@
             </div>
           </div>
 
-          <h2 id="quick-actions-heading">Acciones rápidas</h2>
-          <p class="muted">Elige una acción para empezar o continuar con tu trabajo.</p>
-
-          <section class="action-group" aria-labelledby="add-action-heading">
-            <div class="action-group-heading">
-              <h3 id="add-action-heading">Altas y registros</h3>
-              <span>Formularios centralizados</span>
-            </div>
+          <section id="dashboard-shortcuts" aria-labelledby="quick-actions-heading">
+            <h2 id="quick-actions-heading">Acciones rápidas</h2>
             <div class="action-grid">
               <button type="button" class="action-card" id="action-open-add" data-goto="operations">
-                <strong>Ir a Agregar</strong>
-                <span class="muted">Cotizaciones, órdenes, precios y devoluciones RMA</span>
+                <strong>Crear un registro</strong>
+                <span class="muted">Abre los formularios disponibles para tu rol.</span>
               </button>
-            </div>
-          </section>
-
-          <section class="action-group" aria-labelledby="consult-actions-heading">
-            <div class="action-group-heading">
-              <h3 id="consult-actions-heading">Consultar y analizar</h3>
-              <span>Información y seguimiento</span>
-            </div>
-            <div class="action-grid">
               <button type="button" class="action-card" id="action-find">
-                <strong id="action-find-title">Buscar registros</strong>
-                <span class="muted" id="action-find-sub">Buscar entidades</span>
+                <strong id="action-find-title">Buscar clientes</strong>
+                <span class="muted">Encuentra registros por nombre, código o categoría.</span>
               </button>
               <button
                 type="button"
                 class="action-card"
                 id="action-open-analytics"
-                data-goto="summary"
+                data-goto="analysis"
               >
-                <strong id="action-open-analytics-title">Actualizar análisis</strong>
-                <span class="muted" id="action-open-analytics-sub">Ver métricas y gráficos en este panel</span>
+                <strong>Ver análisis de ventas</strong>
+                <span class="muted">Consulta la evolución y los productos más vendidos.</span>
               </button>
             </div>
           </section>
@@ -644,10 +629,10 @@
           aria-labelledby="sales-order-heading"
           hidden
         >
-          <h1 id="sales-order-heading">Órdenes de Venta (sales_orders)</h1>
+          <h1 id="sales-order-heading">Órdenes de venta</h1>
           <p class="muted">
-            Órdenes comerciales con sus estados, separadas de Cotizaciones (sales_quotes). Convertir
-            una cotización aprobada crea una orden vinculada.
+            Consulta el estado de las órdenes registradas. Las cotizaciones aprobadas se convierten
+            en órdenes desde la vista de Cotizaciones.
           </p>
 
           <section class="card" aria-labelledby="orders-list-heading">
@@ -781,13 +766,12 @@
         <section class="view-panel" id="view-quotes" aria-labelledby="quotes-heading" hidden>
           <div class="view-toolbar">
             <div>
-              <h1 id="quotes-heading">Cotizaciones (sales_quotes)</h1>
+              <h1 id="quotes-heading">Cotizaciones</h1>
               <p class="muted">
-                Registros de pre-venta independientes de las Órdenes de Venta (PEDIDO_VENTA).
-                Al aprobar una cotización se crea una orden vinculada.
+                Consulta tus cotizaciones y conviértelas en órdenes de venta cuando estén aprobadas.
               </p>
             </div>
-            <button type="button" class="primary" data-goto="operations" data-permission="crear_cotizacion">
+            <button type="button" class="primary" data-add-target="quote" data-permission="crear_cotizacion">
               Nueva cotización
             </button>
           </div>
@@ -822,7 +806,7 @@
           aria-labelledby="quote-form-heading"
           data-module-permission="crear_cotizacion"
         >
-          <h2 id="quote-form-heading">Crear Cotización (sales_quotes)</h2>
+          <h2 id="quote-form-heading">Crear cotización</h2>
           <p class="muted">
             Una cotización tiene su propio número y estados; al aprobarla se convierte en una
             Orden de Venta vinculada.
@@ -1062,7 +1046,7 @@
         </section>
 
         <section class="view-panel" id="view-summary" aria-labelledby="summary-heading" data-read-permission="ver_resumen" hidden>
-          <h1 id="summary-heading">Resumen general de ventas</h1>
+          <h2 id="summary-heading" tabindex="-1">Resumen general de ventas</h2>
           <div id="summary-restricted" class="empty" hidden>
             El resumen general está restringido a los roles autorizados.
           </div>
@@ -1107,7 +1091,7 @@
             <section class="analytics-panel" aria-labelledby="analytics-heading">
               <div class="analytics-heading">
                 <div>
-                  <h2 id="analytics-heading">Panel de análisis</h2>
+                  <h2 id="analytics-heading" tabindex="-1">Panel de análisis</h2>
                   <p class="muted">
                     Evolución de ventas y productos más vendidos a partir de pedidos y cotizaciones.
                   </p>
@@ -1200,7 +1184,7 @@
           <nav class="related-nav" aria-label="Siguientes pasos">
             <span>Explorar también</span>
             <button type="button" class="secondary" data-goto="sales-order">
-              Órdenes de Venta (sales_orders) →
+              Órdenes de venta →
             </button>
             <button type="button" class="secondary" data-goto="history">
               Historial de clientes →
@@ -1282,7 +1266,7 @@
           <nav class="related-nav" aria-label="Siguientes pasos">
             <span>Explorar también</span>
             <button type="button" class="secondary" data-goto="sales-order">
-              Órdenes de Venta (sales_orders) →
+              Órdenes de venta →
             </button>
             <button type="button" class="secondary" data-goto="summary">Resumen general →</button>
           </nav>
